@@ -8,6 +8,33 @@ function shopify_init() {
 //  shopify_sync_products();
 }
 
+/**
+ * Implements hook_views_api().
+ */
+function shopify_views_api() {
+  return array(
+    'api' => '3.0',
+    'path' => drupal_get_path('module', 'shopify') . '/views'
+  );
+}
+
+/**
+ * Implements hook_views_default_views().
+ *
+ * Imports views from the /views directory.
+ */
+function shopify_views_default_views() {
+  $path = __DIR__ . '/views/*.view.inc';
+  $views = array();
+  foreach (glob($path) as $views_filename) {
+    $view = FALSE;
+    require_once($views_filename);
+    $views[$view->name] = $view; // $view exists in the included file.
+    unset($view);
+  }
+  return $views;
+}
+
 function shopify_sync_products(array $options = array()) {
   $products = shopify_api_get_products();
   foreach ($products as $product) {
