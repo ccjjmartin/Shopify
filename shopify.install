@@ -1,0 +1,156 @@
+<?php
+
+function shopify_schema() {
+  $schema['shopify_products'] = array(
+    'description' => 'Base table for storing Shopify products.',
+    'fields' => array(
+      'id' => array(
+        'description' => 'Shopify product ID',
+        'type' => 'serial',
+        'not null' => TRUE,
+      ),
+      'product_id' => array(
+        'type' => 'int',
+        'description' => 'Product ID',
+      ),
+      'variant_id' => array(
+        'type' => 'int',
+        'description' => 'Variant ID',
+      ),
+      'title' => array(
+        'description' => 'Product title',
+        'type' => 'varchar',
+        'length' => 128,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'body_html' => array(
+        'description' => 'Product body HTML',
+        'type' => 'text',
+      ),
+      'handle' => array(
+        'description' => 'Product handle',
+        'type' => 'varchar',
+        'length' => 32,
+      ),
+      'product_type' => array(
+        'description' => 'Product type',
+        'type' => 'varchar',
+        'length' => 32,
+      ),
+      'published_scope' => array(
+        'description' => 'Published scope',
+        'type' => 'varchar',
+        'length' => 32,
+      ),
+      'vendor' => array(
+        'description' => 'Vendor',
+        'type' => 'varchar',
+        'length' => 32,
+      ),
+      'tags' => array(
+        'description' => 'Tags',
+        'type' => 'varchar',
+        'length' => 256,
+      ),
+      'options' => array(
+        'description' => 'Options',
+        'type' => 'varchar',
+        'length' => 256,
+      ),
+      'barcode' => array(
+        'description' => 'Barcode',
+        'type' => 'varchar',
+        'length' => 32,
+      ),
+      'compare_at_price' => array(
+        'description' => 'Product comparison price',
+        'type' => 'float',
+        'scale' => 2,
+      ),
+      'fulfillment_service' => array(
+        'description' => 'Fulfillment Service',
+        'type' => 'varchar',
+        'length' => 16,
+      ),
+      'grams' => array(
+        'description' => 'Grams',
+        'type' => 'int',
+      ),
+      'inventory_management' => array(
+        'description' => 'Inventory management',
+        'type' => 'varchar',
+        'length' => 32,
+      ),
+      'inventory_policy' => array(
+        'description' => 'Inventory policy',
+        'type' => 'varchar',
+        'length' => 32,
+      ),
+      'inventory_quantity' => array(
+        'description' => 'Inventory quantity',
+        'type' => 'int',
+      ),
+      'old_inventory_quantity' => array(
+        'description' => 'Old inventory quantity',
+        'type' => 'int',
+      ),
+      'option_values' => array(
+        'description' => 'Option values',
+        'type' => 'text',
+      ),
+      'price' => array(
+        'description' => 'Product price',
+        'type' => 'float',
+        'scale' => 2,
+      ),
+      'requires_shipping' => array(
+        'description' => 'Requires shipping',
+        'type' => 'int',
+        'size' => 'tiny',
+      ),
+      'sku' => array(
+        'description' => 'SKU',
+        'type' => 'varchar',
+        'length' => 64,
+      ),
+      'taxable' => array(
+        'description' => 'Requires shipping',
+        'type' => 'int',
+        'size' => 'tiny',
+      ),
+      'weight' => array(
+        'description' => 'Product weight',
+        'type' => 'float',
+        'scale' => 2,
+      ),
+      'weight_unit' => array(
+        'description' => 'Weight unit',
+        'type' => 'varchar',
+        'length' => 8,
+      ),
+      'created_at' => array(
+        'description' => 'Created at',
+        'type' => 'varchar',
+        'length' => 32,
+      ),
+      'published_at' => array(
+        'description' => 'Published at',
+        'type' => 'varchar',
+        'length' => 32,
+      ),
+      'updated_at' => array(
+        'description' => 'Updated at',
+        'type' => 'varchar',
+        'length' => 32,
+      ),
+    ),
+    'unique keys' => array('id', 'variant_id'),
+    'primary key' => array('id'),
+//    'indexes' => array(
+//      'product_id' => array('id'),
+//      'variant_id' => array('variant_id'),
+//    ),
+  );
+  return $schema;
+}

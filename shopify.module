@@ -1,0 +1,65 @@
+<?php
+
+/**
+ *  Implements hook_init().
+ */
+function shopify_init() {
+//  $products = shopify_api_get_products();
+//  shopify_sync_products();
+}
+
+function shopify_sync_products(array $options = array()) {
+  $products = shopify_api_get_products();
+  foreach ($products as $product) {
+    $shopify_product = new ShopifyProduct($product);
+    foreach ($product['variants'] as $v) {
+      $variant = new ShopifyProduct($v);
+      $variant->save();
+    }
+    $shopify_product->save();
+  }
+}
+
+/**
+ *  Implements hook_entity_info().
+ */
+function shopify_entity_info() {
+  return array(
+    'shopify_product' => array(
+      'label' => t('Shopify Product'),
+      'label callback' => 'shopify_product_label',
+      'uri callback' => 'shopify_product_uri',
+      'entity class' => 'ShopifyProduct',
+      'controller class' => 'ShopifyProductController',
+      'base table' => 'shopify_products',
+      'entity keys' => array(
+        'id' => 'id',
+        'label' => 'title'
+      ),
+      'load hook' => 'shopify_product_load',
+//      'static cache' => TRUE,
+      'module' => 'shopify',
+      'access callback' => 'shopify_product_access',
+    ),
+  );
+}
+
+function shopify_api_get_products() {
+  $client = shopify_api_client();
+  return $client->call('GET', '/admin/products.json');
+}
+
+function shopify_api_get_product($product_id) {
+  $client = shopify_api_client();
+  return $client->call('GET', "/admin/products/{$product_id}.json");
+}
+
+function shopify_api_get_product_variants($product_id) {
+  $client = shopify_api_client();
+  return $client->call('GET', "/admin/products/{$product_id}/variants.json");
+}
+
+function shopify_api_get_variant($variant_id) {
+  $client = shopify_api_client();
+  return $client->call('GET', "/admin/variants/{$variant_id}.json");
+}
