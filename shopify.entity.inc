@@ -209,6 +209,10 @@ class ShopifyProduct extends Entity {
     }
     unset($values['id']);
 
+    if (empty($values['variant_id'])) {
+      $values['variant_id'] = 0;
+    }
+
     // Format variant option values.
     if (!$values['variants']) {
       // This is a variant product.

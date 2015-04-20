@@ -16,6 +16,7 @@ function shopify_schema() {
       'variant_id' => array(
         'type' => 'int',
         'description' => 'Variant ID',
+        'default' => 0,
       ),
       'title' => array(
         'description' => 'Product title',
