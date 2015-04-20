@@ -145,7 +145,7 @@ function shopify_schema() {
         'length' => 32,
       ),
     ),
-    'unique keys' => array('id', 'variant_id'),
+//    'unique keys' => array('id', 'variant_id'),
     'primary key' => array('id'),
 //    'indexes' => array(
 //      'product_id' => array('id'),
