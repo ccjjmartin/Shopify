@@ -158,3 +158,28 @@ function shopify_schema() {
   );
   return $schema;
 }
+
+function shopify_install() {
+  field_create_field(array(
+    'field_name'  => 'shopify_product_image',
+    'type'        => 'image',
+    'cardinality' => -1,
+    'settings'    => array(
+    ),
+  ));
+
+  $instance = array(
+    'field_name' => 'shopify_product_image',
+    'entity_type' => 'shopify_product',
+    'bundle' => 'shopify_product',
+    'label' => 'Shopify Product Image',
+    'required' => FALSE,
+    'default_value_function' => '',
+    'widget' => array(
+      'type' => 'image_image',
+      'settings' => array('image_style' => 'thumbnail', 'image_link' => ''),
+    ),
+  );
+
+  field_create_instance($instance);
+}
