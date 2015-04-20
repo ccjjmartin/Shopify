@@ -3,6 +3,7 @@ description = Enable displaying of your Shopify store inside your Drupal site.
 core = 7.x
 
 dependencies[] = shopify_api
+dependencies[] = image
 
 package = Shopify
 
