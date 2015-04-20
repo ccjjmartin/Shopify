@@ -161,7 +161,7 @@ function shopify_schema() {
 
 function shopify_install() {
   field_create_field(array(
-    'field_name'  => 'shopify_product_image',
+    'field_name'  => 'shopify_product_images',
     'type'        => 'image',
     'cardinality' => -1,
     'settings'    => array(
@@ -169,7 +169,7 @@ function shopify_install() {
   ));
 
   $instance = array(
-    'field_name' => 'shopify_product_image',
+    'field_name' => 'shopify_product_images',
     'entity_type' => 'shopify_product',
     'bundle' => 'shopify_product',
     'label' => 'Shopify Product Image',
@@ -182,4 +182,9 @@ function shopify_install() {
   );
 
   field_create_instance($instance);
+}
+
+function shopify_uninstall() {
+  $instance = field_info_instance('shopify_product', 'shopify_product_images', 'shopify_product');
+  field_delete_instance($instance, $field_cleanup = TRUE);
 }
