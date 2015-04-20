@@ -1,14 +1,6 @@
 <?php
 
 /**
- *  Implements hook_init().
- */
-function shopify_init() {
-//  $products = shopify_api_get_products();
-//  shopify_sync_products();
-}
-
-/**
  * Implements hook_views_api().
  */
 function shopify_views_api() {
@@ -36,16 +28,59 @@ function shopify_views_default_views() {
 }
 
 function shopify_sync_products(array $options = array()) {
+  $existing = db_query('SELECT s.id FROM {shopify_products} s');
+  $ids = $existing->fetchCol();
+  shopify_product_delete_multiple($ids);
   $products = shopify_api_get_products();
   foreach ($products as $product) {
     $shopify_product = new ShopifyProduct($product);
+    shopify_product_set_images($shopify_product, $product ,'product');
     foreach ($product['variants'] as $v) {
       $variant = new ShopifyProduct($v);
       $variant->save();
-    }
+   }
     $shopify_product->save();
   }
 }
+
+function shopify_product_set_images(&$product_entity, $product, $type) {
+  $directory = file_build_uri('shopify_images');
+  if (!file_prepare_directory($directory, FILE_CREATE_DIRECTORY)) {
+    // If our directory doesn't exist and can't be created, use the default.
+    $directory = NULL;
+  }
+
+  // Handle the instance of the main product image.
+  // @todo multiple images on a main product,
+  // @todo multiple images on a variant
+  if ($type == 'product' && isset($product['image']['src'])) {
+    $file = system_retrieve_file($product['image']['src'], $directory, TRUE, FILE_EXISTS_REPLACE);
+    $wrapper = entity_metadata_wrapper('shopify_product', $product_entity);
+    $wrapper->shopify_product_images->set(array((array)$file));
+    $wrapper->save(true);
+  }
+}
+
+/**
+ * Implements hook_menu().
+ */
+function shopify_menu() {
+  $items['admin/structure/shopify_products'] = array(
+    'title' => 'Shopify Products',
+    'description' => 'Manage Shopify Products',
+    'page callback' => 'shopify_products_fields_admin',
+    'access arguments' => array('administer shopify products'),
+  );
+  return $items;
+}
+
+/**
+ * Page callback for the bundle admin.
+ */
+function shopify_products_fields_admin() {
+  return t('Administer Shopify Product fields and display');
+}
+
 
 /**
  *  Implements hook_entity_info().
@@ -63,12 +98,107 @@ function shopify_entity_info() {
         'id' => 'id',
         'label' => 'title'
       ),
+      'fieldable' => TRUE,
+      'admin ui' => array(
+        'path' => 'admin/content/products',
+        'controller class' => 'EntityDefaultUIController',
+        'menu wildcard' => '%shopify_product',
+      ),
+      'bundles' => array(
+        'shopify_product' => array(
+          'label' => 'Shopify Products',
+          'admin' => array(
+            'path' => 'admin/structure/shopify_products',
+          ),
+        ),
+      ),
+
       'load hook' => 'shopify_product_load',
 //      'static cache' => TRUE,
       'module' => 'shopify',
       'access callback' => 'shopify_product_access',
     ),
   );
+}
+
+// @todo obviously fix this
+function shopify_product_access() {
+  return TRUE;
+}
+
+/**
+ * Fetch a product object.
+ *
+ * @param $id
+ *   Integer specifying the product id.
+ * @param $reset
+ *   A boolean indicating that the internal cache should be reset.
+ * @return ShopifyProduct
+ *   A fully-loaded product or FALSE if it cannot be loaded.
+ *
+ * @see shopify_product_load_multiple()
+ */
+function shopify_product_load($id, $reset = FALSE) {
+  $product = shopify_product_load_multiple(array($id), array(), $reset);
+  return $product ? reset($product) : FALSE;
+}
+
+/**
+ * Load multiple product entities based on certain conditions.
+ *
+ * @param $ids
+ *   An array of entity IDs.
+ * @param $conditions
+ *   An array of conditions to match against the {entity} table.
+ * @param $reset
+ *   A boolean indicating that the internal cache should be reset.
+ * @return ShopifyProduct
+ *   An array of product entity objects, indexed by id.
+ */
+function shopify_product_load_multiple($ids = array(), $conditions = array(), $reset = FALSE) {
+  return entity_load('shopify_product', $ids, $conditions, $reset);
+}
+
+/**
+ * Delete multiple product entities.
+ *
+ * @param $ids
+ *   An array of product entity IDs.
+ */
+function shopify_product_delete_multiple(array $ids) {
+  entity_get_controller('shopify_product')->delete($ids);
+}
+
+/**
+ * Implements hook_entity_form().
+ *
+ * Creates the edit/update form for the entity
+ */
+function shopify_product_form($form, &$form_state, ShopifyProduct $product = NULL, $action = 'new') {
+  global $user;
+
+  $form['#id'] = 'shopify-product-create-form';
+  $form_state['shopify_product'] = $product ?: new ShopifyProduct();
+
+  $form_state['#action'] = $action;
+
+  $form['title'] = array(
+    '#title' => t('Product or Variant Title'),
+    '#type' => 'textfield',
+    '#default_value' => $product->title,
+    '#required' => TRUE,
+  );
+
+  $form['actions'] = array('#type' => 'actions');
+  $form['actions']['submit'] = array(
+    '#type' => 'submit',
+    '#value' => t('Save product'),
+    '#weight' => 40,
+  );
+
+  field_attach_form('shopify_product', $product, $form, $form_state);
+
+  return $form;
 }
 
 function shopify_api_get_products() {
