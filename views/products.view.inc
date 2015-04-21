@@ -45,6 +45,14 @@ $handler->display->display_options['fields']['option_values']['field'] = 'option
 $handler->display->display_options['sorts']['title']['id'] = 'title';
 $handler->display->display_options['sorts']['title']['table'] = 'shopify_products';
 $handler->display->display_options['sorts']['title']['field'] = 'title';
+/* Contextual filter: Shopify Product: Shopify Product Tags (shopify_product_tags) */
+$handler->display->display_options['arguments']['shopify_product_tags_tid']['id'] = 'shopify_product_tags_tid';
+$handler->display->display_options['arguments']['shopify_product_tags_tid']['table'] = 'field_data_shopify_product_tags';
+$handler->display->display_options['arguments']['shopify_product_tags_tid']['field'] = 'shopify_product_tags_tid';
+$handler->display->display_options['arguments']['shopify_product_tags_tid']['default_argument_type'] = 'fixed';
+$handler->display->display_options['arguments']['shopify_product_tags_tid']['summary']['number_of_records'] = '0';
+$handler->display->display_options['arguments']['shopify_product_tags_tid']['summary']['format'] = 'default_summary';
+$handler->display->display_options['arguments']['shopify_product_tags_tid']['summary_options']['items_per_page'] = '25';
 /* Filter criterion: Shopify Product: Variant_id */
 $handler->display->display_options['filters']['variant_id']['id'] = 'variant_id';
 $handler->display->display_options['filters']['variant_id']['table'] = 'shopify_products';
@@ -54,3 +62,22 @@ $handler->display->display_options['filters']['variant_id']['value']['value'] = 
 /* Display: Page */
 $handler = $view->new_display('page', 'Page', 'page');
 $handler->display->display_options['path'] = 'products';
+
+/* Display: Page */
+$handler = $view->new_display('page', 'Page', 'page_1');
+$handler->display->display_options['defaults']['relationships'] = FALSE;
+/* Relationship: Shopify Product: Shopify Product Tags (shopify_product_tags) */
+$handler->display->display_options['relationships']['shopify_product_tags_tid']['id'] = 'shopify_product_tags_tid';
+$handler->display->display_options['relationships']['shopify_product_tags_tid']['table'] = 'field_data_shopify_product_tags';
+$handler->display->display_options['relationships']['shopify_product_tags_tid']['field'] = 'shopify_product_tags_tid';
+$handler->display->display_options['defaults']['arguments'] = FALSE;
+/* Contextual filter: Shopify Product: Shopify Product Tags (shopify_product_tags) */
+$handler->display->display_options['arguments']['shopify_product_tags_tid']['id'] = 'shopify_product_tags_tid';
+$handler->display->display_options['arguments']['shopify_product_tags_tid']['table'] = 'field_data_shopify_product_tags';
+$handler->display->display_options['arguments']['shopify_product_tags_tid']['field'] = 'shopify_product_tags_tid';
+$handler->display->display_options['arguments']['shopify_product_tags_tid']['default_action'] = 'not found';
+$handler->display->display_options['arguments']['shopify_product_tags_tid']['default_argument_type'] = 'fixed';
+$handler->display->display_options['arguments']['shopify_product_tags_tid']['summary']['number_of_records'] = '0';
+$handler->display->display_options['arguments']['shopify_product_tags_tid']['summary']['format'] = 'default_summary';
+$handler->display->display_options['arguments']['shopify_product_tags_tid']['summary_options']['items_per_page'] = '25';
+$handler->display->display_options['path'] = 'products/tags/%';
