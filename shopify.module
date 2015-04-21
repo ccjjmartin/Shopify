@@ -98,6 +98,13 @@ function shopify_menu() {
     'page callback' => 'shopify_products_fields_admin',
     'access arguments' => array('administer shopify products'),
   );
+
+  $items['products/view/%shopify_product'] = array(
+    'page callback' => 'entity_ui_entity_page_view',
+    'page arguments' => array(2),
+    'load arguments' => array('shopify_product'),
+    'access arguments' => array(TRUE),
+  );
   return $items;
 }
 
@@ -126,6 +133,8 @@ function shopify_entity_info() {
         'label' => 'title'
       ),
       'fieldable' => TRUE,
+      'metadata controller class' => 'ShopifyProductMetadataController',
+      'extra fields controller class' => 'EntityDefaultExtraFieldsController',
       'admin ui' => array(
         'path' => 'admin/content/products',
         'controller class' => 'EntityDefaultUIController',
@@ -151,6 +160,12 @@ function shopify_entity_info() {
 // @todo obviously fix this
 function shopify_product_access() {
   return TRUE;
+}
+
+function shopify_product_uri($entity) {
+  return array(
+    'path' => 'products/view/' . $entity->id,
+  );
 }
 
 /**
@@ -265,4 +280,85 @@ function shopify_api_get_product_variants($product_id) {
 function shopify_api_get_variant($variant_id) {
   $client = shopify_api_client();
   return $client->call('GET', "/admin/variants/{$variant_id}.json");
+}
+
+
+function shopify_theme($existing, $type, $theme, $path) {
+  return array (
+    'entity_property__shopify_product__body_html' => array (
+      'base hook' => 'entity_property',
+    ),
+    'entity_property__shopify_product__price' => array (
+      'base hook' => 'entity_property',
+    ),
+  );
+}
+
+function theme_entity_property__shopify_product__body_html(&$variables) {
+  // Get the raw HTML and run it through check_markup, rather than check_plain
+  // which is used in entity_property_default_render_value_by_type
+  $variables['content'] = check_markup($variables['elements']['#entity_wrapped']->{$variables['property_name']}->value(), 'full_html');
+  $output = '';
+
+  // Render the label, if it's not hidden.
+  if (!$variables['label_hidden']) {
+    $output .= '<div' . $variables['title_attributes'] . '>' . $variables['label'] . ':&nbsp;</div>';
+  }
+
+  // Render the content.
+  $content_suffix = '';
+  if (!$variables['label_hidden'] || $variables['content_attributes']) {
+    $output .= '<div' . $variables['content_attributes'] . '>';
+    $content_suffix = '</div>';
+  }
+  $output .= $variables['content'] . $content_suffix;
+
+  // Render the top-level DIV.
+  return '<div' . $variables['attributes'] . '>' . $output . '</div>';
+}
+
+function theme_entity_property__shopify_product__price(&$variables) {
+  // @todo Make price symbol configurable
+  if ($variables['content']) {
+    $variables['content'] = '$' . $variables['content'];
+  }
+  $output = '';
+
+  // Render the label, if it's not hidden.
+  if (!$variables['label_hidden']) {
+    $output .= '<div' . $variables['title_attributes'] . '>' . $variables['label'] . ':&nbsp;</div>';
+  }
+
+  // Render the content.
+  $content_suffix = '';
+  if (!$variables['label_hidden'] || $variables['content_attributes']) {
+    $output .= '<div' . $variables['content_attributes'] . '>';
+    $content_suffix = '</div>';
+  }
+  $output .= $variables['content'] . $content_suffix;
+
+  // Render the top-level DIV.
+  return '<div' . $variables['attributes'] . '>' . $output . '</div>';
+}
+
+
+function shopify_image_default_styles() {
+  $styles = array();
+
+  $styles['shopify_product_thumbnail'] = array(
+    'label' => 'Shopify Product Thumbnail',
+    'effects' => array(
+      array(
+        'name' => 'image_scale',
+        'data' => array(
+          'width' => 150,
+          'height' => 0,
+          'upscale' => 0,
+        ),
+        'weight' => 0,
+      ),
+    ),
+  );
+
+  return $styles;
 }
