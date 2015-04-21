@@ -6,6 +6,7 @@ dependencies[] = entity
 dependencies[] = shopify_api
 dependencies[] = image
 dependencies[] = views
+dependencies[] = taxonomy
 
 package = Shopify
 

@@ -28,6 +28,7 @@ function shopify_views_default_views() {
 }
 
 function shopify_sync_products(array $options = array()) {
+  //@todo add some conditions instead of completely resetting every time
   $existing = db_query('SELECT s.id FROM {shopify_products} s');
   $ids = $existing->fetchCol();
   shopify_product_delete_multiple($ids);
@@ -35,6 +36,7 @@ function shopify_sync_products(array $options = array()) {
   foreach ($products as $product) {
     $shopify_product = new ShopifyProduct($product);
     shopify_product_set_images($shopify_product, $product ,'product');
+    shopify_product_set_terms($shopify_product, $product);
     foreach ($product['variants'] as $v) {
       $variant = new ShopifyProduct($v);
       $variant->save();
@@ -57,8 +59,33 @@ function shopify_product_set_images(&$product_entity, $product, $type) {
     $file = system_retrieve_file($product['image']['src'], $directory, TRUE, FILE_EXISTS_REPLACE);
     $wrapper = entity_metadata_wrapper('shopify_product', $product_entity);
     $wrapper->shopify_product_images->set(array((array)$file));
-    $wrapper->save(true);
+    $wrapper->save(TRUE);
   }
+}
+
+function shopify_product_set_terms(&$product_entity, $product) {
+  foreach (explode(',', $product['tags']) as $tag) {
+    $tag = trim($tag);
+    if ($tag) {
+      $term = taxonomy_get_term_by_name($tag, 'shopify_tags');
+      if (!empty($term)) {
+        $tid = reset($term)->tid;
+      }
+      else {
+        $vocab = taxonomy_vocabulary_machine_name_load('shopify_tags');
+        $term = new stdClass();
+        $term->name = $tag;
+        $term->vid = $vocab->vid;
+        taxonomy_term_save($term);
+        $tid = $term->tid;
+      }
+      $terms[] = $tid;
+    }
+  }
+
+  $wrapper = entity_metadata_wrapper('shopify_product', $product_entity);
+  $wrapper->shopify_product_tags->set($terms);
+  $wrapper->save(TRUE);
 }
 
 /**
