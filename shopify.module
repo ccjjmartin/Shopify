@@ -228,6 +228,25 @@ function shopify_product_form($form, &$form_state, ShopifyProduct $product = NUL
   return $form;
 }
 
+/**
+ * Implementation of hook_entity_info_alter().
+ *
+ * Redirect any links to shopify_tag taxonomy terms to a View so the tags
+ * actually do something.
+ */
+function shopify_entity_info_alter(&$entity_info) {
+  $entity_info['taxonomy_term']['bundles']['shopify_tags']['uri callback'] = 'shopify_taxonomy_term_uri';
+}
+
+/**
+ * Entity uri callback for shopify_tag taxonomy terms.
+ */
+function shopify_taxonomy_term_uri($term) {
+  return array(
+    'path' => 'products/tags/' . $term->tid,
+  );
+}
+
 function shopify_api_get_products() {
   $client = shopify_api_client();
   return $client->call('GET', '/admin/products.json');
