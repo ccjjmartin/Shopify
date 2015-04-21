@@ -212,7 +212,6 @@ class ShopifyProduct extends Entity {
     if (empty($values['variant_id'])) {
       $values['variant_id'] = 0;
     }
-
     // Format variant option values.
     if (!$values['variants']) {
       // This is a variant product.
@@ -248,5 +247,64 @@ class ShopifyProduct extends Entity {
 }
 
 class ShopifyProductController extends EntityAPIController {
+  /**
+   * Renders a single entity property.
+   */
+  protected function renderEntityProperty($wrapper, $name, $property, $view_mode, $langcode, &$content) {
+    $info = $property->info();
 
+    $content[$name] = array(
+      // Overrridden to hide labels by default
+      '#label_hidden' => TRUE,
+      '#label' => $info['label'],
+      '#entity_wrapped' => $wrapper,
+      '#theme' => 'entity_property',
+      '#property_name' => $name,
+      '#access' => $property->access('view'),
+      '#entity_type' => $this->entityType,
+    );
+    $content['#attached']['css']['entity.theme'] = drupal_get_path('module', 'entity') . '/theme/entity.theme.css';
+  }
+}
+
+class ShopifyProductMetadataController extends EntityDefaultMetadataController {
+  public function entityPropertyInfo() {
+    // uncomment to add all properties as extra fields
+    //$info = parent::entityPropertyInfo();
+    $info[$this->type]['properties']['product_id'] = array(
+      'label' => t('Shopify Product ID'),
+      'type' => 'integer',
+      'description' => t('Shopify Product ID'),
+      'schema field' => 'id',
+      'setter callback' => 'entity_property_verbatim_set',
+      'getter callback' => 'entity_property_verbatim_get',
+    );
+    $info[$this->type]['properties']['variant_id'] = array(
+      'label' => t('Shopify Variant ID'),
+      'type' => 'integer',
+      'description' => t('Shopify Variant ID'),
+      'schema field' => 'variant_id',
+      'setter callback' => 'entity_property_verbatim_set',
+      'getter callback' => 'entity_property_verbatim_get',
+    );
+    $info[$this->type]['properties']['body_html'] = array(
+      'label' => t('Body'),
+      'type' => 'text',
+      'description' => t('Body HTML'),
+      'schema field' => 'body_html',
+      'setter callback' => 'entity_property_verbatim_set',
+      'getter callback' => 'entity_property_verbatim_get',
+    );
+    // @todo price is on variants not on products, update with variant info
+    $info[$this->type]['properties']['price'] = array(
+      'label' => t('Price'),
+      'type' => 'decimal',
+      'description' => t('Product Price'),
+      'schema field' => 'price',
+      'setter callback' => 'entity_property_verbatim_set',
+      'getter callback' => 'entity_property_verbatim_get',
+    );
+
+    return $info;
+  }
 }
