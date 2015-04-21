@@ -213,10 +213,8 @@ function shopify_install() {
 }
 
 function shopify_uninstall() {
-  $instance = field_info_instance('shopify_product', 'shopify_product_images', 'shopify_product');
-  field_delete_instance($instance);
-  $instance = field_info_instance('shopify_product', 'shopify_product_tags', 'shopify_product');
-  field_delete_instance($instance);
+  field_delete_field('shopify_product_images');
+  field_delete_field('shopify_product_tags');
   $vocabulary = taxonomy_vocabulary_machine_name_load('shopify_tags');
   taxonomy_vocabulary_delete($vocabulary->vid);
 }
