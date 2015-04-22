@@ -210,6 +210,71 @@ function shopify_install() {
   $vocabulary->name = 'Shopify Tags';
   $vocabulary->machine_name = 'shopify_tags';
   taxonomy_vocabulary_save($vocabulary);
+
+  $product_settings = array (
+    'view_modes' =>
+      array (
+      ),
+    'extra_fields' =>
+      array (
+        'form' =>
+          array (
+          ),
+        'display' =>
+          array (
+            'product_id' =>
+              array (
+                'default' =>
+                  array (
+                    'weight' => '5',
+                    'visible' => false,
+                  ),
+              ),
+            'variant_id' =>
+              array (
+                'default' =>
+                  array (
+                    'weight' => '4',
+                    'visible' => false,
+                  ),
+              ),
+            'body_html' =>
+              array (
+                'default' =>
+                  array (
+                    'weight' => '1',
+                    'visible' => true,
+                  ),
+              ),
+            'price' =>
+              array (
+                'default' =>
+                  array (
+                    'weight' => '3',
+                    'visible' => true,
+                  ),
+              ),
+          ),
+      ),
+  );
+  variable_set('field_bundle_settings_shopify_product__shopify_product', $product_settings);
+
+  $instance = field_info_instance('shopify_product', 'shopify_product_images', 'shopify_product');
+  $instance['display'] = array (
+    'default' =>
+      array (
+        'label' => 'hidden',
+        'type' => 'image',
+        'weight' => '0',
+        'settings' =>
+          array (
+            'image_style' => 'shopify_product_thumbnail',
+            'image_link' => '',
+          ),
+        'module' => 'image',
+      ),
+  );
+  field_update_instance($instance);
 }
 
 function shopify_uninstall() {
