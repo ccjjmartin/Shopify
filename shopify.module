@@ -35,7 +35,7 @@ function shopify_sync_products(array $options = array()) {
   $products = shopify_api_get_products();
   foreach ($products as $product) {
     $shopify_product = new ShopifyProduct($product);
-    shopify_product_set_images($shopify_product, $product ,'product');
+    shopify_product_set_images($shopify_product, $product, 'product');
     shopify_product_set_terms($shopify_product, $product);
     foreach ($product['variants'] as $v) {
       $variant = new ShopifyProduct($v);
@@ -58,7 +58,7 @@ function shopify_product_set_images(&$product_entity, $product, $type) {
   if ($type == 'product' && isset($product['image']['src'])) {
     $file = system_retrieve_file($product['image']['src'], $directory, TRUE, FILE_EXISTS_REPLACE);
     $wrapper = entity_metadata_wrapper('shopify_product', $product_entity);
-    $wrapper->shopify_product_images->set(array((array)$file));
+    $wrapper->shopify_product_images->set(array((array) $file));
     $wrapper->save(TRUE);
   }
 }
@@ -151,6 +151,7 @@ function shopify_entity_info() {
       'entity class' => 'ShopifyProduct',
       'controller class' => 'ShopifyProductController',
       'base table' => 'shopify_products',
+      'metatags' => TRUE,
       'entity keys' => array(
         'id' => 'id',
         'label' => 'title'
@@ -166,18 +167,154 @@ function shopify_entity_info() {
       'bundles' => array(
         'shopify_product' => array(
           'label' => 'Shopify Products',
+          'metatags' => TRUE,
           'admin' => array(
             'path' => 'admin/structure/shopify_products',
           ),
         ),
       ),
-
+      'view modes' => array(
+        'add_to_cart' => array(
+          'label' => t('Add to cart'),
+          'custom settings' => FALSE,
+        ),
+      ),
       'load hook' => 'shopify_product_load',
 //      'static cache' => TRUE,
       'module' => 'shopify',
       'access callback' => 'shopify_product_access',
     ),
   );
+}
+
+/**
+ * Add to cart form for Shopify products.
+ */
+function shopify_add_to_cart_form($form, $form_state, ShopifyProduct $product = NULL) {
+  $form_id = 'shopify-add-to-cart-form-' . $product->handle;
+  $form['#id'] = $form_id;
+  $form['#action'] = 'https://' . variable_get('shopify_api_domain') . '/cart/add';
+
+  if ($product) {
+    $form['#product'] = $product;
+  }
+  elseif ($form['#product']) {
+    $product = $form['#product'];
+  }
+
+  if ((!isset($form_state['values']) || empty($form_state['values']['options'])) && $product->variants) {
+    // Set default variant to the first one we have.
+    $default_variant = reset($product->variants);
+  }
+  elseif ($product->variants) {
+    // Set variant based on options passed.
+    $default_variant = shopify_add_to_cart_get_variant_from_options($product, $form_state['values']['options']);
+  }
+  else {
+    $default_variant = $product;
+  }
+
+  // Required POST fields for add to cart form.
+  $form['id'] = array(
+    '#type' => 'hidden',
+    '#value' => $default_variant->variant_id,
+  );
+  $form['return_to'] = array(
+    '#type' => 'hidden',
+    '#value' => 'back',
+  );
+
+  $form['product'] = array(
+    '#type' => 'fieldset',
+    '#description' => t($product->body_html),
+  );
+
+  if ($product->variants) {
+    $form['product']['#title'] .= $default_variant->label();
+  }
+
+  $form['product']['variant'] = array(
+    '#type' => 'fieldset',
+  );
+
+  $form['product']['variant']['body_html'] = array(
+    '#markup' => $default_variant->wrapper()->body_html->value(),
+  );
+
+//  $images = $product->wrapper()->shopify_product_images->value();
+//  if ($images[0]) {
+//    $form['product']['variant']['image'] = array(
+//      '#theme' => 'image',
+//      'path' => file_icon_path($images[0]['uri']),
+//    );
+//  }
+
+  if ($product->variants) {
+    $form['product']['variant']['options']['#tree'] = TRUE;
+    // Create option select lists based on product options.
+    foreach ($product->options as $key => $select_list) {
+      $form['product']['variant']['options'][] = array(
+        '#type' => 'select',
+        '#title' => t($select_list['name']),
+        '#options' => array(),
+        '#default_value' => $default_variant->option_values[$key],
+        '#ajax' => array(
+          'wrapper' => $form_id,
+          'method' => 'replace',
+          'callback' => 'shopify_add_to_cart_ajax_callback',
+        ),
+      );
+    }
+
+    // Create option lists based on variant options that are available.
+    foreach ((array) $product->variants as $v) {
+      foreach ((array) $v->option_values as $key => $option_value) {
+        $form['product']['variant']['options'][$key]['#options'][$option_value] = $option_value;
+      }
+    }
+  }
+
+  $form['product']['variant']['price'] = array(
+    '#markup' => $default_variant->wrapper()->price->value(),
+  );
+
+  $form['product']['variant']['actions'] = array(
+    '#type' => 'actions',
+    'submit' => array(
+      '#type' => 'submit',
+      '#value' => t('Add to Cart'),
+    ),
+  );
+
+  return $form;
+}
+
+/**
+ * Returns a variant that matches the passed option values.
+ *
+ * If no variant is found that matches all the options, null is returned.
+ *
+ * @param \ShopifyProduct $product
+ *   Shopify product with variants.
+ *
+ * @param array $options
+ *   Array of options to check against.
+ */
+function shopify_add_to_cart_get_variant_from_options(ShopifyProduct $product, array $options = array()) {
+  $selected_variant = NULL;
+  foreach ((array) $product->variants as $v) {
+    foreach ((array) $v->option_values as $key => $value) {
+      if ($value !== $options[$key]) {
+        continue 2;
+      }
+    }
+    $selected_variant = $v;
+  }
+  return $selected_variant;
+}
+
+function shopify_add_to_cart_ajax_callback($form, $form_state) {
+  return $form;
 }
 
 // @todo obviously fix this
@@ -318,11 +455,11 @@ function shopify_api_get_variant($variant_id) {
 
 
 function shopify_theme($existing, $type, $theme, $path) {
-  return array (
-    'entity_property__shopify_product__body_html' => array (
+  return array(
+    'entity_property__shopify_product__body_html' => array(
       'base hook' => 'entity_property',
     ),
-    'entity_property__shopify_product__price' => array (
+    'entity_property__shopify_product__price' => array(
       'base hook' => 'entity_property',
     ),
   );

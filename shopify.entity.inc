@@ -198,32 +198,78 @@ class ShopifyProduct extends Entity {
    */
   public $updated_at;
 
+  /**
+   * Product variants.
+   * @var ShopifyProduct[]
+   */
+  public $variants;
+
   public function __construct(array $values = array()) {
+    if (!$this->id) {
+      // Handle shopify product and variant IDs.
+      if (isset($values['id']) && !$values['product_id']) {
+        $values['product_id'] = $values['id'];
+      }
+      elseif (isset($values['id']) && $values['product_id']) {
+        $values['variant_id'] = $values['id'];
+      }
+      unset($values['id']);
 
-    // Handle shopify product and variant IDs.
-    if (isset($values['id']) && !$values['product_id']) {
-      $values['product_id'] = $values['id'];
-    }
-    elseif (isset($values['id']) && $values['product_id']) {
-      $values['variant_id'] = $values['id'];
-    }
-    unset($values['id']);
+      if (empty($values['variant_id'])) {
+        $values['variant_id'] = 0;
+      }
+      // Format variant option values.
+      if (!$values['variants']) {
+        // This is a variant product.
+        $values['option_values'] = $this->formatVariantOptions($values);
+      }
 
-    if (empty($values['variant_id'])) {
-      $values['variant_id'] = 0;
+      // Options should be stored as a serialized array.
+      if (isset($values['options'])) {
+        $values['options'] = serialize($values['options']);
+      }
     }
-    // Format variant option values.
-    if (!$values['variants']) {
-      // This is a variant product.
-      $values['option_values'] = $this->formatVariantOptions($values);
-    }
-
-    // Options should be stored as a serialized array.
-    if (isset($values['options'])) {
-      $values['options'] = serialize($values['options']);
-    }
-
     parent::__construct($values, 'shopify_product');
+  }
+
+  /**
+   * Set up the object instance on construction or unserializiation.
+   */
+  public function setUp() {
+    if (!$this->variant_id) {
+      // This is a regular product, need to load sub-variants.
+      $this->variants = $this->loadVariants();
+    }
+    if (!is_array($this->options)) {
+      $this->options = unserialize($this->options);
+    }
+    if (!is_array($this->option_values)) {
+      $this->option_values = unserialize($this->option_values);
+    }
+    parent::setUp();
+  }
+
+  /**
+   * Load variants for this product.
+   *
+   * @return ShopifyProduct[]
+   *   ShopifyProducts that are variants of this product.
+   */
+  private function loadVariants() {
+    $variants = array();
+    $query = new EntityFieldQuery();
+    $result = $query->entityCondition('entity_type', 'shopify_product')
+      ->propertyCondition('variant_id', 0, '!=')
+      ->propertyCondition('product_id', $this->product_id)
+      ->execute();
+    if (isset($result['shopify_product']) && $result['shopify_product']) {
+      $variants = entity_load('shopify_product', array_keys($result['shopify_product']));
+      if (count($variants) == 1 && strtolower(reset($variants)->title) == 'default title') {
+        // Don't need to consider this as a variant.
+        $variants = array();
+      }
+    }
+    return $variants;
   }
 
   /**
@@ -247,6 +293,16 @@ class ShopifyProduct extends Entity {
 }
 
 class ShopifyProductController extends EntityAPIController {
+
+  public function buildContent($entity, $view_mode = 'full', $langcode = NULL, $content = array()) {
+    switch ($view_mode) {
+      case 'add_to_cart':
+        $content['form'] = drupal_get_form('shopify_add_to_cart_form', $entity);
+        break;
+    }
+    return parent::buildContent($entity, $view_mode, $langcode, $content);
+  }
+
   /**
    * Renders a single entity property.
    */
