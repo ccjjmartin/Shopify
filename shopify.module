@@ -105,6 +105,29 @@ function shopify_menu() {
     'load arguments' => array('shopify_product'),
     'access arguments' => array(TRUE),
   );
+  $items['admin/shopify'] = array(
+    'page callback' => 'shopify_admin',
+    'title' => 'Shopify',
+    'access arguments' => array('administer shopify'),
+    'file' => 'shopify.pages.inc',
+  );
+
+  $items['admin/shopify/overview'] = array(
+    'title' => 'Shopify Overview',
+    'description' => 'Shopify Overview',
+    'type' => MENU_DEFAULT_LOCAL_TASK,
+  );
+
+  $items['admin/shopify/sync'] = array(
+    'title' => 'Sync Products',
+    'description' => 'Sync Shpoify Products',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('shopify_admin_product_sync_form'),
+    'access arguments' => array('administer shopify'),
+    'type' => MENU_LOCAL_TASK,
+    'file' => 'shopify.pages.inc',
+  );
+
   return $items;
 }
 
