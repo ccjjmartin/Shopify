@@ -40,7 +40,7 @@ function shopify_sync_products(array $options = array()) {
     foreach ($product['variants'] as $v) {
       $variant = new ShopifyProduct($v);
       $variant->save();
-   }
+    }
     $shopify_product->save();
   }
 }
@@ -285,9 +285,20 @@ function shopify_taxonomy_term_uri($term) {
   );
 }
 
-function shopify_api_get_products() {
+function shopify_api_get_shop_info() {
   $client = shopify_api_client();
-  return $client->call('GET', '/admin/products.json');
+  return $client->call('GET', '/admin/shop.json');
+}
+
+function shopify_api_get_products($options = array()) {
+  $client = shopify_api_client();
+  return $client->call('GET', '/admin/products.json', $options);
+}
+
+//https://docs.shopify.com/api/product#count
+function shopify_api_get_product_count($options = array()) {
+  $client = shopify_api_client();
+  return $client->call('GET', '/admin/products/count.json', $options);
 }
 
 function shopify_api_get_product($product_id) {
