@@ -275,6 +275,9 @@ function shopify_install() {
       ),
   );
   field_update_instance($instance);
+  $datetime = new DateTime('1/1/1970');
+  $last_updated = $datetime->format('Y-m-d H:i');
+  variable_set('shopify_last_sync', $last_updated);
 }
 
 function shopify_uninstall() {
@@ -282,4 +285,5 @@ function shopify_uninstall() {
   field_delete_field('shopify_product_tags');
   $vocabulary = taxonomy_vocabulary_machine_name_load('shopify_tags');
   taxonomy_vocabulary_delete($vocabulary->vid);
+  variable_del('shopify_last_sync');
 }
