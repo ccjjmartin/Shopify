@@ -167,7 +167,7 @@ function shopify_entity_info() {
 /**
  * Add to cart form for Shopify products.
  */
-function shopify_add_to_cart_form($form, $form_state, ShopifyProduct $product = NULL) {
+function shopify_add_to_cart_form($form, &$form_state, ShopifyProduct $product = NULL) {
   $form_id = 'shopify-add-to-cart-form-' . $product->handle;
   $form['#id'] = $form_id;
   $form['#action'] = 'https://' . variable_get('shopify_api_domain') . '/cart/add';
@@ -202,21 +202,20 @@ function shopify_add_to_cart_form($form, $form_state, ShopifyProduct $product = 
   );
 
   $form['product'] = array(
-    '#type' => 'fieldset',
-    '#description' => t($product->body_html),
+//    '#type' => 'fieldset',
+//    '#description' => t($product->body_html),
   );
 
-  if ($product->variants) {
-    $form['product']['#title'] .= $default_variant->label();
-  }
+//  if ($product->variants) {
+//    $form['product']['#title'] .= $default_variant->label();
+//  }
 
-  $form['product']['variant'] = array(
-    '#type' => 'fieldset',
+  $form['product']['variant'] = array(//    '#type' => 'fieldset',
   );
 
-  $form['product']['variant']['body_html'] = array(
-    '#markup' => $default_variant->wrapper()->body_html->value(),
-  );
+//  $form['product']['variant']['body_html'] = array(
+//    '#markup' => $default_variant->wrapper()->body_html->value(),
+//  );
 
 //  $images = $product->wrapper()->shopify_product_images->value();
 //  if ($images[0]) {
@@ -264,6 +263,25 @@ function shopify_add_to_cart_form($form, $form_state, ShopifyProduct $product = 
   );
 
   return $form;
+}
+
+/**
+ * Load a product by it's given variant_id.
+ *
+ * @param int $variant_id
+ *   Product variant ID.
+ * @return ShopifyProduct[]
+ *   Returns an array of shopify products with the variant id.
+ */
+function shopify_product_load_by_variant_id($variant_id) {
+  $query = new EntityFieldQuery();
+  $result = $query->entityCondition('entity_type', 'shopify_product')
+    ->propertyCondition('variant_id', $variant_id)
+    ->execute();
+  if (isset($result['shopify_product']) && $result['shopify_product']) {
+    return entity_load('shopify_product', array_keys($result['shopify_product']));
+  }
+  return array();
 }
 
 /**
