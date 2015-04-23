@@ -240,10 +240,10 @@ class ShopifyProduct extends Entity {
       // This is a regular product, need to load sub-variants.
       $this->variants = $this->loadVariants();
     }
-    if (!is_array($this->options)) {
+    if (!is_array($this->options) && isset($this->options)) {
       $this->options = unserialize($this->options);
     }
-    if (!is_array($this->option_values)) {
+    if (!is_array($this->option_values) && isset($this->option_values)) {
       $this->option_values = unserialize($this->option_values);
     }
     parent::setUp();
