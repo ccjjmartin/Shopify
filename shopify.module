@@ -40,9 +40,7 @@ function shopify_product_set_images(&$product_entity, $product, $type) {
     $directory = NULL;
   }
 
-  // Handle the instance of the main product image.
-  // @todo multiple images on a main product,
-  // @todo multiple images on a variant
+  // @todo images on variants
   if ($type == 'product' && isset($product['images'][0]['src'])) {
     foreach($product['images'] as $product_image) {
       $file = system_retrieve_file($product_image['src'], $directory, TRUE, FILE_EXISTS_REPLACE);
@@ -55,7 +53,7 @@ function shopify_product_set_images(&$product_entity, $product, $type) {
 }
 
 function shopify_product_set_terms(&$product_entity, $product) {
-  foreach (explode(',', $product['tags']) as $tag) {
+  foreach (array_reverse(explode(',', $product['tags'])) as $tag) {
     $tag = trim($tag);
     if ($tag) {
       $term = taxonomy_get_term_by_name($tag, 'shopify_tags');
@@ -77,6 +75,22 @@ function shopify_product_set_terms(&$product_entity, $product) {
   $wrapper = entity_metadata_wrapper('shopify_product', $product_entity);
   $wrapper->shopify_product_tags->set($terms);
   $wrapper->save(TRUE);
+}
+
+function shopify_product_load_single($product_id, $variant_id = 0) {
+  $query = new EntityFieldQuery();
+  $query->entityCondition('entity_type', 'shopify_product')
+    ->propertyCondition('product_id', $product_id)
+    ->propertyCondition('variant_id', $variant_id)
+    ->addMetaData('account', user_load(1)); // Run the query as user 1.
+
+  $result = $query->execute();
+
+  if (isset($result['shopify_product'])) {
+    $ids = array_keys($result['shopify_product']);
+    $shopify_product = entity_load_single('shopify_product', reset($ids));
+  }
+  return isset($shopify_product) ? $shopify_product : null;
 }
 
 /**
