@@ -27,22 +27,10 @@ function shopify_views_default_views() {
   return $views;
 }
 
-function shopify_sync_products(array $options = array()) {
-  //@todo add some conditions instead of completely resetting every time
+function shopify_delete_all_products(){
   $existing = db_query('SELECT s.id FROM {shopify_products} s');
   $ids = $existing->fetchCol();
   shopify_product_delete_multiple($ids);
-  $products = shopify_api_get_products();
-  foreach ($products as $product) {
-    $shopify_product = new ShopifyProduct($product);
-    shopify_product_set_images($shopify_product, $product, 'product');
-    shopify_product_set_terms($shopify_product, $product);
-    foreach ($product['variants'] as $v) {
-      $variant = new ShopifyProduct($v);
-      $variant->save();
-    }
-    $shopify_product->save();
-  }
 }
 
 function shopify_product_set_images(&$product_entity, $product, $type) {
@@ -55,10 +43,13 @@ function shopify_product_set_images(&$product_entity, $product, $type) {
   // Handle the instance of the main product image.
   // @todo multiple images on a main product,
   // @todo multiple images on a variant
-  if ($type == 'product' && isset($product['image']['src'])) {
-    $file = system_retrieve_file($product['image']['src'], $directory, TRUE, FILE_EXISTS_REPLACE);
-    $wrapper = entity_metadata_wrapper('shopify_product', $product_entity);
-    $wrapper->shopify_product_images->set(array((array) $file));
+  if ($type == 'product' && isset($product['images'][0]['src'])) {
+    foreach($product['images'] as $product_image) {
+      $file = system_retrieve_file($product_image['src'], $directory, TRUE, FILE_EXISTS_REPLACE);
+      $wrapper = entity_metadata_wrapper('shopify_product', $product_entity);
+      $files[] = (array) $file;
+    }
+    $wrapper->shopify_product_images->set($files);
     $wrapper->save(TRUE);
   }
 }
@@ -92,19 +83,13 @@ function shopify_product_set_terms(&$product_entity, $product) {
  * Implements hook_menu().
  */
 function shopify_menu() {
-  $items['admin/structure/shopify_products'] = array(
-    'title' => 'Shopify Products',
-    'description' => 'Manage Shopify Products',
-    'page callback' => 'shopify_products_fields_admin',
-    'access arguments' => array('administer shopify products'),
-  );
-
   $items['products/view/%shopify_product'] = array(
     'page callback' => 'entity_ui_entity_page_view',
     'page arguments' => array(2),
     'load arguments' => array('shopify_product'),
     'access arguments' => array(TRUE),
   );
+
   $items['admin/shopify'] = array(
     'page callback' => 'shopify_admin',
     'title' => 'Shopify',
@@ -126,6 +111,14 @@ function shopify_menu() {
     'access arguments' => array('administer shopify'),
     'type' => MENU_LOCAL_TASK,
     'file' => 'shopify.pages.inc',
+  );
+
+  $items['admin/shopify/products_structure'] = array(
+    'title' => 'Shopify Product Fields',
+    'description' => 'Manage Shopify Product Fields',
+    'page callback' => 'shopify_products_fields_admin',
+    'access arguments' => array('administer shopify products'),
+    'type' => MENU_LOCAL_TASK,
   );
 
   return $items;
@@ -160,16 +153,17 @@ function shopify_entity_info() {
       'metadata controller class' => 'ShopifyProductMetadataController',
       'extra fields controller class' => 'EntityDefaultExtraFieldsController',
       'admin ui' => array(
-        'path' => 'admin/content/products',
-        'controller class' => 'EntityDefaultUIController',
+        'path' => 'admin/shopify/products',
+        'controller class' => 'ShopifyProductsUIController',
         'menu wildcard' => '%shopify_product',
+
       ),
       'bundles' => array(
         'shopify_product' => array(
-          'label' => 'Shopify Products',
+          'label' => 'Shopify Product Fields',
           'metatags' => TRUE,
           'admin' => array(
-            'path' => 'admin/structure/shopify_products',
+            'path' => 'admin/shopify/products_structure',
           ),
         ),
       ),
@@ -451,6 +445,11 @@ function shopify_api_get_product_variants($product_id) {
 function shopify_api_get_variant($variant_id) {
   $client = shopify_api_client();
   return $client->call('GET', "/admin/variants/{$variant_id}.json");
+}
+
+function shopify_api_get_product_images($product_id) {
+  $client = shopify_api_client();
+  return $client->call('GET', "/admin/products/{$product_id}/images.json");
 }
 
 
