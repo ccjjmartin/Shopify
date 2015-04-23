@@ -199,23 +199,13 @@ function shopify_add_to_cart_form($form, &$form_state, ShopifyProduct $product =
     $default_variant = $product;
   }
 
-  // Required POST fields for add to cart form.
-  $form['id'] = array(
-    '#type' => 'hidden',
-    '#value' => $default_variant->variant_id,
-  );
-  $form['return_to'] = array(
-    '#type' => 'hidden',
-    '#value' => 'back',
-  );
-
   $form['product'] = array();
 
   $form['product']['variant'] = array();
 
   // Products with only 1 default variant will have a title of 'Default Title'.
   // We do not need to show options for these products.
-  if ($product->variants && $default_variant->title !== 'Default Title') {
+  if ($product->variants && (!$default_variant || $default_variant->title !== 'Default Title')) {
     $form['product']['variant']['options']['#tree'] = TRUE;
     // Create option select lists based on product options.
     foreach ($product->options as $key => $select_list) {
@@ -223,7 +213,7 @@ function shopify_add_to_cart_form($form, &$form_state, ShopifyProduct $product =
         '#type' => 'select',
         '#title' => t($select_list['name']),
         '#options' => array(),
-        '#default_value' => $default_variant->option_values[$key],
+        '#default_value' => $default_variant ? $default_variant->option_values[$key] : NULL,
         '#ajax' => array(
           'wrapper' => $form_id,
           'method' => 'replace',
@@ -240,17 +230,35 @@ function shopify_add_to_cart_form($form, &$form_state, ShopifyProduct $product =
     }
   }
 
-  $form['product']['variant']['price'] = array(
-    '#markup' => shopify_money_format() . $default_variant->wrapper()->price->value(),
-  );
-
-  $form['product']['variant']['actions'] = array(
-    '#type' => 'actions',
-    'submit' => array(
-      '#type' => 'submit',
-      '#value' => t('Add to Cart'),
-    ),
-  );
+  if ($default_variant) {
+    $form['product']['variant']['price'] = array(
+      '#markup' => shopify_money_format() . $default_variant->wrapper()->price->value(),
+    );
+    // Required POST fields for add to cart form.
+    $form['id'] = array(
+      '#type' => 'hidden',
+      '#value' => $default_variant->variant_id,
+    );
+    $form['return_to'] = array(
+      '#type' => 'hidden',
+      '#value' => 'back',
+    );
+    $form['product']['variant']['actions'] = array(
+      '#type' => 'actions',
+      'submit' => array(
+        '#type' => 'submit',
+        '#value' => t('Add to Cart'),
+      ),
+    );
+  }
+  else {
+    $form['product']['variant']['actions'] = array(
+      '#type' => 'actions',
+      'submit' => array(
+        '#markup' => t('Unavailable'),
+      ),
+    );
+  }
 
   return $form;
 }
