@@ -27,7 +27,7 @@ function shopify_views_default_views() {
   return $views;
 }
 
-function shopify_delete_all_products(){
+function shopify_delete_all_products() {
   $existing = db_query('SELECT s.id FROM {shopify_products} s');
   $ids = $existing->fetchCol();
   shopify_product_delete_multiple($ids);
@@ -42,7 +42,7 @@ function shopify_product_set_images(&$product_entity, $product, $type) {
 
   // @todo images on variants
   if ($type == 'product' && isset($product['images'][0]['src'])) {
-    foreach($product['images'] as $product_image) {
+    foreach ($product['images'] as $product_image) {
       $file = system_retrieve_file($product_image['src'], $directory, TRUE, FILE_EXISTS_REPLACE);
       $wrapper = entity_metadata_wrapper('shopify_product', $product_entity);
       $files[] = (array) $file;
@@ -90,7 +90,7 @@ function shopify_product_load_single($product_id, $variant_id = 0) {
     $ids = array_keys($result['shopify_product']);
     $shopify_product = entity_load_single('shopify_product', reset($ids));
   }
-  return isset($shopify_product) ? $shopify_product : null;
+  return isset($shopify_product) ? $shopify_product : NULL;
 }
 
 /**
@@ -105,10 +105,10 @@ function shopify_menu() {
   );
 
   $items['admin/shopify'] = array(
-    'page callback' => 'shopify_admin',
+    'page callback' => 'shopify_admin_page',
     'title' => 'Shopify',
     'access arguments' => array('administer shopify'),
-    'file' => 'shopify.pages.inc',
+    'file' => 'shopify.admin.inc',
   );
 
   $items['admin/shopify/overview'] = array(
@@ -124,7 +124,7 @@ function shopify_menu() {
     'page arguments' => array('shopify_admin_product_sync_form'),
     'access arguments' => array('administer shopify'),
     'type' => MENU_LOCAL_TASK,
-    'file' => 'shopify.pages.inc',
+    'file' => 'shopify.admin.inc',
   );
 
   $items['admin/shopify/products_structure'] = array(
@@ -132,7 +132,7 @@ function shopify_menu() {
     'description' => 'Manage Shopify Product Fields',
     'page callback' => 'shopify_products_fields_admin',
     'access arguments' => array('administer shopify products'),
-    'type' => MENU_LOCAL_TASK,
+    'type' => MENU_NORMAL_ITEM,
   );
 
   return $items;
@@ -182,8 +182,12 @@ function shopify_entity_info() {
         ),
       ),
       'view modes' => array(
-        'add_to_cart' => array(
-          'label' => t('Add to cart'),
+        'full' => array(
+          'label' => t('Full'),
+          'custom settings' => FALSE,
+        ),
+        'teaser' => array(
+          'label' => t('Teaser'),
           'custom settings' => FALSE,
         ),
       ),
@@ -395,6 +399,21 @@ function shopify_product_load_multiple($ids = array(), $conditions = array(), $r
  */
 function shopify_product_delete_multiple(array $ids) {
   entity_get_controller('shopify_product')->delete($ids);
+}
+
+/**
+ * Implements hook_field_extra_fields().
+ */
+function shopify_field_extra_fields() {
+  $info = array();
+  if (!isset($info['shopify_product']['shopify_product']['display']['full'])) {
+    $info['shopify_product']['shopify_product']['display']['add_to_cart'] = array(
+      'label' => t('Add to cart form'),
+      'description' => t('Shopify Add to Cart form'),
+      'weight' => 10,
+    );
+  }
+  return $info;
 }
 
 /**

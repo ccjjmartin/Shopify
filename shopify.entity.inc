@@ -296,8 +296,8 @@ class ShopifyProductController extends EntityAPIController {
 
   public function buildContent($entity, $view_mode = 'full', $langcode = NULL, $content = array()) {
     switch ($view_mode) {
-      case 'add_to_cart':
-        $content['form'] = drupal_get_form('shopify_add_to_cart_form', $entity);
+      case 'full':
+        $content['add_to_cart'] = drupal_get_form('shopify_add_to_cart_form', $entity);
         break;
     }
     return parent::buildContent($entity, $view_mode, $langcode, $content);
@@ -387,7 +387,6 @@ class ShopifyProductsUIController extends EntityDefaultUIController {
    *
    * @param $conditions
    *   An array of conditions as needed by entity_load().
-
    * @return Array
    *   A renderable array.
    */

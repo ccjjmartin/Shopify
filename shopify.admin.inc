@@ -1,10 +1,9 @@
 <?php
 
-function shopify_admin() {
-  try   {
+function shopify_admin_page() {
+  try {
     $info = shopify_api_get_shop_info();
-  }
-  catch (Exception $e) {
+  } catch (Exception $e) {
     drupal_set_message(t('Unable to connect to your Shopify store.'), 'error');
     return t('Hmm.. we\'re unable to connect to your Shopify Store. <ul><li>Do you have a <a href="https://www.shopify.com/?ref=bonify">Shopify account</a>?</li><li>If you have an account you\'ll need to create your API key if you haven\'t already. See <a href="https://docs.shopify.com/support/configuration/apps/where-do-i-find-my-api-key">https://docs.shopify.com/support/configuration/apps/where-do-i-find-my-api-key</a> for more information.</li><li>Have you checked your <a href="/admin/config/services/shopify">API settings to make sure they match?</a></li><li><a href="/admin/reports/status">Can your server make outgoing HTTP requests?</li></ul>');
   }
@@ -23,11 +22,10 @@ function shopify_admin() {
   return $return;
 }
 
-function shopify_admin_product_sync_form($form, &$form_state){
-  try   {
+function shopify_admin_product_sync_form($form, &$form_state) {
+  try {
     shopify_api_get_shop_info();
-  }
-  catch (Exception $e) {
+  } catch (Exception $e) {
     drupal_set_message(t('Unable to connect to your Shopify store.'), 'error');
     $form['oops'] = array('#markup' => t('<a href="/admin/shopify">Unable to connect to your store.</a>'));
     return $form;
@@ -121,15 +119,15 @@ function shopify_sync_products_batch_op_1($page, $num_per_batch, $operation_deta
   );
   foreach ($products as $product) {
     $shopify_product = shopify_product_load_single($product['id']);
-    if (!$shopify_product){
+    if (!$shopify_product) {
       $shopify_product = new ShopifyProduct($product);
     }
-    shopify_product_set_images($shopify_product, $product ,'product');
+    shopify_product_set_images($shopify_product, $product, 'product');
     shopify_product_set_terms($shopify_product, $product);
     $shopify_product->save();
     foreach ($product['variants'] as $v) {
       $variant = shopify_product_load_single($v['product_id'], $v['id']);
-      if (!$variant){
+      if (!$variant) {
         $variant = new ShopifyProduct($v);
       }
       $variant->save();
