@@ -1,5 +1,12 @@
 <?php
+/**
+ * @file
+ * Contains install and uninstall functionality.
+ */
 
+/**
+ * Implements hook_schema().
+ */
 function shopify_schema() {
   $schema['shopify_products'] = array(
     'description' => 'Base table for storing Shopify products.',
@@ -149,23 +156,20 @@ function shopify_schema() {
         'length' => 32,
       ),
     ),
-//    'unique keys' => array('id', 'variant_id'),
     'primary key' => array('id'),
-//    'indexes' => array(
-//      'product_id' => array('id'),
-//      'variant_id' => array('variant_id'),
-//    ),
   );
   return $schema;
 }
 
+/**
+ * Implements hook_install().
+ */
 function shopify_install() {
   field_create_field(array(
-    'field_name'  => 'shopify_product_images',
-    'type'        => 'image',
+    'field_name' => 'shopify_product_images',
+    'type' => 'image',
     'cardinality' => -1,
-    'settings'    => array(
-    ),
+    'settings' => array(),
   ));
 
   $instance = array(
@@ -184,11 +188,10 @@ function shopify_install() {
   field_create_instance($instance);
 
   field_create_field(array(
-    'field_name'  => 'shopify_product_tags',
-    'type'        => 'taxonomy_term_reference',
+    'field_name' => 'shopify_product_tags',
+    'type' => 'taxonomy_term_reference',
     'cardinality' => -1,
-    'settings'    => array(
-    ),
+    'settings' => array(),
   ));
 
   $instance = array(
@@ -200,7 +203,12 @@ function shopify_install() {
     'default_value_function' => '',
     'widget' => array(
       'type' => 'taxonomy_autocomplete',
-      'settings' => array('allowed_values' => array('vocabulary' => 'shopify_tags', 'parent' => 0)),
+      'settings' => array(
+        'allowed_values' => array(
+          'vocabulary' => 'shopify_tags',
+          'parent' => 0
+        )
+      ),
     ),
   );
 
@@ -211,47 +219,45 @@ function shopify_install() {
   $vocabulary->machine_name = 'shopify_tags';
   taxonomy_vocabulary_save($vocabulary);
 
-  $product_settings = array (
+  $product_settings = array(
     'view_modes' =>
-      array (
-      ),
+      array(),
     'extra_fields' =>
-      array (
+      array(
         'form' =>
-          array (
-          ),
+          array(),
         'display' =>
-          array (
+          array(
             'product_id' =>
-              array (
+              array(
                 'default' =>
-                  array (
+                  array(
                     'weight' => '5',
-                    'visible' => false,
+                    'visible' => FALSE,
                   ),
               ),
             'variant_id' =>
-              array (
+              array(
                 'default' =>
-                  array (
+                  array(
                     'weight' => '4',
-                    'visible' => false,
+                    'visible' => FALSE,
                   ),
               ),
             'body_html' =>
-              array (
+              array(
                 'default' =>
-                  array (
+                  array(
                     'weight' => '1',
-                    'visible' => true,
+                    'visible' => TRUE,
                   ),
               ),
             'price' =>
-              array (
+              array(
                 'default' =>
-                  array (
+                  array(
                     'weight' => '3',
-                    'visible' => true,
+                    'visible' => TRUE,
                   ),
               ),
           ),
@@ -260,14 +266,14 @@ function shopify_install() {
   variable_set('field_bundle_settings_shopify_product__shopify_product', $product_settings);
 
   $instance = field_info_instance('shopify_product', 'shopify_product_images', 'shopify_product');
-  $instance['display'] = array (
+  $instance['display'] = array(
     'default' =>
-      array (
+      array(
         'label' => 'hidden',
         'type' => 'image',
         'weight' => '0',
         'settings' =>
-          array (
+          array(
             'image_style' => 'shopify_product_thumbnail',
             'image_link' => '',
           ),
@@ -280,10 +286,14 @@ function shopify_install() {
   variable_set('shopify_last_sync', $last_updated);
 }
 
+/**
+ * Implements hook_uninstall().
+ */
 function shopify_uninstall() {
   field_delete_field('shopify_product_images');
   field_delete_field('shopify_product_tags');
   $vocabulary = taxonomy_vocabulary_machine_name_load('shopify_tags');
   taxonomy_vocabulary_delete($vocabulary->vid);
   variable_del('shopify_last_sync');
+  variable_del('shopify_store_info');
 }
