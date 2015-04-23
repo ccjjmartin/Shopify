@@ -205,8 +205,8 @@ class ShopifyProduct extends Entity {
   public $variants;
 
   public function __construct(array $values = array()) {
-    if (!$this->id) {
-      // Handle shopify product and variant IDs.
+    // Handle shopify product and variant IDs.
+    if (!empty($values)) {
       if (isset($values['id']) && !$values['product_id']) {
         $values['product_id'] = $values['id'];
       }
@@ -214,7 +214,6 @@ class ShopifyProduct extends Entity {
         $values['variant_id'] = $values['id'];
       }
       unset($values['id']);
-
       if (empty($values['variant_id'])) {
         $values['variant_id'] = 0;
       }
@@ -223,13 +222,16 @@ class ShopifyProduct extends Entity {
         // This is a variant product.
         $values['option_values'] = $this->formatVariantOptions($values);
       }
-
       // Options should be stored as a serialized array.
       if (isset($values['options'])) {
         $values['options'] = serialize($values['options']);
       }
     }
     parent::__construct($values, 'shopify_product');
+    if (!empty($values)) {
+      $this->setTerms();
+      $this->setImages();
+    }
   }
 
   /**
@@ -249,6 +251,55 @@ class ShopifyProduct extends Entity {
     parent::setUp();
   }
 
+  public function save() {
+    // Ensure that we are saving serialized array data.
+    if (is_array($this->options)) {
+      $this->options = serialize($this->options);
+    }
+    if (is_array($this->option_values)) {
+      $this->option_values = serialize($this->option_values);
+    }
+    return parent::save();
+  }
+
+  function setImages() {
+    $directory = file_build_uri('shopify_images');
+    if (!file_prepare_directory($directory, FILE_CREATE_DIRECTORY)) {
+      // If our directory doesn't exist and can't be created, use the default.
+      $directory = NULL;
+    }
+    // @todo images on variants
+    if ($this->variant_id == 0 && isset($this->images[0]['src'])) {
+      foreach ($this->images as $product_image) {
+        $file = system_retrieve_file($product_image['src'], $directory, TRUE, FILE_EXISTS_REPLACE);
+        $files[] = (array) $file;
+      }
+      $this->wrapper()->shopify_product_images->set($files);
+    }
+  }
+
+  function setTerms() {
+    foreach (array_reverse(explode(',', $this->tags)) as $tag) {
+      $tag = trim($tag);
+      if ($tag) {
+        $term = taxonomy_get_term_by_name($tag, 'shopify_tags');
+        if (!empty($term)) {
+          $tid = reset($term)->tid;
+        }
+        else {
+          $vocab = taxonomy_vocabulary_machine_name_load('shopify_tags');
+          $term = new stdClass();
+          $term->name = $tag;
+          $term->vid = $vocab->vid;
+          taxonomy_term_save($term);
+          $tid = $term->tid;
+        }
+        $terms[] = $tid;
+      }
+    }
+    $this->wrapper()->shopify_product_tags->set($terms);
+  }
+
   /**
    * Load variants for this product.
    *
@@ -264,10 +315,10 @@ class ShopifyProduct extends Entity {
       ->execute();
     if (isset($result['shopify_product']) && $result['shopify_product']) {
       $variants = entity_load('shopify_product', array_keys($result['shopify_product']));
-      if (count($variants) == 1 && strtolower(reset($variants)->title) == 'default title') {
-        // Don't need to consider this as a variant.
-        $variants = array();
-      }
+//      if (count($variants) == 1 && strtolower(reset($variants)->title) == 'default title') {
+//        // Don't need to consider this as a variant.
+//        $variants = array();
+//      }
     }
     return $variants;
   }

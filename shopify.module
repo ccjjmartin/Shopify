@@ -33,50 +33,23 @@ function shopify_delete_all_products() {
   shopify_product_delete_multiple($ids);
 }
 
-function shopify_product_set_images(&$product_entity, $product, $type) {
-  $directory = file_build_uri('shopify_images');
-  if (!file_prepare_directory($directory, FILE_CREATE_DIRECTORY)) {
-    // If our directory doesn't exist and can't be created, use the default.
-    $directory = NULL;
+function shopify_product_update($id, $variant_id = 0, array $new_values = array()) {
+  $shopify_product = shopify_product_load_single($id, $variant_id);
+  if (!$shopify_product) {
+    // Create a new product with those values.
+    $shopify_product = new ShopifyProduct($new_values);
   }
-
-  // @todo images on variants
-  if ($type == 'product' && isset($product['images'][0]['src'])) {
-    foreach ($product['images'] as $product_image) {
-      $file = system_retrieve_file($product_image['src'], $directory, TRUE, FILE_EXISTS_REPLACE);
-      $wrapper = entity_metadata_wrapper('shopify_product', $product_entity);
-      $files[] = (array) $file;
-    }
-    $wrapper->shopify_product_images->set($files);
-    $wrapper->save(TRUE);
+  else {
+    $shopify_product->__construct($new_values);
   }
+  return $shopify_product;
 }
 
-function shopify_product_set_terms(&$product_entity, $product) {
-  foreach (array_reverse(explode(',', $product['tags'])) as $tag) {
-    $tag = trim($tag);
-    if ($tag) {
-      $term = taxonomy_get_term_by_name($tag, 'shopify_tags');
-      if (!empty($term)) {
-        $tid = reset($term)->tid;
-      }
-      else {
-        $vocab = taxonomy_vocabulary_machine_name_load('shopify_tags');
-        $term = new stdClass();
-        $term->name = $tag;
-        $term->vid = $vocab->vid;
-        taxonomy_term_save($term);
-        $tid = $term->tid;
-      }
-      $terms[] = $tid;
-    }
-  }
-
-  $wrapper = entity_metadata_wrapper('shopify_product', $product_entity);
-  $wrapper->shopify_product_tags->set($terms);
-  $wrapper->save(TRUE);
-}
-
+/**
+ * @param $product_id
+ * @param int $variant_id
+ * @return ShopifyProduct
+ */
 function shopify_product_load_single($product_id, $variant_id = 0) {
   $query = new EntityFieldQuery();
   $query->entityCondition('entity_type', 'shopify_product')
@@ -236,31 +209,13 @@ function shopify_add_to_cart_form($form, &$form_state, ShopifyProduct $product =
     '#value' => 'back',
   );
 
-  $form['product'] = array(
-//    '#type' => 'fieldset',
-//    '#description' => t($product->body_html),
-  );
+  $form['product'] = array();
 
-//  if ($product->variants) {
-//    $form['product']['#title'] .= $default_variant->label();
-//  }
+  $form['product']['variant'] = array();
 
-  $form['product']['variant'] = array(//    '#type' => 'fieldset',
-  );
-
-//  $form['product']['variant']['body_html'] = array(
-//    '#markup' => $default_variant->wrapper()->body_html->value(),
-//  );
-
-//  $images = $product->wrapper()->shopify_product_images->value();
-//  if ($images[0]) {
-//    $form['product']['variant']['image'] = array(
-//      '#theme' => 'image',
-//      'path' => file_icon_path($images[0]['uri']),
-//    );
-//  }
-
-  if ($product->variants) {
+  // Products with only 1 default variant will have a title of 'Default Title'.
+  // We do not need to show options for these products.
+  if ($product->variants && $default_variant->title !== 'Default Title') {
     $form['product']['variant']['options']['#tree'] = TRUE;
     // Create option select lists based on product options.
     foreach ($product->options as $key => $select_list) {
@@ -286,7 +241,7 @@ function shopify_add_to_cart_form($form, &$form_state, ShopifyProduct $product =
   }
 
   $form['product']['variant']['price'] = array(
-    '#markup' => $default_variant->wrapper()->price->value(),
+    '#markup' => shopify_money_format() . $default_variant->wrapper()->price->value(),
   );
 
   $form['product']['variant']['actions'] = array(
@@ -298,6 +253,23 @@ function shopify_add_to_cart_form($form, &$form_state, ShopifyProduct $product =
   );
 
   return $form;
+}
+
+function shopify_money_format() {
+  $format = shopify_store_info()->money_format;
+  return str_replace(' {{amount}}', '', $format);
+}
+
+/**
+ * Get Shopify store information.
+ *
+ * @link https://docs.shopify.com/api/shop Shop API Documentation @endlink
+ *
+ * @return object
+ *   Object of information.
+ */
+function shopify_store_info() {
+  return (object) variable_get('shopify_store_info', array());
 }
 
 /**
@@ -467,9 +439,13 @@ function shopify_taxonomy_term_uri($term) {
   );
 }
 
-function shopify_api_get_shop_info() {
-  $client = shopify_api_client();
-  return $client->call('GET', '/admin/shop.json');
+function shopify_api_get_shop_info($refresh = FALSE) {
+  if ($refresh == TRUE || !$info = shopify_store_info()) {
+    $client = shopify_api_client();
+    $info = $client->call('GET', '/admin/shop.json');
+    variable_set('shopify_store_info', $info);
+  }
+  return (object) $info;
 }
 
 function shopify_api_get_products($options = array()) {
