@@ -120,15 +120,21 @@ function shopify_sync_products_batch_op_1($page, $num_per_batch, $operation_deta
     )
   );
   foreach ($products as $product) {
-    $shopify_product = new ShopifyProduct($product);
+    $shopify_product = shopify_product_load_single($product['id']);
+    if (!$shopify_product){
+      $shopify_product = new ShopifyProduct($product);
+    }
     shopify_product_set_images($shopify_product, $product ,'product');
     shopify_product_set_terms($shopify_product, $product);
+    $shopify_product->save();
     foreach ($product['variants'] as $v) {
-      $variant = new ShopifyProduct($v);
+      $variant = shopify_product_load_single($v['product_id'], $v['id']);
+      if (!$variant){
+        $variant = new ShopifyProduct($v);
+      }
       $variant->save();
       $context['results'][] = $variant->product_id . ' : ' . check_plain($variant->title);
     }
-    $shopify_product->save();
     $context['results'][] = $shopify_product->product_id . ' : ' . check_plain($shopify_product->title);
   }
 
