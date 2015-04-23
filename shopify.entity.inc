@@ -375,28 +375,186 @@ class ShopifyProductController extends EntityAPIController {
 
 class ShopifyProductMetadataController extends EntityDefaultMetadataController {
   public function entityPropertyInfo() {
-    // uncomment to add all properties as extra fields
-    //$info = parent::entityPropertyInfo();
+    $info[$this->type]['properties']['updated_at'] = array(
+      'label' => t('Updated Date'),
+      'type' => 'date',
+      'description' => t('When the product was last updated.'),
+      'schema field' => 'updated_at',
+      'setter callback' => 'entity_property_verbatim_date_set',
+      'getter callback' => 'entity_property_verbatim_date_get',
+    );
+    $info[$this->type]['properties']['created_at'] = array(
+      'label' => t('Created Date'),
+      'type' => 'date',
+      'description' => t('When the product was created.'),
+      'schema field' => 'created_at',
+      'setter callback' => 'entity_property_verbatim_date_set',
+      'getter callback' => 'entity_property_verbatim_date_get',
+    );
+    $info[$this->type]['properties']['published_at'] = array(
+      'label' => t('Published Date'),
+      'type' => 'date',
+      'description' => t('When the product was published.'),
+      'schema field' => 'published_at',
+      'setter callback' => 'entity_property_verbatim_date_set',
+      'getter callback' => 'entity_property_verbatim_date_get',
+    );
     $info[$this->type]['properties']['product_id'] = array(
-      'label' => t('Shopify Product ID'),
+      'label' => t('Product ID'),
       'type' => 'integer',
-      'description' => t('Shopify Product ID'),
+      'description' => t('Unique product identifier from Shopify.'),
       'schema field' => 'id',
       'setter callback' => 'entity_property_verbatim_set',
       'getter callback' => 'entity_property_verbatim_get',
     );
     $info[$this->type]['properties']['variant_id'] = array(
-      'label' => t('Shopify Variant ID'),
+      'label' => t('Variant ID'),
       'type' => 'integer',
-      'description' => t('Shopify Variant ID'),
+      'description' => t('Unique variant identifier from Shopify.'),
       'schema field' => 'variant_id',
+      'setter callback' => 'entity_property_verbatim_set',
+      'getter callback' => 'entity_property_verbatim_get',
+    );
+    $info[$this->type]['properties']['title'] = array(
+      'label' => t('Title'),
+      'type' => 'text',
+      'description' => t('Name of the product.'),
+      'schema field' => 'title',
+      'setter callback' => 'entity_property_verbatim_set',
+      'getter callback' => 'entity_property_verbatim_get',
+    );
+    $info[$this->type]['properties']['handle'] = array(
+      'label' => t('Handle'),
+      'type' => 'text',
+      'description' => t('Product handle from Shopify'),
+      'schema field' => 'handle',
+      'setter callback' => 'entity_property_verbatim_set',
+      'getter callback' => 'entity_property_verbatim_get',
+    );
+    $info[$this->type]['properties']['product_type'] = array(
+      'label' => t('Product Type'),
+      'type' => 'text',
+      'description' => t('Type of product.'),
+      'schema field' => 'product_type',
+      'setter callback' => 'entity_property_verbatim_set',
+      'getter callback' => 'entity_property_verbatim_get',
+    );
+    $info[$this->type]['properties']['published_scope'] = array(
+      'label' => t('Published Scope'),
+      'type' => 'text',
+      'description' => t('Product published scope from Shopify'),
+      'schema field' => 'published_scope',
+      'setter callback' => 'entity_property_verbatim_set',
+      'getter callback' => 'entity_property_verbatim_get',
+    );
+    $info[$this->type]['properties']['vendor'] = array(
+      'label' => t('Vendor'),
+      'type' => 'text',
+      'description' => t('Vendor of the product.'),
+      'schema field' => 'vendor',
+      'setter callback' => 'entity_property_verbatim_set',
+      'getter callback' => 'entity_property_verbatim_get',
+    );
+    $info[$this->type]['properties']['barcode'] = array(
+      'label' => t('Barcode'),
+      'type' => 'text',
+      'description' => t('Barcode of the product.'),
+      'schema field' => 'barcode',
+      'setter callback' => 'entity_property_verbatim_set',
+      'getter callback' => 'entity_property_verbatim_get',
+    );
+    $info[$this->type]['properties']['compare_at_price'] = array(
+      'label' => t('Compare at Price'),
+      'type' => 'text',
+      'description' => t('Compare price of the product.'),
+      'schema field' => 'compare_at_price',
+      'setter callback' => 'entity_property_verbatim_set',
+      'getter callback' => 'entity_property_verbatim_get',
+    );
+    $info[$this->type]['properties']['fulfillment_service'] = array(
+      'label' => t('Fulfillment Service'),
+      'type' => 'text',
+      'description' => t('Fulfillment service of the product.'),
+      'schema field' => 'fulfillment_service',
+      'setter callback' => 'entity_property_verbatim_set',
+      'getter callback' => 'entity_property_verbatim_get',
+    );
+    $info[$this->type]['properties']['grams'] = array(
+      'label' => t('Grams'),
+      'type' => 'integer',
+      'description' => t('Weight of the product in grams.'),
+      'schema field' => 'grams',
+      'setter callback' => 'entity_property_verbatim_set',
+      'getter callback' => 'entity_property_verbatim_get',
+    );
+    $info[$this->type]['properties']['inventory_management'] = array(
+      'label' => t('Inventory Management'),
+      'type' => 'text',
+      'description' => t('Inventory management setting for the product.'),
+      'schema field' => 'inventory_management',
+      'setter callback' => 'entity_property_verbatim_set',
+      'getter callback' => 'entity_property_verbatim_get',
+    );
+    $info[$this->type]['properties']['inventory_policy'] = array(
+      'label' => t('Inventory Policy'),
+      'type' => 'text',
+      'description' => t('Inventory policy of the product.'),
+      'schema field' => 'inventory_policy',
+      'setter callback' => 'entity_property_verbatim_set',
+      'getter callback' => 'entity_property_verbatim_get',
+    );
+    $info[$this->type]['properties']['inventory_quantity'] = array(
+      'label' => t('Inventory Quantity'),
+      'type' => 'integer',
+      'description' => t('Inventory quantity of the product.'),
+      'schema field' => 'inventory_quantity',
+      'setter callback' => 'entity_property_verbatim_set',
+      'getter callback' => 'entity_property_verbatim_get',
+    );
+    $info[$this->type]['properties']['requires_shipping'] = array(
+      'label' => t('Requires Shipping'),
+      'type' => 'boolean',
+      'description' => t('Whether the product requires shipping or not.'),
+      'schema field' => 'requires_shipping',
+      'setter callback' => 'entity_property_verbatim_set',
+      'getter callback' => 'entity_property_verbatim_get',
+    );
+    $info[$this->type]['properties']['sku'] = array(
+      'label' => t('SKU'),
+      'type' => 'text',
+      'description' => t('SKU of the product.'),
+      'schema field' => 'sku',
+      'setter callback' => 'entity_property_verbatim_set',
+      'getter callback' => 'entity_property_verbatim_get',
+    );
+    $info[$this->type]['properties']['taxable'] = array(
+      'label' => t('Taxable'),
+      'type' => 'boolean',
+      'description' => t('Whether the product is taxable or not.'),
+      'schema field' => 'taxable',
+      'setter callback' => 'entity_property_verbatim_set',
+      'getter callback' => 'entity_property_verbatim_get',
+    );
+    $info[$this->type]['properties']['weight'] = array(
+      'label' => t('Weight'),
+      'type' => 'decimal',
+      'description' => t('Weight of the product.'),
+      'schema field' => 'weight',
+      'setter callback' => 'entity_property_verbatim_set',
+      'getter callback' => 'entity_property_verbatim_get',
+    );
+    $info[$this->type]['properties']['weight_unit'] = array(
+      'label' => t('Weight Unit'),
+      'type' => 'decimal',
+      'description' => t('Name of the product.'),
+      'schema field' => 'title',
       'setter callback' => 'entity_property_verbatim_set',
       'getter callback' => 'entity_property_verbatim_get',
     );
     $info[$this->type]['properties']['body_html'] = array(
       'label' => t('Body'),
       'type' => 'text',
-      'description' => t('Body HTML'),
+      'description' => t('Product body HTML from Shopify.'),
       'schema field' => 'body_html',
       'setter callback' => 'entity_property_verbatim_set',
       'getter callback' => 'entity_property_verbatim_get',
@@ -405,7 +563,7 @@ class ShopifyProductMetadataController extends EntityDefaultMetadataController {
     $info[$this->type]['properties']['price'] = array(
       'label' => t('Price'),
       'type' => 'decimal',
-      'description' => t('Product Price'),
+      'description' => t('The product price.'),
       'schema field' => 'price',
       'setter callback' => 'entity_property_verbatim_set',
       'getter callback' => 'entity_property_verbatim_get',
