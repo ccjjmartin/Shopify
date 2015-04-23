@@ -240,10 +240,10 @@ class ShopifyProduct extends Entity {
       // This is a regular product, need to load sub-variants.
       $this->variants = $this->loadVariants();
     }
-    if (!is_array($this->options)) {
+    if (!is_array($this->options) && isset($this->options)) {
       $this->options = unserialize($this->options);
     }
-    if (!is_array($this->option_values)) {
+    if (!is_array($this->option_values) && isset($this->option_values)) {
       $this->option_values = unserialize($this->option_values);
     }
     parent::setUp();
@@ -363,4 +363,67 @@ class ShopifyProductMetadataController extends EntityDefaultMetadataController {
 
     return $info;
   }
+}
+
+class ShopifyProductsUIController extends EntityDefaultUIController {
+
+  public function hook_menu() {
+    $items = parent::hook_menu();
+    $items[$this->path]['type'] = MENU_LOCAL_TASK;
+    return $items;
+  }
+
+  public function overviewForm($form, &$form_state) {
+    // Only show products, not variants.
+    $conditions = array('variant_id' => 0);
+    $form['table'] = $this->overviewTable($conditions);
+    $form['pager'] = array('#theme' => 'pager');
+    return $form;
+  }
+
+  /**
+   * Generates the render array for a overview table for arbitrary entities
+   * matching the given conditions.
+   *
+   * @param $conditions
+   *   An array of conditions as needed by entity_load().
+
+   * @return Array
+   *   A renderable array.
+   */
+  public function overviewTable($conditions = array()) {
+
+    $query = new EntityFieldQuery();
+    $query->entityCondition('entity_type', $this->entityType);
+
+    // Add all conditions to query.
+    foreach ($conditions as $key => $value) {
+      $query->propertyCondition($key, $value);
+    }
+
+    if ($this->overviewPagerLimit) {
+      $query->pager($this->overviewPagerLimit);
+    }
+
+    $results = $query->execute();
+
+    $ids = isset($results[$this->entityType]) ? array_keys($results[$this->entityType]) : array();
+    $entities = $ids ? entity_load($this->entityType, $ids) : array();
+    ksort($entities);
+
+    $rows = array();
+    foreach ($entities as $entity) {
+      $shopify_link = l('Edit on Shopify', 'http://' . variable_get('shopify_api_domain') . '/admin/products/' . $entity->product_id, array('attributes' => array('target' => '_blank')));
+      $rows[] = $this->overviewTableRow($conditions, entity_id($this->entityType, $entity), $entity, array($shopify_link));
+    }
+
+    $render = array(
+      '#theme' => 'table',
+      '#header' => $this->overviewTableHeaders($conditions, $rows),
+      '#rows' => $rows,
+      '#empty' => t('None.'),
+    );
+    return $render;
+  }
+
 }
