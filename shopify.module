@@ -1,4 +1,8 @@
 <?php
+/**
+ * @file
+ * Main module file containing hooks and functions.
+ */
 
 /**
  * Implements hook_views_api().
@@ -27,46 +31,6 @@ function shopify_views_default_views() {
   return $views;
 }
 
-function shopify_delete_all_products() {
-  $existing = db_query('SELECT s.id FROM {shopify_products} s');
-  $ids = $existing->fetchCol();
-  shopify_product_delete_multiple($ids);
-}
-
-function shopify_product_update($id, $variant_id = 0, array $new_values = array()) {
-  $shopify_product = shopify_product_load_single($id, $variant_id);
-  if (!$shopify_product) {
-    // Create a new product with those values.
-    $shopify_product = new ShopifyProduct($new_values);
-  }
-  else {
-    $shopify_product->__construct($new_values);
-  }
-  return $shopify_product;
-}
-
-
-/**
- * @param $product_id
- * @param int $variant_id
- * @return ShopifyProduct
- */
-function shopify_product_load_single($product_id, $variant_id = 0) {
-  $query = new EntityFieldQuery();
-  $query->entityCondition('entity_type', 'shopify_product')
-    ->propertyCondition('product_id', $product_id)
-    ->propertyCondition('variant_id', $variant_id)
-    ->addMetaData('account', user_load(1)); // Run the query as user 1.
-
-  $result = $query->execute();
-
-  if (isset($result['shopify_product'])) {
-    $ids = array_keys($result['shopify_product']);
-    $shopify_product = entity_load_single('shopify_product', reset($ids));
-  }
-  return isset($shopify_product) ? $shopify_product : NULL;
-}
-
 /**
  * Implements hook_menu().
  */
@@ -77,20 +41,17 @@ function shopify_menu() {
     'load arguments' => array('shopify_product'),
     'access arguments' => array(TRUE),
   );
-
   $items['admin/shopify'] = array(
     'page callback' => 'shopify_admin_page',
     'title' => 'Shopify',
     'access arguments' => array('administer shopify'),
     'file' => 'shopify.admin.inc',
   );
-
   $items['admin/shopify/overview'] = array(
     'title' => 'Shopify Overview',
     'description' => 'Shopify Overview',
     'type' => MENU_DEFAULT_LOCAL_TASK,
   );
-
   $items['admin/shopify/sync'] = array(
     'title' => 'Sync Products',
     'description' => 'Sync Shopify Products',
@@ -100,28 +61,70 @@ function shopify_menu() {
     'type' => MENU_LOCAL_TASK,
     'file' => 'shopify.admin.inc',
   );
-
-//  $items['admin/shopify/products_structure'] = array(
-//    'title' => 'Shopify Product Fields',
-//    'description' => 'Manage Shopify Product Fields',
-//    'page callback' => 'shopify_products_fields_admin',
-//    'access arguments' => array('administer shopify products'),
-//    'type' => MENU_NORMAL_ITEM,
-//  );
-
   return $items;
 }
 
 /**
- * Page callback for the bundle admin.
+ * Delete all Shopify Products.
  */
-function shopify_products_fields_admin() {
-  return t('Administer Shopify Product fields and display');
+function shopify_delete_all_products() {
+  $existing = db_query('SELECT s.id FROM {shopify_products} s');
+  $ids = $existing->fetchCol();
+  shopify_product_delete_multiple($ids);
 }
 
+/**
+ * Update a Shopify Product with new values or create a new one.
+ *
+ * @param int $product_id
+ *   Shopify Product ID.
+ * @param int $variant_id
+ *   Shopify Variant ID.
+ * @param array $new_values
+ *   New values to apply to the Shopify Product.
+ *
+ * @return \ShopifyProduct
+ *   Returns the newly created or modified Shopify Product.
+ */
+function shopify_product_update($product_id, $variant_id = 0, array $new_values = array()) {
+  $shopify_product = shopify_product_load_single($product_id, $variant_id);
+  if (!$shopify_product) {
+    // Create a new product with those values.
+    $shopify_product = new ShopifyProduct($new_values);
+  }
+  else {
+    $shopify_product->__construct($new_values);
+  }
+  return $shopify_product;
+}
 
 /**
- *  Implements hook_entity_info().
+ * Load a single Shopify Product given a product and variant ID.
+ *
+ * @param int $product_id
+ *   Shopify Product ID.
+ * @param int $variant_id
+ *   Shopify Variant ID.
+ *
+ * @return ShopifyProduct
+ *   Returns the loaded Shopify Product entity.
+ */
+function shopify_product_load_single($product_id, $variant_id = 0) {
+  $query = new EntityFieldQuery();
+  $query->entityCondition('entity_type', 'shopify_product')
+    ->propertyCondition('product_id', $product_id)
+    ->propertyCondition('variant_id', $variant_id)
+    ->addMetaData('account', user_load(1)); // Run the query as user 1.
+  $result = $query->execute();
+  if (isset($result['shopify_product'])) {
+    $ids = array_keys($result['shopify_product']);
+    $shopify_product = entity_load_single('shopify_product', reset($ids));
+  }
+  return isset($shopify_product) ? $shopify_product : NULL;
+}
+
+/**
+ * Implements hook_entity_info().
  */
 function shopify_entity_info() {
   return array(
@@ -160,17 +163,23 @@ function shopify_entity_info() {
           'label' => t('Full'),
           'custom settings' => FALSE,
         ),
-        'teaser' => array( // @todo: WHY CANNOT ACCESS THIS /admin/shopify/products_structure/display/teaser ???
+        'teaser' => array(
           'label' => t('Teaser'),
           'custom settings' => FALSE,
         ),
       ),
       'load hook' => 'shopify_product_load',
-//      'static cache' => TRUE,
       'module' => 'shopify',
       'access callback' => 'shopify_product_access',
     ),
   );
+}
+
+/**
+ * Page callback for the bundle admin.
+ */
+function shopify_products_fields_admin() {
+  return t('Administer Shopify Product fields and display');
 }
 
 /**
@@ -212,7 +221,7 @@ function shopify_add_to_cart_form($form, &$form_state, ShopifyProduct $product =
     foreach ($product->options as $key => $select_list) {
       $form['product']['variant']['options'][] = array(
         '#type' => 'select',
-        '#title' => t($select_list['name']),
+        '#title' => check_plain(t($select_list['name'])),
         '#options' => array(),
         '#default_value' => $default_variant ? $default_variant->option_values[$key] : NULL,
         '#ajax' => array(
@@ -264,6 +273,12 @@ function shopify_add_to_cart_form($form, &$form_state, ShopifyProduct $product =
   return $form;
 }
 
+/**
+ * Get the money format that has been set in Shopify.
+ *
+ * @return string
+ *   Shopify money format.
+ */
 function shopify_money_format() {
   $format = shopify_store_info()->money_format;
   return str_replace(' {{amount}}', '', $format);
@@ -275,7 +290,7 @@ function shopify_money_format() {
  * @link https://docs.shopify.com/api/shop Shop API Documentation @endlink
  *
  * @return object
- *   Object of information.
+ *   Object of store information.
  */
 function shopify_store_info() {
   return (object) variable_get('shopify_store_info', array());
@@ -310,6 +325,9 @@ function shopify_product_load_by_variant_id($variant_id) {
  *
  * @param array $options
  *   Array of options to check against.
+ *
+ * @return \ShopifyProduct
+ *   Returns the variant that matches the passed options.
  */
 function shopify_add_to_cart_get_variant_from_options(ShopifyProduct $product, array $options = array()) {
   $selected_variant = NULL;
@@ -324,16 +342,36 @@ function shopify_add_to_cart_get_variant_from_options(ShopifyProduct $product, a
   return $selected_variant;
 }
 
+/**
+ * Add to cart form AJAX callback.
+ *
+ * @see shopify_add_to_cart_form()
+ */
 function shopify_add_to_cart_ajax_callback($form, $form_state) {
   return $form;
 }
 
-// @todo obviously fix this
+/**
+ * Shopify product access callback.
+ *
+ * @todo: FIX THIS TO NOT BE COMPLETELY OPEN.
+ *
+ * @return bool
+ *   Returns TRUE if the user has access to the product.
+ */
 function shopify_product_access() {
   return TRUE;
 }
 
-function shopify_product_uri($entity) {
+/**
+ * Get the entity URI path.
+ *
+ * @param ShopifyProduct $entity
+ *
+ * @return array
+ *   Returns the path URI.
+ */
+function shopify_product_uri(ShopifyProduct $entity) {
   return array(
     'path' => 'products/view/' . $entity->id,
   );
@@ -342,10 +380,11 @@ function shopify_product_uri($entity) {
 /**
  * Fetch a product object.
  *
- * @param $id
+ * @param int $id
  *   Integer specifying the product id.
- * @param $reset
+ * @param boolean $reset
  *   A boolean indicating that the internal cache should be reset.
+ *
  * @return ShopifyProduct
  *   A fully-loaded product or FALSE if it cannot be loaded.
  *
@@ -359,12 +398,13 @@ function shopify_product_load($id, $reset = FALSE) {
 /**
  * Load multiple product entities based on certain conditions.
  *
- * @param $ids
+ * @param array $ids
  *   An array of entity IDs.
- * @param $conditions
+ * @param array $conditions
  *   An array of conditions to match against the {entity} table.
- * @param $reset
+ * @param boolean $reset
  *   A boolean indicating that the internal cache should be reset.
+ *
  * @return ShopifyProduct
  *   An array of product entity objects, indexed by id.
  */
@@ -375,7 +415,7 @@ function shopify_product_load_multiple($ids = array(), $conditions = array(), $r
 /**
  * Delete multiple product entities.
  *
- * @param $ids
+ * @param array $ids
  *   An array of product entity IDs.
  */
 function shopify_product_delete_multiple(array $ids) {
@@ -384,6 +424,10 @@ function shopify_product_delete_multiple(array $ids) {
 
 /**
  * Implements hook_field_extra_fields().
+ *
+ * Adds the add to cart form to the display field settings for organization.
+ *
+ * @see shopify_add_to_cart_form()
  */
 function shopify_field_extra_fields() {
   $info = array();
@@ -400,7 +444,7 @@ function shopify_field_extra_fields() {
 /**
  * Implements hook_entity_form().
  *
- * Creates the edit/update form for the entity
+ * Creates the edit/update form for the entity.
  */
 function shopify_product_form($form, &$form_state, ShopifyProduct $product = NULL, $action = 'new') {
   global $user;
@@ -430,7 +474,7 @@ function shopify_product_form($form, &$form_state, ShopifyProduct $product = NUL
 }
 
 /**
- * Implementation of hook_entity_info_alter().
+ * Implements hook_entity_info_alter().
  *
  * Redirect any links to shopify_tag taxonomy terms to a View so the tags
  * actually do something.
@@ -448,6 +492,17 @@ function shopify_taxonomy_term_uri($term) {
   );
 }
 
+/**
+ * Gets the Shopify shop info from the API or the variable.
+ *
+ * @param bool $refresh
+ *   Whether to refresh the info from the API.
+ *
+ * @return object
+ *   Return object of store information.
+ *
+ * @throws \ShopifyApiException
+ */
 function shopify_api_get_shop_info($refresh = FALSE) {
   if ($refresh == TRUE || !$info = shopify_store_info()) {
     $client = shopify_api_client();
@@ -457,38 +512,105 @@ function shopify_api_get_shop_info($refresh = FALSE) {
   return (object) $info;
 }
 
+/**
+ * Get Shopify products from the API.
+ *
+ * @param array $options
+ *   Arguments to pass to the API.
+ *
+ * @return array
+ *   Returns the API response data.
+ *
+ * @throws \ShopifyApiException
+ */
 function shopify_api_get_products($options = array()) {
   $client = shopify_api_client();
   return $client->call('GET', '/admin/products.json', $options);
 }
 
-//https://docs.shopify.com/api/product#count
+/**
+ * Get the Shopify product count from the API.
+ *
+ * @param array $options
+ *   Arguments to pass to the API.
+ *
+ * @return array
+ *   Returns the API response data.
+ *
+ * @throws \ShopifyApiException
+ */
 function shopify_api_get_product_count($options = array()) {
   $client = shopify_api_client();
   return $client->call('GET', '/admin/products/count.json', $options);
 }
 
+/**
+ * Get the Shopify product information.
+ *
+ * @param int $product_id
+ *   Shopify Product ID.
+ *
+ * @return array
+ *   Returns the API response data.
+ *
+ * @throws \ShopifyApiException
+ */
 function shopify_api_get_product($product_id) {
   $client = shopify_api_client();
   return $client->call('GET', "/admin/products/{$product_id}.json");
 }
 
+/**
+ * Get the Shopify product variants.
+ *
+ * @param int $product_id
+ *   Shopify Product ID.
+ *
+ * @return array
+ *   Returns the API response data.
+ *
+ * @throws \ShopifyApiException
+ */
 function shopify_api_get_product_variants($product_id) {
   $client = shopify_api_client();
   return $client->call('GET', "/admin/products/{$product_id}/variants.json");
 }
 
+/**
+ * Get the Shopify variant information.
+ *
+ * @param int $variant_id
+ *   Shopify Variant ID.
+ *
+ * @return array
+ *   Returns the API response data.
+ *
+ * @throws \ShopifyApiException
+ */
 function shopify_api_get_variant($variant_id) {
   $client = shopify_api_client();
   return $client->call('GET', "/admin/variants/{$variant_id}.json");
 }
 
+/**
+ * Get the Shopify product images.
+ *
+ * @param int $product_id
+ *   Shopify Product ID.
+ *
+ * @return array
+ *   Returns the API response data.
+ *
+ * @throws \ShopifyApiException
+ */
 function shopify_api_get_product_images($product_id) {
   $client = shopify_api_client();
   return $client->call('GET', "/admin/products/{$product_id}/images.json");
 }
 
-
+/**
+ * Implements hook_theme().
+ */
 function shopify_theme($existing, $type, $theme, $path) {
   return array(
     'entity_property__shopify_product__body_html' => array(
@@ -500,6 +622,10 @@ function shopify_theme($existing, $type, $theme, $path) {
   );
 }
 
+/**
+ * @param $variables
+ * @return string
+ */
 function theme_entity_property__shopify_product__body_html(&$variables) {
   // Get the raw HTML and run it through check_markup, rather than check_plain
   // which is used in entity_property_default_render_value_by_type
@@ -523,6 +649,10 @@ function theme_entity_property__shopify_product__body_html(&$variables) {
   return '<div' . $variables['attributes'] . '>' . $output . '</div>';
 }
 
+/**
+ * @param $variables
+ * @return string
+ */
 function theme_entity_property__shopify_product__price(&$variables) {
   // @todo Make price symbol configurable
   if ($variables['content']) {
@@ -547,7 +677,9 @@ function theme_entity_property__shopify_product__price(&$variables) {
   return '<div' . $variables['attributes'] . '>' . $output . '</div>';
 }
 
-
+/**
+ * Implements hook_image_default_styles().
+ */
 function shopify_image_default_styles() {
   $styles = array();
 
