@@ -45,6 +45,7 @@ function shopify_product_update($id, $variant_id = 0, array $new_values = array(
   return $shopify_product;
 }
 
+
 /**
  * @param $product_id
  * @param int $variant_id
@@ -92,7 +93,7 @@ function shopify_menu() {
 
   $items['admin/shopify/sync'] = array(
     'title' => 'Sync Products',
-    'description' => 'Sync Shpoify Products',
+    'description' => 'Sync Shopify Products',
     'page callback' => 'drupal_get_form',
     'page arguments' => array('shopify_admin_product_sync_form'),
     'access arguments' => array('administer shopify'),
@@ -100,13 +101,13 @@ function shopify_menu() {
     'file' => 'shopify.admin.inc',
   );
 
-  $items['admin/shopify/products_structure'] = array(
-    'title' => 'Shopify Product Fields',
-    'description' => 'Manage Shopify Product Fields',
-    'page callback' => 'shopify_products_fields_admin',
-    'access arguments' => array('administer shopify products'),
-    'type' => MENU_NORMAL_ITEM,
-  );
+//  $items['admin/shopify/products_structure'] = array(
+//    'title' => 'Shopify Product Fields',
+//    'description' => 'Manage Shopify Product Fields',
+//    'page callback' => 'shopify_products_fields_admin',
+//    'access arguments' => array('administer shopify products'),
+//    'type' => MENU_NORMAL_ITEM,
+//  );
 
   return $items;
 }
@@ -159,7 +160,7 @@ function shopify_entity_info() {
           'label' => t('Full'),
           'custom settings' => FALSE,
         ),
-        'teaser' => array(
+        'teaser' => array( // @todo: WHY CANNOT ACCESS THIS /admin/shopify/products_structure/display/teaser ???
           'label' => t('Teaser'),
           'custom settings' => FALSE,
         ),
