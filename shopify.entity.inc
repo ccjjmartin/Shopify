@@ -346,10 +346,9 @@ class ShopifyProduct extends Entity {
 class ShopifyProductController extends EntityAPIController {
 
   public function buildContent($entity, $view_mode = 'full', $langcode = NULL, $content = array()) {
-    switch ($view_mode) {
-      case 'full':
-        $content['add_to_cart'] = drupal_get_form('shopify_add_to_cart_form', $entity);
-        break;
+    $extra_fields = field_extra_fields_get_display('shopify_product', 'shopify_product', $view_mode);
+    if ($extra_fields['add_to_cart']['visible']) {
+      $content['add_to_cart'] = drupal_get_form('shopify_add_to_cart_form', $entity);
     }
     return parent::buildContent($entity, $view_mode, $langcode, $content);
   }
@@ -418,11 +417,11 @@ class ShopifyProductMetadataController extends EntityDefaultMetadataController {
 
 class ShopifyProductsUIController extends EntityDefaultUIController {
 
-  public function hook_menu() {
-    $items = parent::hook_menu();
-    $items[$this->path]['type'] = MENU_LOCAL_TASK;
-    return $items;
-  }
+//  public function hook_menu() {
+//    $items = parent::hook_menu();
+//    $items[$this->path]['type'] = MENU_LOCAL_TASK;
+//    return $items;
+//  }
 
   public function overviewForm($form, &$form_state) {
     // Only show products, not variants.
