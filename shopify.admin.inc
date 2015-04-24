@@ -1,5 +1,12 @@
 <?php
+/**
+ * @file
+ * Contains functions and forms for admin pages.
+ */
 
+/**
+ * Admin page callback.
+ */
 function shopify_admin_page() {
   try {
     $info = shopify_api_get_shop_info($refresh = TRUE);
@@ -22,6 +29,9 @@ function shopify_admin_page() {
   return $return;
 }
 
+/**
+ * Shopify products sync page form.
+ */
 function shopify_admin_product_sync_form($form, &$form_state) {
   try {
     shopify_api_get_shop_info();
@@ -65,7 +75,9 @@ function shopify_admin_product_sync_form($form, &$form_state) {
 }
 
 /**
- * Submit handler.
+ * Shopify product sync form submit handler.
+ *
+ * @see shopify_admin_product_sync_form()
  */
 function shopify_admin_product_sync_form_submit($form, &$form_state) {
   // @todo Probably should have a batch just for this.
@@ -80,7 +92,7 @@ function shopify_admin_product_sync_form_submit($form, &$form_state) {
 }
 
 /**
- * @return array
+ * Shopify products sync batch callback.
  */
 function shopify_sync_products_batch($params) {
   // Get count of products
@@ -109,6 +121,9 @@ function shopify_sync_products_batch($params) {
   return $batch;
 }
 
+/**
+ * Shopify products sync batch operation handler.
+ */
 function shopify_sync_products_batch_op_1($page, $num_per_batch, $operation_details, &$context) {
   $products = shopify_api_get_products(
     array(
@@ -134,6 +149,9 @@ function shopify_sync_products_batch_op_1($page, $num_per_batch, $operation_deta
 }
 
 /**
+ * Shopify product sync batch operation finished callback.
+ *
+ * @see shopify_sync_products_batch_op_1()
  */
 function shopify_sync_products_batch_finished($success, $results, $operations) {
   if ($success) {

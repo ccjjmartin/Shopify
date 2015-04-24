@@ -204,6 +204,9 @@ class ShopifyProduct extends Entity {
    */
   public $variants;
 
+  /**
+   * Creates a new ShopifyProduct entity.
+   */
   public function __construct(array $values = array()) {
     // Handle shopify product and variant IDs.
     if (!empty($values)) {
@@ -251,6 +254,9 @@ class ShopifyProduct extends Entity {
     parent::setUp();
   }
 
+  /**
+   * Saves the entity.
+   */
   public function save() {
     // Ensure that we are saving serialized array data.
     if (is_array($this->options)) {
@@ -262,6 +268,9 @@ class ShopifyProduct extends Entity {
     return parent::save();
   }
 
+  /**
+   * Set images for this product.
+   */
   function setImages() {
     $directory = file_build_uri('shopify_images');
     if (!file_prepare_directory($directory, FILE_CREATE_DIRECTORY)) {
@@ -278,6 +287,9 @@ class ShopifyProduct extends Entity {
     }
   }
 
+  /**
+   * Set terms from tags for this product.
+   */
   function setTerms() {
     foreach (array_reverse(explode(',', $this->tags)) as $tag) {
       $tag = trim($tag);
@@ -315,10 +327,6 @@ class ShopifyProduct extends Entity {
       ->execute();
     if (isset($result['shopify_product']) && $result['shopify_product']) {
       $variants = entity_load('shopify_product', array_keys($result['shopify_product']));
-//      if (count($variants) == 1 && strtolower(reset($variants)->title) == 'default title') {
-//        // Don't need to consider this as a variant.
-//        $variants = array();
-//      }
     }
     return $variants;
   }
@@ -343,8 +351,14 @@ class ShopifyProduct extends Entity {
 
 }
 
+/**
+ * Class ShopifyProductController
+ */
 class ShopifyProductController extends EntityAPIController {
 
+  /**
+   * Implements EntityAPIController.
+   */
   public function buildContent($entity, $view_mode = 'full', $langcode = NULL, $content = array()) {
     $extra_fields = field_extra_fields_get_display('shopify_product', 'shopify_product', $view_mode);
     if ($extra_fields['add_to_cart']['visible']) {
@@ -373,7 +387,14 @@ class ShopifyProductController extends EntityAPIController {
   }
 }
 
+/**
+ * Class ShopifyProductMetadataController
+ */
 class ShopifyProductMetadataController extends EntityDefaultMetadataController {
+
+  /**
+   * Defines entity property info.
+   */
   public function entityPropertyInfo() {
     $info[$this->type]['properties']['updated_at'] = array(
       'label' => t('Updated Date'),
@@ -573,14 +594,14 @@ class ShopifyProductMetadataController extends EntityDefaultMetadataController {
   }
 }
 
+/**
+ * Class ShopifyProductsUIController
+ */
 class ShopifyProductsUIController extends EntityDefaultUIController {
 
-//  public function hook_menu() {
-//    $items = parent::hook_menu();
-//    $items[$this->path]['type'] = MENU_LOCAL_TASK;
-//    return $items;
-//  }
-
+  /**
+   * Builds the entity overview form.
+   */
   public function overviewForm($form, &$form_state) {
     // Only show products, not variants.
     $conditions = array('variant_id' => 0);
@@ -620,7 +641,7 @@ class ShopifyProductsUIController extends EntityDefaultUIController {
 
     $rows = array();
     foreach ($entities as $entity) {
-      $shopify_link = l('Edit on Shopify', 'http://' . variable_get('shopify_api_domain') . '/admin/products/' . $entity->product_id, array('attributes' => array('target' => '_blank')));
+      $shopify_link = l(t('Edit on Shopify'), 'http://' . variable_get('shopify_api_domain') . '/admin/products/' . $entity->product_id, array('attributes' => array('target' => '_blank')));
       $rows[] = $this->overviewTableRow($conditions, entity_id($this->entityType, $entity), $entity, array($shopify_link));
     }
 

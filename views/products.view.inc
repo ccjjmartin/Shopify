@@ -1,4 +1,8 @@
 <?php
+/**
+ * @file
+ * Default product listing view for Shopify module.
+ */
 
 $view = new view();
 $view->name = 'products';
