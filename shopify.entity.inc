@@ -369,22 +369,22 @@ class ShopifyProductController extends EntityAPIController {
 
   /**
    * Renders a single entity property.
-   */
-  protected function renderEntityProperty($wrapper, $name, $property, $view_mode, $langcode, &$content) {
-    $info = $property->info();
-
-    $content[$name] = array(
-      // Overrridden to hide labels by default
-      '#label_hidden' => TRUE,
-      '#label' => $info['label'],
-      '#entity_wrapped' => $wrapper,
-      '#theme' => 'entity_property',
-      '#property_name' => $name,
-      '#access' => $property->access('view'),
-      '#entity_type' => $this->entityType,
-    );
-    $content['#attached']['css']['entity.theme'] = drupal_get_path('module', 'entity') . '/theme/entity.theme.css';
-  }
+//   */
+//  protected function renderEntityProperty($wrapper, $name, $property, $view_mode, $langcode, &$content) {
+//    $info = $property->info();
+//
+////    $content[$name] = array(
+////      // Overrridden to hide labels by default
+////      '#label_hidden' => TRUE,
+////      '#label' => $info['label'],
+////      '#entity_wrapped' => $wrapper,
+////      '#theme' => 'entity_property',
+////      '#property_name' => $name,
+////      '#access' => $property->access('view'),
+////      '#entity_type' => $this->entityType,
+////    );
+//    $content['#attached']['css']['entity.theme'] = drupal_get_path('module', 'entity') . '/theme/entity.theme.css';
+//  }
 }
 
 /**

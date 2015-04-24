@@ -5,6 +5,15 @@
  */
 
 /**
+ *  Implements hook_init().
+ */
+function shopify_init() {
+  // Mostly used for quick testing of things right now.
+//  $client = shopify_api_client();
+//  $info = $client->call('GET', '/admin/metafields.json');
+}
+
+/**
  * Implements hook_views_api().
  */
 function shopify_views_api() {
