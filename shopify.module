@@ -101,15 +101,38 @@ function shopify_menu() {
     'file' => 'shopify.admin.inc',
   );
 
-//  $items['admin/shopify/products_structure'] = array(
-//    'title' => 'Shopify Product Fields',
-//    'description' => 'Manage Shopify Product Fields',
-//    'page callback' => 'shopify_products_fields_admin',
-//    'access arguments' => array('administer shopify products'),
-//    'type' => MENU_NORMAL_ITEM,
-//  );
+  $items['admin/shopify/webhooks'] = array(
+    'title' => 'Webhooks',
+    'description' => 'Manage Shopify Webhooks',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('shopify_webhooks_admin'),
+    'access arguments' => array('administer shopify webhooks'),
+    'type' => MENU_LOCAL_TASK,
+    'file' => 'shopify.admin.inc',
+  );
+
+  $items['shopify/webhook/%'] = array(
+    'page callback' => 'shopify_incoming_webhook',
+    'page arguments' => array(2),
+    'access callback' => array(TRUE),
+    'type' => MENU_CALLBACK,
+  );
 
   return $items;
+}
+
+function shopify_incoming_webhook($hook) {
+  $json = file_get_contents('php://input');
+  $payload = json_decode($json);
+  $function = 'shopify_webhook_' . $hook;
+  foreach (module_implements($function) as $module) {
+    module_invoke($module, $function, $payload);
+  }
+  return '';
+}
+
+function shopify_shopify_webhook_product_update($product) {
+  watchdog('shopify', print_r($product, TRUE));
 }
 
 /**
@@ -462,7 +485,6 @@ function shopify_api_get_products($options = array()) {
   return $client->call('GET', '/admin/products.json', $options);
 }
 
-//https://docs.shopify.com/api/product#count
 function shopify_api_get_product_count($options = array()) {
   $client = shopify_api_client();
   return $client->call('GET', '/admin/products/count.json', $options);
@@ -488,6 +510,25 @@ function shopify_api_get_product_images($product_id) {
   return $client->call('GET', "/admin/products/{$product_id}/images.json");
 }
 
+function shopify_api_get_webhooks() {
+  $client = shopify_api_client();
+  return $client->call('GET', "/admin/webhooks.json");
+}
+
+function shopify_api_get_webhook_count($options = array()) {
+  $client = shopify_api_client();
+  return $client->call('GET', "/admin/webhooks/count.json");
+}
+
+function shopify_api_create_webhook($post) {
+  $client = shopify_api_client();
+  return $client->call('POST', "/admin/webhooks.json", $post);
+}
+
+function shopify_api_delete_webhook($id) {
+  $client = shopify_api_client();
+  return $client->call('DELETE', "/admin/webhooks/{$id}.json");
+}
 
 function shopify_theme($existing, $type, $theme, $path) {
   return array(

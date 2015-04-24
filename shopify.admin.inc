@@ -156,3 +156,100 @@ function shopify_sync_products_batch_finished($success, $results, $operations) {
     );
   }
 }
+
+/**
+ * orders/create, orders/delete, orders/updated, orders/paid, orders/cancelled, orders/fulfilled, orders/partially_fulfilled, order_transactions/create, carts/create, carts/update, checkouts/create, checkouts/update, checkouts/delete, refunds/create, products/create, products/update, products/delete, collections/create, collections/update, collections/delete, customer_groups/create, customer_groups/update, customer_groups/delete, customers/create, customers/enable, customers/disable, customers/update, customers/delete, fulfillments/create, fulfillments/update, shop/update, disputes/create, disputes/update, app/uninstalled
+ */
+function shopify_webhooks_admin($form, &$form_state) {
+  $webhooks = shopify_api_get_webhooks();
+  $form['#tree'] = TRUE;
+  $form['registered'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Webhooks Registered'),
+    '#collapsible' => TRUE,
+    '#collapsed' => FALSE,
+  );
+  foreach ($webhooks as $hook) {
+    $form['registered'][$hook['id']] = array(
+      '#type' => 'checkbox',
+      '#title' => $hook['topic'] . ', applies to: ' . $hook['address'],
+    );
+  }
+
+  $form['remove_submit'] = array(
+    '#type' => 'submit',
+    '#value' => t('Remove'),
+    '#submit' => array('shopify_remove_webhooks_submit'),
+  );
+
+  $form['register'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Register New Webhooks'),
+    '#collapsible' => TRUE,
+    '#collapsed' => FALSE,
+  );
+
+  $product_topics = array(
+    'create' => t('Product created'),
+    'update' => t('Product updated'),
+    'delete' => t('Product deleted'),
+  );
+
+  foreach ($product_topics as $topic => $description) {
+    $form['register']['products'][$topic] = array(
+      '#type' => 'checkbox',
+      '#title' => $description,
+    );
+  }
+
+  $protocol = stripos($_SERVER['SERVER_PROTOCOL'],'https') === true ? 'https://' : 'http://';
+
+  $form['register']['hostname'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Hostname'),
+    '#default_value' => $protocol . "$_SERVER[HTTP_HOST]",
+    '#size' => 60,
+    '#required' => TRUE,
+  );
+
+  $form['register']['register_submit'] = array(
+    '#type' => 'submit',
+    '#value' => t('Register'),
+    '#submit' => array('shopify_register_webhooks_submit'),
+  );
+
+  return $form;
+}
+
+function shopify_remove_webhooks_submit($form, &$form_state) {
+  if ($form_state['values']['op'] == 'Remove') {
+    foreach ($form_state['values']['registered'] as $id => $v) {
+      if ($v == 1) {
+        shopify_api_delete_webhook($id);
+      }
+    }
+  }
+}
+
+function shopify_register_webhooks_submit($form, &$form_state) {
+  $values = $form_state['values'];
+  if ($form_state['values']['op'] == 'Register') {
+    unset($values['register']['register_submit']);
+    $hostname = $values['register']['hostname'];
+    unset($values['register']['hostname']);
+    foreach ($values['register'] as $type => $topics) {
+      foreach ($topics as $topic => $v)
+        if ($v == 1) {
+          $hook = array(
+            'webhook' => array(
+              'topic' => "$type/$topic",
+              // @TODO Update this! must include a path like /shopify/webhook/product_update!
+              'address' => $hostname,
+              'format' => "json"
+            )
+          );
+          shopify_api_create_webhook($hook);
+        }
+      }
+    }
+}
