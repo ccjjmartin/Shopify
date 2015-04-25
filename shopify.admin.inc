@@ -185,7 +185,7 @@ function shopify_webhooks_admin($form, &$form_state) {
     '#type' => 'fieldset',
     '#title' => t('Webhooks Registered'),
     '#collapsible' => TRUE,
-    '#collapsed' => FALSE,
+    '#collapsed' => TRUE,
   );
   foreach ($webhooks as $hook) {
     $form['registered'][$hook['id']] = array(
@@ -275,7 +275,7 @@ function shopify_webhooks_admin($form, &$form_state) {
       '#type' => 'fieldset',
       '#title' => t(str_replace('_', ' ', ucwords($group_name))),
       '#collapsible' => TRUE,
-      '#collapsed' => FALSE,
+      '#collapsed' => TRUE,
     );
 
     foreach ($group_options as $topic => $description) {
