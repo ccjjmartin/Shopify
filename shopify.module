@@ -93,7 +93,7 @@ function shopify_menu() {
 
 function shopify_incoming_webhook($hook) {
   $json = file_get_contents('php://input');
-  $payload = json_decode($json);
+  $payload = json_decode($json, TRUE);
   $function = 'shopify_webhook_' . $hook;
   foreach (module_implements($function) as $module) {
     module_invoke($module, $function, $payload);
@@ -101,18 +101,21 @@ function shopify_incoming_webhook($hook) {
   return '';
 }
 
-function shopify_shopify_webhook_products_create($product) {
+function shopify_shopify_webhook_products_create($payload) {
+  shopify_shopify_webhook_products_update($payload);
 }
 
 function shopify_shopify_webhook_products_update($product) {
-  $product = (array) $product;
-  watchdog('shopify_webhook_product_update', var_export($product, TRUE));
-  $product = shopify_product_update($product['id'], 0, $product);
-  $product->save();
+  $product_entity = shopify_product_update($product['id'], 0, $product);
+  $product_entity->save();
+  foreach ($product['variants'] as $v) {
+    $variant = shopify_product_update($product['id'], $v['id'], $v);
+    $variant->save();
+  }
 }
 
 function shopify_shopify_webhook_products_delete($product) {
-  shopify_delete_by_product_id($product->id);
+  shopify_delete_by_product_id($product['id']);
 }
 
 function shopify_shopify_webook_carts_update($payload) {
@@ -152,13 +155,11 @@ function shopify_delete_by_product_id($product_id) {
  */
 function shopify_product_update($product_id, $variant_id = 0, array $new_values = array()) {
   $shopify_product = shopify_product_load_single($product_id, $variant_id);
-  //watchdog('shopify', print_r($shopify_product, TRUE));
   if (!$shopify_product) {
     // Create a new product with those values.
     $shopify_product = new ShopifyProduct($new_values);
   }
   else {
-    //watchdog('shopify', print_r($new_values, TRUE));
     $shopify_product->__construct($new_values);
   }
   return $shopify_product;
