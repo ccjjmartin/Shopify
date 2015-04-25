@@ -281,9 +281,8 @@ function shopify_install() {
       ),
   );
   field_update_instance($instance);
-  $datetime = new DateTime('1/1/1970');
-  $last_updated = $datetime->format('Y-m-d H:i');
-  variable_set('shopify_last_sync', $last_updated);
+
+  shopify_products_reset_sync_datestamp();
 }
 
 /**
