@@ -571,7 +571,8 @@ function shopify_taxonomy_term_uri($term) {
  * @throws \ShopifyApiException
  */
 function shopify_api_get_shop_info($refresh = FALSE) {
-  if ($refresh == TRUE || !$info = shopify_store_info()) {
+  $info = (array) shopify_store_info();
+  if ($refresh == TRUE || empty($info)) {
     $client = shopify_api_client();
     $info = $client->call('GET', '/admin/shop.json');
     variable_set('shopify_store_info', $info);
