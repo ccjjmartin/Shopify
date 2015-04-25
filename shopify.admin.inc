@@ -185,7 +185,7 @@ function shopify_webhooks_admin($form, &$form_state) {
     '#type' => 'fieldset',
     '#title' => t('Webhooks Registered'),
     '#collapsible' => TRUE,
-    '#collapsed' => TRUE,
+    '#collapsed' => FALSE,
   );
   foreach ($webhooks as $hook) {
     $form['registered'][$hook['id']] = array(
@@ -204,7 +204,7 @@ function shopify_webhooks_admin($form, &$form_state) {
     '#type' => 'fieldset',
     '#title' => t('Register New Webhooks'),
     '#collapsible' => TRUE,
-    '#collapsed' => FALSE,
+    '#collapsed' => TRUE,
   );
 
   $possible_hooks = array(
