@@ -92,8 +92,18 @@ function shopify_incoming_webhook($hook) {
   return '';
 }
 
-function shopify_shopify_webhook_product_update($product) {
+function shopify_shopify_webhook_products_create($product) {
+}
+
+function shopify_shopify_webhook_products_update($product) {
+  //watchdog('shopify', print_r($product, TRUE));
+  $product = shopify_product_update($product->id, 0, (array) $product);
   watchdog('shopify', print_r($product, TRUE));
+  $product->save();
+}
+
+function shopify_shopify_webhook_products_delete($product) {
+  shopify_delete_by_product_id($product->id);
 }
 
 /**
@@ -102,6 +112,15 @@ function shopify_shopify_webhook_product_update($product) {
 function shopify_delete_all_products() {
   $existing = db_query('SELECT s.id FROM {shopify_products} s');
   $ids = $existing->fetchCol();
+  shopify_product_delete_multiple($ids);
+}
+
+/**
+ * Delete Shopify Products and Variants by Shopify Product ID.
+ */
+function shopify_delete_by_product_id($product_id) {
+  $products = db_query('SELECT s.id FROM {shopify_products} s WHERE product_id = :product_id', array(':product_id' => $product_id));
+  $ids = $products->fetchCol();
   shopify_product_delete_multiple($ids);
 }
 
@@ -706,9 +725,8 @@ function theme_entity_property__shopify_product__body_html(&$variables) {
  * @return string
  */
 function theme_entity_property__shopify_product__price(&$variables) {
-  // @todo Make price symbol configurable
   if ($variables['content']) {
-    $variables['content'] = '$' . $variables['content'];
+    $variables['content'] = shopify_money_format() . $variables['content'];
   }
   $output = '';
 
