@@ -703,9 +703,6 @@ class ShopifyProductsUIController extends EntityDefaultUIController {
       if (entity_has_status($this->entityType, $entity, ENTITY_OVERRIDDEN)) {
         $row[] = l(t('revert'), $this->path . '/manage/' . $id . '/revert', array('query' => drupal_get_destination()));
       }
-      else {
-        $row[] = '';
-      }
     }
     if ($exportable) {
       $row[] = l(t('export'), $this->path . '/manage/' . $id . '/export');
@@ -713,10 +710,11 @@ class ShopifyProductsUIController extends EntityDefaultUIController {
     return $row;
   }
 
-  public function hook_menu() {
-    parent::hook_menu();
-    // @todo Add a nice page callback to point at Shopify's add product page.
-    unset($items[$this->path . '/add']);
-  }
+//  public function hook_menu() {
+//    parent::hook_menu();
+//    // @todo Add a nice page callback to point at Shopify's add product page.
+      // @todo Remove the Delete callback.
+      // @todo Remove the Add callback
+//  }
 
 }
