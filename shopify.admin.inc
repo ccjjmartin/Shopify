@@ -133,7 +133,7 @@ function shopify_sync_products_batch_op_1($page, $num_per_batch, $operation_deta
     )
   );
   foreach ($products as $product) {
-
+    watchdog('shopify_product_sync', var_export($product, TRUE));
     $shopify_product = shopify_product_update($product['id'], 0, $product);
     $shopify_product->save();
 
@@ -175,11 +175,15 @@ function shopify_sync_products_batch_finished($success, $results, $operations) {
   }
 }
 
-/**
- * orders/create, orders/delete, orders/updated, orders/paid, orders/cancelled, orders/fulfilled, orders/partially_fulfilled, order_transactions/create, carts/create, carts/update, checkouts/create, checkouts/update, checkouts/delete, refunds/create, products/create, products/update, products/delete, collections/create, collections/update, collections/delete, customer_groups/create, customer_groups/update, customer_groups/delete, customers/create, customers/enable, customers/disable, customers/update, customers/delete, fulfillments/create, fulfillments/update, shop/update, disputes/create, disputes/update, app/uninstalled
- */
 function shopify_webhooks_admin($form, &$form_state) {
-  $webhooks = shopify_api_get_webhooks();
+  try {
+    $webhooks = shopify_api_get_webhooks();
+  }
+  catch (ShopifyApiException $e) {
+    $response = $e->getResponse();
+    drupal_set_message(t('Shopify says there was a problem: @message', array('@message' => $response['errors'])), 'warning');
+    return '';
+  }
   $form['#tree'] = TRUE;
   $form['registered'] = array(
     '#type' => 'fieldset',
@@ -187,10 +191,18 @@ function shopify_webhooks_admin($form, &$form_state) {
     '#collapsible' => TRUE,
     '#collapsed' => FALSE,
   );
+
+  if (empty($webhooks)) {
+    $form['registered']['none'] = array(
+      '#markup' => t('No webhooks registed on Shopify for this App. Hooks created via the Shopify website will not be displayed here but will still work with the hook system. Caution: Internal paths are different for each hook.'),
+    );
+  }
+
   foreach ($webhooks as $hook) {
     $form['registered'][$hook['id']] = array(
       '#type' => 'checkbox',
       '#title' => $hook['topic'] . ' via: ' . $hook['address'],
+      '#description' => t('React to this event using: @hook', array('@hook' => 'HOOK_shopify_webook_' . str_replace('/', '_', $hook['topic']))),
     );
   }
 
@@ -204,10 +216,47 @@ function shopify_webhooks_admin($form, &$form_state) {
     '#type' => 'fieldset',
     '#title' => t('Register New Webhooks'),
     '#collapsible' => TRUE,
-    '#collapsed' => TRUE,
+    '#collapsed' => FALSE,
   );
 
   $possible_hooks = array(
+    'app' => array(
+      'uninstalled' => t('App Uninstalled'),
+    ),
+    'carts' => array(
+      'create' => t('Cart Created'),
+      'update' => t('Cart Updated'),
+    ),
+    'checkouts' => array(
+      'create' => t('Checkout Created'),
+      'update' => t('Checkout Updated'),
+      'delete' => t('Checkout Deleted'),
+    ),
+    'collections' => array(
+      'create' => t('Collection Created'),
+      'update' => t('Collection Updated'),
+      'delete' => t('Collection Deleted'),
+    ),
+    'customers' => array(
+      'create' => t('Customer Created'),
+      'enable' => t('Customer Enabled'),
+      'disable' => t('Customer Disabled'),
+      'update' => t('Customer Updated'),
+      'delete' => t('Customer Deleted'),
+    ),
+    'customer_groups' => array(
+      'create' => t('Customer Group Created'),
+      'update' => t('Customer Group Updated'),
+      'delete' => t('Customer Group Deleted'),
+    ),
+    'disputes' => array(
+      'create' => t('Dispute Created'),
+      'update' => t('Dispute Updated'),
+    ),
+    'fulfillments' => array(
+      'create' => t('Fulfillment Created'),
+      'update' => t('Fullfillment Updated'),
+    ),
     'orders' => array(
       'create' => t('Order Created'),
       'delete' => t('Order Deleted'),
@@ -220,55 +269,19 @@ function shopify_webhooks_admin($form, &$form_state) {
     'order_transactions' => array(
       'create' => t('Order Transaction Created'),
     ),
-    'carts' => array(
-      'create' => t('Cart Created'),
-      'update' => t('Cart Updated'),
-    ),
-    'checkouts' => array(
-      'create' => t('Checkout Created'),
-      'update' => t('Checkout Updated'),
-      'delete' => t('Checkout Deleted'),
-    ),
-    'refunds' => array(
-      'create' => t('Refund Created'),
-    ),
     'products' => array(
       'create' => t('Product Created'),
       'update' => t('Product Updated'),
       'delete' => t('Product Deleted'),
     ),
-    'collections' => array(
-      'create' => t('Collection Created'),
-      'update' => t('Collection Updated'),
-      'delete' => t('Collection Deleted'),
-    ),
-    'customer_groups' => array(
-      'create' => t('Customer Group Created'),
-      'update' => t('Customer Group Updated'),
-      'delete' => t('Customer Group Deleted'),
-    ),
-    'customers' => array(
-      'create' => t('Customer Created'),
-      'enable' => t('Customer Enabled'),
-      'disable' => t('Customer Disabled'),
-      'update' => t('Customer Updated'),
-      'delete' => t('Customer Deleted'),
-    ),
-    'fulfillments' => array(
-      'create' => t('Fulfillment Created'),
-      'update' => t('Fullfillment Updated'),
+    'refunds' => array(
+      'create' => t('Refund Created'),
     ),
     'shop' => array(
       'update' => t('Shop Updated'),
     ),
-    'disputes' => array(
-      'create' => t('Dispute Created'),
-      'update' => t('Dispute Updated'),
-    ),
-    'app' => array(
-      'uninstalled' => t('App Uninstalled'),
-    ),
   );
+
   foreach ($possible_hooks as $group_name => $group_options) {
 
     $form['register'][$group_name] = array(
@@ -287,19 +300,45 @@ function shopify_webhooks_admin($form, &$form_state) {
   }
 
   $protocol = stripos($_SERVER['SERVER_PROTOCOL'],'https') === true ? 'https://' : 'http://';
+  $current = $protocol . "$_SERVER[HTTP_HOST]";
 
   $form['register']['hostname'] = array(
     '#type' => 'textfield',
     '#title' => t('Hostname'),
-    '#default_value' => $protocol . "$_SERVER[HTTP_HOST]",
+    '#default_value' => variable_get('shopify_last_registered_host', $current),
     '#size' => 60,
     '#required' => TRUE,
+    '#description' => t('Do not include a trailing slash.'),
   );
 
   $form['register']['register_submit'] = array(
     '#type' => 'submit',
     '#value' => t('Register'),
     '#submit' => array('shopify_register_webhooks_submit'),
+    '#validate' => array('shopify_register_webhooks_validate'),
+  );
+
+  $message = '<p>Pro Tip: If you\'re developing locally and need to test webhooks ';
+  $message .= 'download in install <a href="https://ngrok.com">ngrok</a> for a tunnel to your localhost. ';
+  $message .= 'The service is free. Here is a commandline example: <br /><code>';
+  $message .= 'ngrok http -host-header=YOUR_LOCALHOST_NAME_HERE.COM 80</code>. ';
+  $message .= 'Place the "Forwarding" address into the hostname field above and ';
+  $message .= 'register the hooks you want to test. The forwarding address ';
+  $message .= 'address will look something like <code>http://0e1ff1cb.ngrok.io</code></p>';
+
+  $form['tips'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Tips'),
+    '#collapsible' => TRUE,
+    '#collapsed' => TRUE,
+  );
+
+  $form['tips']['ngrok'] = array(
+    '#markup' => t($message),
+  );
+
+  $form['tips']['UI'] = array(
+    '#markup' => t('<p>Webhooks created via the Shopify website will not appear here, but event hooks will still work.</p>'),
   );
 
   return $form;
@@ -315,8 +354,15 @@ function shopify_remove_webhooks_submit($form, &$form_state) {
   }
 }
 
+function shopify_register_webhooks_validate($form, &$form_state) {
+  $hostname = &$form_state['values']['register']['hostname'];
+  $hostname = rtrim($hostname, '/');
+}
+
 function shopify_register_webhooks_submit($form, &$form_state) {
   $values = $form_state['values'];
+  variable_set('shopify_last_registered_host', $values['register']['hostname']);
+
   if ($form_state['values']['op'] == 'Register') {
 
     unset($values['register']['register_submit']);
@@ -333,7 +379,19 @@ function shopify_register_webhooks_submit($form, &$form_state) {
               'format' => "json"
             )
           );
-          shopify_api_create_webhook($hook);
+          try {
+            shopify_api_create_webhook($hook);
+          }
+          catch (ShopifyApiException $e) {
+            $response = $e->getResponse();
+            if (isset($response['errors']['address'])) {
+              $message = $hostname . ' address ' . $response['errors']['address'][0];
+            }
+            else {
+              $message = $response['errors'];
+            }
+            drupal_set_message(t('Shopify says there was a problem with @topic: @errors', array('@errors' => $message, '@topic' => "$group/$topic")), 'warning');
+          }
         }
       }
     }
