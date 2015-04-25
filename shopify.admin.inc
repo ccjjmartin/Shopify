@@ -46,9 +46,13 @@ function shopify_admin_product_sync_form($form, &$form_state) {
     $last_updated = 'never';
   }
 
-  $form['description'] = array(
+  $info = 'Last sync !last_updated. Only products updated since the last sync will ';
+  $info .= 'be pulled and synced. Products updated via webhooks will be updated anyway. ';
+  $info .= 'Custom fields you\'ve added yourself will not be overridden on update.';
+
+  $form['info'] = array(
     '#type' => 'markup',
-    '#markup' => t('Last updated !last_updated.', array('!last_updated' => $last_updated)),
+    '#markup' => t($info, array('!last_updated' => $last_updated)),
   );
 
   $form['num_per_batch'] = array(
@@ -59,11 +63,17 @@ function shopify_admin_product_sync_form($form, &$form_state) {
       '50' => t('50 at a time'),
       '250' => t('250 (Max API limit)'),
     ),
+    '#default_value' => 250,
   );
 
   $form['delete'] = array(
     '#type' => 'checkbox',
-    '#title' => t('Delete all products then re-import everything.'),
+    '#title' => t('Delete all products then re-import fresh. CAUTION: Product entities will be completely deleted then re-imported. Custom fields will be erased, comments deleted, etc.'),
+  );
+
+  $form['update_anyway'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Update all products regardless of last sync time. Product entities will be updated, not  deleted.'),
   );
 
   $form['submit'] = array(
@@ -83,13 +93,16 @@ function shopify_admin_product_sync_form_submit($form, &$form_state) {
   // @todo Probably should have a batch just for this.
   if ($form_state['values']['delete']) {
     shopify_delete_all_products();
-    $datetime = new DateTime('1/1/1970');
-    $last_updated = $datetime->format('Y-m-d H:i');
-    variable_set('shopify_last_sync', $last_updated);
+    shopify_products_reset_sync_datestamp();
+  }
+  if ($form_state['values']['update_anyway']) {
+    shopify_products_reset_sync_datestamp();
   }
   $batch = shopify_sync_products_batch(array('num_per_batch' => $form_state['values']['num_per_batch']));
   batch_set($batch);
 }
+
+
 
 /**
  * Shopify products sync batch callback.
@@ -133,7 +146,6 @@ function shopify_sync_products_batch_op_1($page, $num_per_batch, $operation_deta
     )
   );
   foreach ($products as $product) {
-    watchdog('shopify_product_sync', var_export($product, TRUE));
     $shopify_product = shopify_product_update($product['id'], 0, $product);
     $shopify_product->save();
 
@@ -185,6 +197,12 @@ function shopify_webhooks_admin($form, &$form_state) {
     return '';
   }
   $form['#tree'] = TRUE;
+
+  $form['help'] = array(
+    '#markup' => t('<p>It is <strong>highly recommended</strong> that you at least have webhooks registered for product events to keep your store automatically in sync with Shopify. Make sure you\'ve registered all development, staging and production environment URLs.</p>'),
+  );
+
+
   $form['registered'] = array(
     '#type' => 'fieldset',
     '#title' => t('Webhooks Registered'),
@@ -194,7 +212,7 @@ function shopify_webhooks_admin($form, &$form_state) {
 
   if (empty($webhooks)) {
     $form['registered']['none'] = array(
-      '#markup' => t('No webhooks registed on Shopify for this App. Hooks created via the Shopify website will not be displayed here but will still work with the hook system. Caution: Internal paths are different for each hook.'),
+      '#markup' => t('<p>No webhooks registed on Shopify for this App.</p><p>It is highly recommended that you at least have webhooks registered for product events to keep your store automatically in sync with Shopify.</p><p>Hooks created via the Shopify website will not be displayed here but will still work with the hook system. Caution: Internal paths are different for each hook.</p>'),
     );
   }
 
@@ -249,10 +267,6 @@ function shopify_webhooks_admin($form, &$form_state) {
       'update' => t('Customer Group Updated'),
       'delete' => t('Customer Group Deleted'),
     ),
-    'disputes' => array(
-      'create' => t('Dispute Created'),
-      'update' => t('Dispute Updated'),
-    ),
     'fulfillments' => array(
       'create' => t('Fulfillment Created'),
       'update' => t('Fullfillment Updated'),
@@ -270,9 +284,9 @@ function shopify_webhooks_admin($form, &$form_state) {
       'create' => t('Order Transaction Created'),
     ),
     'products' => array(
-      'create' => t('Product Created'),
-      'update' => t('Product Updated'),
-      'delete' => t('Product Deleted'),
+      'create' => t('Product Created - Highly Recommended'),
+      'update' => t('Product Updated - Highly Recommended'),
+      'delete' => t('Product Deleted - Highly Recommended'),
     ),
     'refunds' => array(
       'create' => t('Refund Created'),
@@ -288,7 +302,7 @@ function shopify_webhooks_admin($form, &$form_state) {
       '#type' => 'fieldset',
       '#title' => t(str_replace('_', ' ', ucwords($group_name))),
       '#collapsible' => TRUE,
-      '#collapsed' => TRUE,
+      '#collapsed' => $group_name == 'products' ? FALSE : TRUE,
     );
 
     foreach ($group_options as $topic => $description) {
@@ -333,12 +347,16 @@ function shopify_webhooks_admin($form, &$form_state) {
     '#collapsed' => TRUE,
   );
 
-  $form['tips']['ngrok'] = array(
-    '#markup' => t($message),
-  );
-
   $form['tips']['UI'] = array(
     '#markup' => t('<p>Webhooks created via the Shopify website will not appear here, but event hooks will still work.</p>'),
+  );
+
+  $form['tips']['standard_hooks'] = array(
+    '#markup' => t('<p>Be sure to add the product webhooks to automatically keep your products in sync with Shopify. Other hooks do nothing unless you write code implementing the hook yourself.</p>'),
+  );
+
+  $form['tips']['ngrok'] = array(
+    '#markup' => t($message),
   );
 
   return $form;
