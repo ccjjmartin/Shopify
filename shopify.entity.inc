@@ -641,10 +641,9 @@ class ShopifyProductsUIController extends EntityDefaultUIController {
 
     $rows = array();
     foreach ($entities as $entity) {
-      $shopify_link = l(t('Edit on Shopify'), 'http://' . variable_get('shopify_api_domain') . '/admin/products/' . $entity->product_id, array('attributes' => array('target' => '_blank')));
+      $shopify_link = l(t('Edit on Shopify'), shopify_api_get_product_path($entity->product_id), array('attributes' => array('target' => '_blank')));
       $rows[] = $this->overviewTableRow($conditions, entity_id($this->entityType, $entity), $entity, array($shopify_link));
     }
-
     $render = array(
       '#theme' => 'table',
       '#header' => $this->overviewTableHeaders($conditions, $rows),
