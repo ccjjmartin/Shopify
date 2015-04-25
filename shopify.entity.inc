@@ -656,6 +656,7 @@ class ShopifyProductsUIController extends EntityDefaultUIController {
 
   public function hook_menu() {
     parent::hook_menu();
+    // @todo Add a nice page callback to point at Shopify's add product page.
     unset($items[$this->path . '/add']);
   }
 
