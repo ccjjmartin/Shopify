@@ -579,6 +579,18 @@ function shopify_api_get_shop_info($refresh = FALSE) {
   return (object) $info;
 }
 
+function shopify_api_get_shop_admin_path() {
+  return 'https://' . shopify_api_get_shop_info()->domain . '/admin';
+}
+
+function shopify_api_get_product_path($product_id, $variant_id = 0) {
+  $variant_path = '';
+  if ($variant_id != 0) {
+    $variant_path = '/variants/' . $variant_id;
+  }
+  return shopify_api_get_shop_admin_path() . '/products/' . $product_id . $variant_path;
+}
+
 /**
  * Get Shopify products from the API.
  *
@@ -785,4 +797,30 @@ function shopify_image_default_styles() {
   );
 
   return $styles;
+}
+
+function shopify_products_reset_sync_datestamp() {
+  $datetime = new DateTime('1/1/1970');
+  $last_updated = $datetime->format('Y-m-d H:i');
+  variable_set('shopify_last_sync', $last_updated);
+}
+
+function shopify_form_shopify_product_form_alter(&$form, &$form_state, $hook) {
+  $product = menu_get_object('shopify_product', 4);
+  $edit_url = shopify_api_get_product_path($product->product_id, $product->variant_id);
+
+  $form['help'] = array(
+    '#markup' => t('Product data synced with Shopify is not editable. Edit those fields on Shopify instead. <a href="!edit_url" target="_blank">!edit_url</a>', array('!edit_url' => $edit_url)),
+    '#weight' => -99,
+  );
+
+  $disable = array(
+    'shopify_product_images',
+    'shopify_product_tags',
+    'title',
+  );
+
+  foreach ($disable as $key) {
+    $form[$key]['#disabled'] = TRUE;
+  }
 }
