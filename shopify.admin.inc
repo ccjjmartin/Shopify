@@ -190,7 +190,7 @@ function shopify_webhooks_admin($form, &$form_state) {
   foreach ($webhooks as $hook) {
     $form['registered'][$hook['id']] = array(
       '#type' => 'checkbox',
-      '#title' => $hook['topic'] . ', applies to: ' . $hook['address'],
+      '#title' => $hook['topic'] . ' via: ' . $hook['address'],
     );
   }
 
@@ -207,17 +207,83 @@ function shopify_webhooks_admin($form, &$form_state) {
     '#collapsed' => FALSE,
   );
 
-  $product_topics = array(
-    'create' => t('Product created'),
-    'update' => t('Product updated'),
-    'delete' => t('Product deleted'),
+  $possible_hooks = array(
+    'orders' => array(
+      'create' => t('Order Created'),
+      'delete' => t('Order Deleted'),
+      'updated' => t('Order Updated'),
+      'paid' => t('Order Paid'),
+      'cancelled' => t('Order Cancelled'),
+      'fulfilled' => t('Order Fulfilled'),
+      'partially_fulfilled' => t('Order Partially Fulfilled'),
+    ),
+    'order_transactions' => array(
+      'create' => t('Order Transaction Created'),
+    ),
+    'carts' => array(
+      'create' => t('Cart Created'),
+      'update' => t('Cart Updated'),
+    ),
+    'checkouts' => array(
+      'create' => t('Checkout Created'),
+      'update' => t('Checkout Updated'),
+      'delete' => t('Checkout Deleted'),
+    ),
+    'refunds' => array(
+      'create' => t('Refund Created'),
+    ),
+    'products' => array(
+      'create' => t('Product Created'),
+      'update' => t('Product Updated'),
+      'delete' => t('Product Deleted'),
+    ),
+    'collections' => array(
+      'create' => t('Collection Created'),
+      'update' => t('Collection Updated'),
+      'delete' => t('Collection Deleted'),
+    ),
+    'customer_groups' => array(
+      'create' => t('Customer Group Created'),
+      'update' => t('Customer Group Updated'),
+      'delete' => t('Customer Group Deleted'),
+    ),
+    'customers' => array(
+      'create' => t('Customer Created'),
+      'enable' => t('Customer Enabled'),
+      'disable' => t('Customer Disabled'),
+      'update' => t('Customer Updated'),
+      'delete' => t('Customer Deleted'),
+    ),
+    'fulfillments' => array(
+      'create' => t('Fulfillment Created'),
+      'update' => t('Fullfillment Updated'),
+    ),
+    'shop' => array(
+      'update' => t('Shop Updated'),
+    ),
+    'disputes' => array(
+      'create' => t('Dispute Created'),
+      'update' => t('Dispute Updated'),
+    ),
+    'app' => array(
+      'uninstalled' => t('App Uninstalled'),
+    ),
   );
+  foreach ($possible_hooks as $group_name => $group_options) {
 
-  foreach ($product_topics as $topic => $description) {
-    $form['register']['products'][$topic] = array(
-      '#type' => 'checkbox',
-      '#title' => $description,
+    $form['register'][$group_name] = array(
+      '#type' => 'fieldset',
+      '#title' => t(str_replace('_', ' ', ucwords($group_name))),
+      '#collapsible' => TRUE,
+      '#collapsed' => FALSE,
     );
+
+    foreach ($group_options as $topic => $description) {
+      $form['register'][$group_name][$topic][$description] = array(
+        '#type' => 'checkbox',
+        '#title' => $description,
+      );
+    }
   }
 
   $protocol = stripos($_SERVER['SERVER_PROTOCOL'],'https') === true ? 'https://' : 'http://';
@@ -252,17 +318,18 @@ function shopify_remove_webhooks_submit($form, &$form_state) {
 function shopify_register_webhooks_submit($form, &$form_state) {
   $values = $form_state['values'];
   if ($form_state['values']['op'] == 'Register') {
+
     unset($values['register']['register_submit']);
     $hostname = $values['register']['hostname'];
     unset($values['register']['hostname']);
-    foreach ($values['register'] as $type => $topics) {
-      foreach ($topics as $topic => $v)
-        if ($v == 1) {
+
+    foreach ($values['register'] as $group => $topics) {
+      foreach ($topics as $topic => $selection)
+        if (reset($selection) == 1) {
           $hook = array(
             'webhook' => array(
-              'topic' => "$type/$topic",
-              // @TODO Update this! must include a path like /shopify/webhook/product_update!
-              'address' => $hostname,
+              'topic' => "$group/$topic",
+              'address' => $hostname . '/shopify/webhook/' . $group . '_' . $topic,
               'format' => "json"
             )
           );
