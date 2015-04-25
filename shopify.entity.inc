@@ -654,4 +654,9 @@ class ShopifyProductsUIController extends EntityDefaultUIController {
     return $render;
   }
 
+  public function hook_menu() {
+    parent::hook_menu();
+    unset($items[$this->path . '/add']);
+  }
+
 }
