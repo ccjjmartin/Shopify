@@ -219,45 +219,227 @@ function shopify_install() {
   $vocabulary->machine_name = 'shopify_tags';
   taxonomy_vocabulary_save($vocabulary);
 
-  $product_settings = array(
+  $product_settings = array (
     'view_modes' =>
-      array(),
+      array (
+        'full' =>
+          array (
+            'custom_settings' => false,
+          ),
+        'teaser' =>
+          array (
+            'custom_settings' => false,
+          ),
+        'token' =>
+          array (
+            'custom_settings' => false,
+          ),
+      ),
     'extra_fields' =>
-      array(
+      array (
         'form' =>
-          array(),
+          array (
+          ),
         'display' =>
-          array(
+          array (
             'product_id' =>
-              array(
+              array (
                 'default' =>
-                  array(
-                    'weight' => '5',
-                    'visible' => FALSE,
+                  array (
+                    'weight' => '26',
+                    'visible' => false,
                   ),
               ),
             'variant_id' =>
-              array(
+              array (
                 'default' =>
-                  array(
-                    'weight' => '4',
-                    'visible' => FALSE,
+                  array (
+                    'weight' => '25',
+                    'visible' => false,
                   ),
               ),
             'body_html' =>
-              array(
+              array (
                 'default' =>
-                  array(
-                    'weight' => '1',
-                    'visible' => TRUE,
+                  array (
+                    'weight' => '2',
+                    'visible' => true,
                   ),
               ),
             'price' =>
-              array(
+              array (
                 'default' =>
-                  array(
+                  array (
+                    'weight' => '4',
+                    'visible' => false,
+                  ),
+              ),
+            'updated_at' =>
+              array (
+                'default' =>
+                  array (
+                    'weight' => '17',
+                    'visible' => false,
+                  ),
+              ),
+            'created_at' =>
+              array (
+                'default' =>
+                  array (
+                    'weight' => '21',
+                    'visible' => false,
+                  ),
+              ),
+            'published_at' =>
+              array (
+                'default' =>
+                  array (
+                    'weight' => '20',
+                    'visible' => false,
+                  ),
+              ),
+            'title' =>
+              array (
+                'default' =>
+                  array (
+                    'weight' => '0',
+                    'visible' => true,
+                  ),
+              ),
+            'handle' =>
+              array (
+                'default' =>
+                  array (
+                    'weight' => '8',
+                    'visible' => false,
+                  ),
+              ),
+            'product_type' =>
+              array (
+                'default' =>
+                  array (
+                    'weight' => '6',
+                    'visible' => false,
+                  ),
+              ),
+            'published_scope' =>
+              array (
+                'default' =>
+                  array (
+                    'weight' => '22',
+                    'visible' => false,
+                  ),
+              ),
+            'vendor' =>
+              array (
+                'default' =>
+                  array (
+                    'weight' => '23',
+                    'visible' => false,
+                  ),
+              ),
+            'barcode' =>
+              array (
+                'default' =>
+                  array (
+                    'weight' => '24',
+                    'visible' => false,
+                  ),
+              ),
+            'compare_at_price' =>
+              array (
+                'default' =>
+                  array (
+                    'weight' => '19',
+                    'visible' => false,
+                  ),
+              ),
+            'fulfillment_service' =>
+              array (
+                'default' =>
+                  array (
+                    'weight' => '18',
+                    'visible' => false,
+                  ),
+              ),
+            'grams' =>
+              array (
+                'default' =>
+                  array (
+                    'weight' => '11',
+                    'visible' => false,
+                  ),
+              ),
+            'inventory_management' =>
+              array (
+                'default' =>
+                  array (
+                    'weight' => '10',
+                    'visible' => false,
+                  ),
+              ),
+            'inventory_policy' =>
+              array (
+                'default' =>
+                  array (
+                    'weight' => '9',
+                    'visible' => false,
+                  ),
+              ),
+            'inventory_quantity' =>
+              array (
+                'default' =>
+                  array (
+                    'weight' => '12',
+                    'visible' => false,
+                  ),
+              ),
+            'requires_shipping' =>
+              array (
+                'default' =>
+                  array (
+                    'weight' => '13',
+                    'visible' => false,
+                  ),
+              ),
+            'sku' =>
+              array (
+                'default' =>
+                  array (
+                    'weight' => '16',
+                    'visible' => false,
+                  ),
+              ),
+            'taxable' =>
+              array (
+                'default' =>
+                  array (
+                    'weight' => '15',
+                    'visible' => false,
+                  ),
+              ),
+            'weight' =>
+              array (
+                'default' =>
+                  array (
+                    'weight' => '14',
+                    'visible' => false,
+                  ),
+              ),
+            'weight_unit' =>
+              array (
+                'default' =>
+                  array (
+                    'weight' => '7',
+                    'visible' => false,
+                  ),
+              ),
+            'add_to_cart' =>
+              array (
+                'default' =>
+                  array (
                     'weight' => '3',
-                    'visible' => TRUE,
+                    'visible' => true,
                   ),
               ),
           ),
@@ -282,6 +464,41 @@ function shopify_install() {
   );
   field_update_instance($instance);
 
+  $instance = field_info_instance('shopify_product', 'shopify_product_tags', 'shopify_product');
+  $instance['display'] = array (
+    0 =>
+      array (
+        'default' =>
+          array (
+            'label' => 'hidden',
+            'type' => 'taxonomy_term_reference_link',
+            'settings' =>
+              array (
+              ),
+            'module' => 'taxonomy',
+            'weight' => 1,
+          ),
+        'label' => 'hidden',
+        'type' => 'taxonomy_term_reference_link',
+        'settings' =>
+          array (
+          ),
+        'module' => 'taxonomy',
+        'weight' => 33,
+      ),
+    'default' =>
+      array (
+        'label' => 'hidden',
+        'type' => 'taxonomy_term_reference_link',
+        'weight' => '4',
+        'settings' =>
+          array (
+          ),
+        'module' => 'taxonomy',
+      ),
+  );
+  field_update_instance($instance);
+
   shopify_products_reset_sync_datestamp();
 }
 
@@ -295,4 +512,5 @@ function shopify_uninstall() {
   taxonomy_vocabulary_delete($vocabulary->vid);
   variable_del('shopify_last_sync');
   variable_del('shopify_store_info');
+  field_purge_batch(20);
 }
