@@ -10,7 +10,7 @@
 function shopify_init() {
   // Mostly used for quick testing of things right now.
 //  $client = shopify_api_client();
-//  $info = $client->call('GET', '/admin/metafields.json');
+//  $info = $client->call('GET', '/admin/collects.json');
 }
 
 /**
@@ -66,6 +66,15 @@ function shopify_menu() {
     'description' => 'Sync Shopify Products',
     'page callback' => 'drupal_get_form',
     'page arguments' => array('shopify_admin_product_sync_form'),
+    'access arguments' => array('administer shopify'),
+    'type' => MENU_LOCAL_TASK,
+    'file' => 'shopify.admin.inc',
+  );
+  $items['admin/shopify/sync-collections'] = array(
+    'title' => 'Sync Collections',
+    'description' => 'Sync Shopify Collections',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('shopify_admin_collection_sync_form'),
     'access arguments' => array('administer shopify'),
     'type' => MENU_LOCAL_TASK,
     'file' => 'shopify.admin.inc',

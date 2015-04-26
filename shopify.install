@@ -219,51 +219,108 @@ function shopify_install() {
   $vocabulary->machine_name = 'shopify_tags';
   taxonomy_vocabulary_save($vocabulary);
 
-  $product_settings = array(
-    'view_modes' =>
-      array(),
-    'extra_fields' =>
-      array(
-        'form' =>
-          array(),
-        'display' =>
-          array(
-            'product_id' =>
-              array(
-                'default' =>
-                  array(
-                    'weight' => '5',
-                    'visible' => FALSE,
-                  ),
-              ),
-            'variant_id' =>
-              array(
-                'default' =>
-                  array(
-                    'weight' => '4',
-                    'visible' => FALSE,
-                  ),
-              ),
-            'body_html' =>
-              array(
-                'default' =>
-                  array(
-                    'weight' => '1',
-                    'visible' => TRUE,
-                  ),
-              ),
-            'price' =>
-              array(
-                'default' =>
-                  array(
-                    'weight' => '3',
-                    'visible' => TRUE,
-                  ),
-              ),
-          ),
+  // Create field and taxonomy for collections.
+  field_create_field(array(
+    'field_name' => 'shopify_product_collections',
+    'type' => 'taxonomy_term_reference',
+    'cardinality' => -1,
+    'settings' => array(),
+  ));
+
+  $instance = array(
+    'field_name' => 'shopify_product_collections',
+    'entity_type' => 'shopify_product',
+    'bundle' => 'shopify_product',
+    'label' => 'Shopify Collections',
+    'required' => FALSE,
+    'default_value_function' => '',
+    'widget' => array(
+      'type' => 'taxonomy_autocomplete',
+      'settings' => array(
+        'allowed_values' => array(
+          'vocabulary' => 'shopify_collections',
+          'parent' => 0
+        )
       ),
+    ),
   );
-  variable_set('field_bundle_settings_shopify_product__shopify_product', $product_settings);
+  field_create_instance($instance);
+
+  $vocabulary = new stdClass;
+  $vocabulary->name = 'Shopify Collections';
+  $vocabulary->machine_name = 'shopify_collections';
+  taxonomy_vocabulary_save($vocabulary);
+
+  // Create collection image field.
+  field_create_field(array(
+    'field_name' => 'shopify_collection_image',
+    'type' => 'image',
+    'cardinality' => 1,
+    'settings' => array(),
+  ));
+
+  $instance = array(
+    'field_name' => 'shopify_collection_image',
+    'entity_type' => 'taxonomy_term',
+    'bundle' => 'shopify_collections',
+    'label' => 'Shopify Collection Image',
+    'required' => FALSE,
+    'default_value_function' => '',
+    'widget' => array(
+      'type' => 'image_image',
+      'settings' => array('image_style' => 'thumbnail', 'image_link' => ''),
+    ),
+  );
+
+  field_create_instance($instance);
+
+
+//
+//  $product_settings = array(
+//    'view_modes' =>
+//      array(),
+//    'extra_fields' =>
+//      array(
+//        'form' =>
+//          array(),
+//        'display' =>
+//          array(
+//            'product_id' =>
+//              array(
+//                'default' =>
+//                  array(
+//                    'weight' => '5',
+//                    'visible' => FALSE,
+//                  ),
+//              ),
+//            'variant_id' =>
+//              array(
+//                'default' =>
+//                  array(
+//                    'weight' => '4',
+//                    'visible' => FALSE,
+//                  ),
+//              ),
+//            'body_html' =>
+//              array(
+//                'default' =>
+//                  array(
+//                    'weight' => '1',
+//                    'visible' => TRUE,
+//                  ),
+//              ),
+//            'price' =>
+//              array(
+//                'default' =>
+//                  array(
+//                    'weight' => '3',
+//                    'visible' => TRUE,
+//                  ),
+//              ),
+//          ),
+//      ),
+//  );
+//  variable_set('field_bundle_settings_shopify_product__shopify_product', $product_settings);
 
   $instance = field_info_instance('shopify_product', 'shopify_product_images', 'shopify_product');
   $instance['display'] = array(
@@ -290,8 +347,12 @@ function shopify_install() {
  */
 function shopify_uninstall() {
   field_delete_field('shopify_product_images');
+  field_delete_field('shopify_collection_image');
   field_delete_field('shopify_product_tags');
+  field_delete_field('shopify_product_collections');
   $vocabulary = taxonomy_vocabulary_machine_name_load('shopify_tags');
+  taxonomy_vocabulary_delete($vocabulary->vid);
+  $vocabulary = taxonomy_vocabulary_machine_name_load('shopify_collections');
   taxonomy_vocabulary_delete($vocabulary->vid);
   variable_del('shopify_last_sync');
   variable_del('shopify_store_info');

@@ -85,6 +85,91 @@ function shopify_admin_product_sync_form($form, &$form_state) {
 }
 
 /**
+ * Shopify products sync page form.
+ */
+function shopify_admin_collection_sync_form($form, &$form_state) {
+  try {
+    shopify_api_get_shop_info();
+  } catch (Exception $e) {
+    drupal_set_message(t('Unable to connect to your Shopify store.'), 'error');
+    $form['oops'] = array('#markup' => t('<a href="/admin/shopify">Unable to connect to your store.</a>'));
+    return $form;
+  }
+
+  $form['submit'] = array(
+    '#type' => 'submit',
+    '#value' => 'Sync Collections',
+  );
+
+  return $form;
+}
+
+function shopify_admin_collection_sync_form_submit($form, $form_state) {
+  // Pull collection information.
+  $client = shopify_api_client();
+  $info = $client->call('GET', '/admin/collects.json');
+  if (!$info) {
+    return;
+  }
+
+  // May not be the best way to do this.
+  $collects = array();
+  foreach ($info as $c) {
+  }
+
+  $created = 0;
+  $count = 0;
+
+  // Handle the creation of new collections.
+  foreach ($info as $c) {
+    $count++;
+    try {
+      $c_info = $client->call('GET', '/admin/smart_collections/' . $c['collection_id'] . '.json');
+    } catch (Exception $e) {
+      // Perchance this is actually a custom_collection?
+      try {
+        $c_info = $client->call('GET', '/admin/custom_collections/' . $c['collection_id'] . '.json');
+      } catch (Exception $e) {
+        $c_info = FALSE;
+      }
+    }
+    if ($c_info) {
+      // Check if this collection already exists.
+      $vocab = taxonomy_vocabulary_machine_name_load('shopify_collections');
+      $t = taxonomy_get_term_by_name($c_info['title'], $vocab->machine_name);
+      if (!$t) {
+        // Need to create this taxonomy.
+        $new_term = entity_create('taxonomy_term', array(
+          'vid' => $vocab->vid,
+          'name' => $c_info['title'],
+          'description' => $c_info['body_html'],
+// 'field_shopify_collection_image' => array(),// @todo: Download and save image.
+        ));
+        taxonomy_term_save($new_term);
+        $created++;
+        unset($new_term);
+      }
+      // Update this product information.
+      $t = taxonomy_get_term_by_name($c_info['title'], $vocab->machine_name);
+      $t = reset($t);
+      if ($t) {
+        $product = shopify_product_load_single($c['product_id']);
+        $product->wrapper()->shopify_product_collections[] = $t->tid;
+        $product->save();
+      }
+    }
+  }
+  // Add messaging about created/synced collections.
+  drupal_set_message(t('Synced @created/@count product collections.', array(
+    '@created' => $created,
+    '@count' => $count,
+  )));
+
+  // Setup products for each collection in the system.
+
+}
+
+/**
  * Shopify product sync form submit handler.
  *
  * @see shopify_admin_product_sync_form()
@@ -101,7 +186,6 @@ function shopify_admin_product_sync_form_submit($form, &$form_state) {
   $batch = shopify_sync_products_batch(array('num_per_batch' => $form_state['values']['num_per_batch']));
   batch_set($batch);
 }
-
 
 
 /**
@@ -190,8 +274,7 @@ function shopify_sync_products_batch_finished($success, $results, $operations) {
 function shopify_webhooks_admin($form, &$form_state) {
   try {
     $webhooks = shopify_api_get_webhooks();
-  }
-  catch (ShopifyApiException $e) {
+  } catch (ShopifyApiException $e) {
     $response = $e->getResponse();
     drupal_set_message(t('Shopify says there was a problem: @message', array('@message' => $response['errors'])), 'warning');
     return '';
@@ -313,7 +396,7 @@ function shopify_webhooks_admin($form, &$form_state) {
     }
   }
 
-  $protocol = stripos($_SERVER['SERVER_PROTOCOL'],'https') === true ? 'https://' : 'http://';
+  $protocol = stripos($_SERVER['SERVER_PROTOCOL'], 'https') === TRUE ? 'https://' : 'http://';
   $current = $protocol . "$_SERVER[HTTP_HOST]";
 
   $form['register']['hostname'] = array(
@@ -388,7 +471,7 @@ function shopify_register_webhooks_submit($form, &$form_state) {
     unset($values['register']['hostname']);
 
     foreach ($values['register'] as $group => $topics) {
-      foreach ($topics as $topic => $selection)
+      foreach ($topics as $topic => $selection) {
         if (reset($selection) == 1) {
           $hook = array(
             'webhook' => array(
@@ -399,8 +482,7 @@ function shopify_register_webhooks_submit($form, &$form_state) {
           );
           try {
             shopify_api_create_webhook($hook);
-          }
-          catch (ShopifyApiException $e) {
+          } catch (ShopifyApiException $e) {
             $response = $e->getResponse();
             if (isset($response['errors']['address'])) {
               $message = $hostname . ' address ' . $response['errors']['address'][0];
@@ -408,9 +490,13 @@ function shopify_register_webhooks_submit($form, &$form_state) {
             else {
               $message = $response['errors'];
             }
-            drupal_set_message(t('Shopify says there was a problem with @topic: @errors', array('@errors' => $message, '@topic' => "$group/$topic")), 'warning');
+            drupal_set_message(t('Shopify says there was a problem with @topic: @errors', array(
+              '@errors' => $message,
+              '@topic' => "$group/$topic"
+            )), 'warning');
           }
         }
       }
     }
+  }
 }
