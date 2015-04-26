@@ -117,12 +117,8 @@ function shopify_admin_collection_sync_form_submit($form, $form_state) {
   foreach ($info as $c) {
   }
 
-  $created = 0;
-  $count = 0;
-
   // Handle the creation of new collections.
   foreach ($info as $c) {
-    $count++;
     try {
       $c_info = $client->call('GET', '/admin/smart_collections/' . $c['collection_id'] . '.json');
     } catch (Exception $e) {
@@ -146,7 +142,7 @@ function shopify_admin_collection_sync_form_submit($form, $form_state) {
 // 'field_shopify_collection_image' => array(),// @todo: Download and save image.
         ));
         taxonomy_term_save($new_term);
-        $created++;
+        drupal_set_message(t('Created new collection: @name', array('@name' => $c_info['title'])));
         unset($new_term);
       }
       // Update this product information.
@@ -154,19 +150,22 @@ function shopify_admin_collection_sync_form_submit($form, $form_state) {
       $t = reset($t);
       if ($t) {
         $product = shopify_product_load_single($c['product_id']);
+        $collections = $product->wrapper()->shopify_product_collections->value();
+        foreach ($collections as $collect) {
+          if ($collect->tid == $t->tid) {
+            // Product already in collection.
+            continue 2;
+          }
+        }
         $product->wrapper()->shopify_product_collections[] = $t->tid;
         $product->save();
+        drupal_set_message(t('Put product @p into collection @c.', array(
+          '@p' => $product->title,
+          '@c' => $t->name,
+        )));
       }
     }
   }
-  // Add messaging about created/synced collections.
-  drupal_set_message(t('Synced @created/@count product collections.', array(
-    '@created' => $created,
-    '@count' => $count,
-  )));
-
-  // Setup products for each collection in the system.
-
 }
 
 /**

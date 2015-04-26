@@ -240,9 +240,235 @@ function shopify_install() {
         'allowed_values' => array(
           'vocabulary' => 'shopify_collections',
           'parent' => 0
-        )
+        ),
       ),
     ),
+  );
+
+  $product_settings = array(
+    'view_modes' =>
+      array(
+        'full' =>
+          array(
+            'custom_settings' => FALSE,
+          ),
+        'teaser' =>
+          array(
+            'custom_settings' => FALSE,
+          ),
+        'token' =>
+          array(
+            'custom_settings' => FALSE,
+          ),
+      ),
+    'extra_fields' =>
+      array(
+        'form' =>
+          array(),
+        'display' =>
+          array(
+            'product_id' =>
+              array(
+                'default' =>
+                  array(
+                    'weight' => '26',
+                    'visible' => FALSE,
+                  ),
+              ),
+            'variant_id' =>
+              array(
+                'default' =>
+                  array(
+                    'weight' => '25',
+                    'visible' => FALSE,
+                  ),
+              ),
+            'body_html' =>
+              array(
+                'default' =>
+                  array(
+                    'weight' => '2',
+                    'visible' => TRUE,
+                  ),
+              ),
+            'price' =>
+              array(
+                'default' =>
+                  array(
+                    'weight' => '4',
+                    'visible' => FALSE,
+                  ),
+              ),
+            'updated_at' =>
+              array(
+                'default' =>
+                  array(
+                    'weight' => '17',
+                    'visible' => FALSE,
+                  ),
+              ),
+            'created_at' =>
+              array(
+                'default' =>
+                  array(
+                    'weight' => '21',
+                    'visible' => FALSE,
+                  ),
+              ),
+            'published_at' =>
+              array(
+                'default' =>
+                  array(
+                    'weight' => '20',
+                    'visible' => FALSE,
+                  ),
+              ),
+            'title' =>
+              array(
+                'default' =>
+                  array(
+                    'weight' => '0',
+                    'visible' => TRUE,
+                  ),
+              ),
+            'handle' =>
+              array(
+                'default' =>
+                  array(
+                    'weight' => '8',
+                    'visible' => FALSE,
+                  ),
+              ),
+            'product_type' =>
+              array(
+                'default' =>
+                  array(
+                    'weight' => '6',
+                    'visible' => FALSE,
+                  ),
+              ),
+            'published_scope' =>
+              array(
+                'default' =>
+                  array(
+                    'weight' => '22',
+                    'visible' => FALSE,
+                  ),
+              ),
+            'vendor' =>
+              array(
+                'default' =>
+                  array(
+                    'weight' => '23',
+                    'visible' => FALSE,
+                  ),
+              ),
+            'barcode' =>
+              array(
+                'default' =>
+                  array(
+                    'weight' => '24',
+                    'visible' => FALSE,
+                  ),
+              ),
+            'compare_at_price' =>
+              array(
+                'default' =>
+                  array(
+                    'weight' => '19',
+                    'visible' => FALSE,
+                  ),
+              ),
+            'fulfillment_service' =>
+              array(
+                'default' =>
+                  array(
+                    'weight' => '18',
+                    'visible' => FALSE,
+                  ),
+              ),
+            'grams' =>
+              array(
+                'default' =>
+                  array(
+                    'weight' => '11',
+                    'visible' => FALSE,
+                  ),
+              ),
+            'inventory_management' =>
+              array(
+                'default' =>
+                  array(
+                    'weight' => '10',
+                    'visible' => FALSE,
+                  ),
+              ),
+            'inventory_policy' =>
+              array(
+                'default' =>
+                  array(
+                    'weight' => '9',
+                    'visible' => FALSE,
+                  ),
+              ),
+            'inventory_quantity' =>
+              array(
+                'default' =>
+                  array(
+                    'weight' => '12',
+                    'visible' => FALSE,
+                  ),
+              ),
+            'requires_shipping' =>
+              array(
+                'default' =>
+                  array(
+                    'weight' => '13',
+                    'visible' => FALSE,
+                  ),
+              ),
+            'sku' =>
+              array(
+                'default' =>
+                  array(
+                    'weight' => '16',
+                    'visible' => FALSE,
+                  ),
+              ),
+            'taxable' =>
+              array(
+                'default' =>
+                  array(
+                    'weight' => '15',
+                    'visible' => FALSE,
+                  ),
+              ),
+            'weight' =>
+              array(
+                'default' =>
+                  array(
+                    'weight' => '14',
+                    'visible' => FALSE,
+                  ),
+              ),
+            'weight_unit' =>
+              array(
+                'default' =>
+                  array(
+                    'weight' => '7',
+                    'visible' => FALSE,
+                  ),
+              ),
+            'add_to_cart' =>
+              array(
+                'default' =>
+                  array(
+                    'weight' => '3',
+                    'visible' => TRUE,
+                  ),
+              ),
+          ),
+      ),
   );
   field_create_instance($instance);
 
@@ -339,6 +565,38 @@ function shopify_install() {
   );
   field_update_instance($instance);
 
+  $instance = field_info_instance('shopify_product', 'shopify_product_tags', 'shopify_product');
+  $instance['display'] = array(
+    0 =>
+      array(
+        'default' =>
+          array(
+            'label' => 'hidden',
+            'type' => 'taxonomy_term_reference_link',
+            'settings' =>
+              array(),
+            'module' => 'taxonomy',
+            'weight' => 1,
+          ),
+        'label' => 'hidden',
+        'type' => 'taxonomy_term_reference_link',
+        'settings' =>
+          array(),
+        'module' => 'taxonomy',
+        'weight' => 33,
+      ),
+    'default' =>
+      array(
+        'label' => 'hidden',
+        'type' => 'taxonomy_term_reference_link',
+        'weight' => '4',
+        'settings' =>
+          array(),
+        'module' => 'taxonomy',
+      ),
+  );
+  field_update_instance($instance);
+
   shopify_products_reset_sync_datestamp();
 }
 
@@ -356,4 +614,5 @@ function shopify_uninstall() {
   taxonomy_vocabulary_delete($vocabulary->vid);
   variable_del('shopify_last_sync');
   variable_del('shopify_store_info');
+  field_purge_batch(20);
 }
