@@ -12,10 +12,10 @@ function shopify_metatag_config_default() {
   $config->instance = 'shopify_product';
   $config->config = array(
     'title' => array(
-      //'value' => '[shopify_product:title] | [site:name]',
+      'value' => '[shopify_product:title] | [site:name]',
     ),
     'description' => array(
-      //'value' => '[shopify_product:body-html]',
+      'value' => '[shopify_product:body-html]',
     ),
   );
 

@@ -931,12 +931,6 @@ function shopify_form_shopify_product_form_alter(&$form, &$form_state, $hook) {
   }
 }
 
-function shopify_field_attach_form($entity_type, $entity, &$form, &$form_state, $langcode) {
-  if ($entity_type == 'shopify_product') {
-    metatag_metatags_form($form, 'shopify_product:shopify_product', $entity->metatags);
-  }
-}
-
 /**
  * Implements hook_ctools_plugin_api().
  */
