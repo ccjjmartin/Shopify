@@ -83,7 +83,7 @@ function shopify_menu() {
   $items['shopify/webhook/%'] = array(
     'page callback' => 'shopify_incoming_webhook',
     'page arguments' => array(2),
-    'access callback' => array(TRUE),
+    'access callback' => TRUE,
     'type' => MENU_CALLBACK,
   );
 
@@ -97,15 +97,172 @@ function shopify_menu_alter(&$items) {
 function shopify_incoming_webhook($hook) {
   $json = file_get_contents('php://input');
   $payload = json_decode($json, TRUE);
+  watchdog('shopify_webhook', var_export($payload, TRUE));
   $function = 'shopify_webhook_' . $hook;
   foreach (module_implements($function) as $module) {
     module_invoke($module, $function, $payload);
   }
-  return '';
+  print '';
 }
 
 function shopify_shopify_webhook_products_create($payload) {
   shopify_shopify_webhook_products_update($payload);
+}
+
+/**
+ * Implements hook_shopify_webhook_collections_update().
+ */
+function shopify_shopify_webhook_collections_update($payload) {
+  shopify_collection_update($payload, $sync_products = TRUE);
+}
+
+/**
+ * Implements hook_shopify_webhook_collections_delete().
+ */
+function shopify_shopify_webhook_collections_delete($payload) {
+  shopify_collection_delete($payload['id']);
+}
+
+/**
+ * Implements hook_shopify_webhook_collections_create().
+ */
+function shopify_shopify_webhook_collections_create($payload) {
+  shopify_collection_create($payload, $sync_products = TRUE);
+}
+
+/**
+ * Update a Shopify collection with new information.
+ *
+ * @param array $collection
+ *   Shopify collection.
+ * @param boolean $sync_products
+ *   Whether or not to sync product information during update.
+ */
+function shopify_collection_update($collection, $sync_products = FALSE) {
+  $term = shopify_collection_load($collection['id']);
+  if ($term) {
+    $term->name = $collection['title'];
+    $term->description = $collection['body_html'];
+  }
+  if (taxonomy_term_save($term) && isset($collection['image']['src'])) {
+    // Save the image for this term.
+    shopify_collection_save_image($term, $collection['image']['src']);
+  }
+  // Sync product information for this collection.
+  shopify_collection_sync_products($collection);
+}
+
+/**
+ * Create a new collection in the system and sync products.
+ *
+ * @param array $collection
+ *   Shopify collection.
+ * @param boolean $sync_products
+ *   Whether or not to sync product information during creation.
+ */
+function shopify_collection_create($collection, $sync_products = FALSE) {
+  $vocab = shopify_collection_vocabulary();
+  $term = entity_create('taxonomy_term', array(
+    'vid' => $vocab->vid,
+    'name' => $collection['title'],
+    'description' => $collection['body_html'],
+    'shopify_collection_id' => array('und' => array(array('value' => $collection['id']))),
+  ));
+  if (taxonomy_term_save($term) && isset($collection['image']['src'])) {
+    // Save the image for this term.
+    shopify_collection_save_image($term, $collection['image']['src']);
+  }
+  if ($sync_products) {
+    // Sync product information for this collection.
+    shopify_collection_sync_products($collection);
+  }
+}
+
+/**
+ * Saves an image for a Shopify collection.
+ *
+ * @param stdClass $term
+ *   Taxonomy term entity.
+ * @param string $image_url
+ *   Remote image URL for the collection image.
+ */
+function shopify_collection_save_image(stdClass $term, $image_url) {
+  $directory = file_build_uri('shopify_images');
+  if (!file_prepare_directory($directory, FILE_CREATE_DIRECTORY)) {
+    // If our directory doesn't exist and can't be created, use the default.
+    $directory = NULL;
+  }
+  $file = system_retrieve_file($image_url, $directory, TRUE, FILE_EXISTS_REPLACE);
+  $term = entity_metadata_wrapper('taxonomy_term', $term);
+  $term->shopify_collection_image->set((array) $file);
+  $term->save();
+}
+
+/**
+ * Sync product collect information for a given collection.
+ *
+ * @param array $collection
+ *   Shopify collection.
+ */
+function shopify_collection_sync_products($collection) {
+  $term = shopify_collection_load($collection['id']);
+  $collects = shopify_api_get_collects(array('collection_id' => $collection['id']));
+  foreach ($collects as $c) {
+    // Update this product information.
+    $product = shopify_product_load_single($c['product_id']);
+    if (!$product) {
+      continue;
+    }
+    $collections = $product->wrapper()->shopify_product_collections->value();
+    foreach ($collections as $collect) {
+      if ($collect && ($collect->tid == $term->tid)) {
+        // Product already in collection.
+        continue 2;
+      }
+    }
+    $product->wrapper()->shopify_product_collections[] = $term->tid;
+    $product->save();
+  }
+}
+
+/**
+ * Delete a collection based on the collection ID.
+ *
+ * @param int $collection_id
+ *   Shopify collection ID.
+ */
+function shopify_collection_delete($collection_id) {
+  $term = shopify_collection_load($collection_id);
+  entity_delete_multiple('taxonomy_term', array($term->tid));
+  // Delete collection field values with these tid values.
+  db_delete('field_data_shopify_product_collections')
+    ->condition('shopify_product_collections_tid', $term->tid)
+    ->execute();
+}
+
+function shopify_collection_vocabulary() {
+  return taxonomy_vocabulary_machine_name_load('shopify_collections');
+}
+
+/**
+ * Loads a collection.
+ *
+ * @param int $collection_id
+ *   Shopify collection ID.
+ *
+ * @return stdClass
+ *   Returns the taxonomy term collection.
+ */
+function shopify_collection_load($collection_id) {
+  $query = new EntityFieldQuery();
+  $result = $query->entityCondition('entity_type', 'taxonomy_term')
+    ->fieldCondition('shopify_collection_id', 'value', $collection_id)
+    ->execute();
+  if ($result && isset($result['taxonomy_term'])) {
+    $terms = entity_load('taxonomy_term', array_keys($result['taxonomy_term']));
+    return reset($terms);
+  }
+  return NULL;
 }
 
 function shopify_shopify_webhook_products_update($product) {
@@ -920,6 +1077,50 @@ function shopify_image_default_styles() {
   );
 
   return $styles;
+}
+
+/**
+ *  Implements hook_block_info().
+ */
+function shopify_block_info() {
+  $blocks['cart'] = array(
+    'info' => t('Shopify Cart'),
+    'cache' => DRUPAL_NO_CACHE,
+  );
+  return $blocks;
+}
+
+/**
+ *  Implements hook_block_view().
+ */
+function shopify_block_view($delta = '') {
+  $block = array();
+  switch ($delta) {
+    case 'cart':
+      $domain = shopify_store_info()->myshopify_domain;
+      $block['subject'] = t('Cart');
+      $block['content'] = array(
+        '#markup' => <<<_HTML
+      <a href="https://$domain/cart" target="_blank"><i class="fa fa-shopping-cart"></i> <span id="shopify-cart-text">Cart<span> (<span id='shopify-cart-total'></span>)</a>
+      <script type='text/javascript'>
+        jQuery.ajax({
+            type: 'GET',
+            url: 'https://$domain/cart.json',
+            dataType: 'jsonp',
+            success: function(data) {
+                var total = 0;
+                for(i=0;i<data.items.length;i++){
+                  total += data.items[i].quantity;
+                }
+                jQuery('#shopify-cart-total').text(total);
+            }
+        });
+      </script>
+_HTML
+      );
+      break;
+  }
+  return $block;
 }
 
 function shopify_products_reset_sync_datestamp() {

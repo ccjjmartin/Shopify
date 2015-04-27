@@ -158,72 +158,18 @@ function shopify_sync_collections_batch() {
  *   Batch context.
  */
 function shopify_sync_collections_batch_op($collection, $operation_details, &$context) {
-  // Make sure this collection exists and create one if needed.
-  $vocab = taxonomy_vocabulary_machine_name_load('shopify_collections');
-  $t = taxonomy_get_term_by_name($collection['title'], $vocab->machine_name);
-  if (!$t) {
-    // Need to create this taxonomy.
-    $t = entity_create('taxonomy_term', array(
-      'vid' => $vocab->vid,
-      'name' => $collection['title'],
-      'description' => $collection['body_html'],
-      'shopify_collection_id' => array('und' => array(array('value' => $collection['id']))),
-    ));
-    if (taxonomy_term_save($t) && isset($collection['image']['src'])) {
-      // Save the image for this term.
-      shopify_collections_save_image($t, $collection['image']['src']);
-    }
-    drupal_set_message(t('Created new collection: @name', array('@name' => $collection['title'])));
+  $term = shopify_collection_load($collection['id']);
+
+  if (!$term) {
+    // Need to create a new collection.
+    shopify_collection_create($collection, TRUE);
   }
   else {
-    $t = array_shift($t);
+    shopify_collection_update($collection, TRUE);
   }
 
-  // Get products for this collection ID.
-  $collects = shopify_api_get_collects(array('collection_id' => $collection['id']));
-
-  foreach ($collects as $c) {
-    // Update this product information.
-    $product = shopify_product_load_single($c['product_id']);
-    if (!$product) {
-      continue;
-    }
-    $collections = $product->wrapper()->shopify_product_collections->value();
-    foreach ($collections as $collect) {
-      if ($collect->tid == $t->tid) {
-        // Product already in collection.
-        continue 2;
-      }
-    }
-    $product->wrapper()->shopify_product_collections[] = $t->tid;
-    $product->save();
-    drupal_set_message(t('Put product @p into collection @c.', array(
-      '@p' => $product->title,
-      '@c' => $collection['title'],
-    )));
-  }
   $context['results'][] = $collection;
   $context['message'] = t('Syncing collection @title...', array('@title' => $collection['title']));
-}
-
-/**
- * Saves an image for a Shopify collection.
- *
- * @param stdClass $term
- *   Taxonomy term entity.
- * @param string $image_url
- *   Remote image URL for the collection image.
- */
-function shopify_collections_save_image(stdClass $term, $image_url) {
-  $directory = file_build_uri('shopify_images');
-  if (!file_prepare_directory($directory, FILE_CREATE_DIRECTORY)) {
-    // If our directory doesn't exist and can't be created, use the default.
-    $directory = NULL;
-  }
-  $file = system_retrieve_file($image_url, $directory, TRUE, FILE_EXISTS_REPLACE);
-  $term = entity_metadata_wrapper('taxonomy_term', $term);
-  $term->shopify_collection_image->set((array) $file);
-  $term->save();
 }
 
 /**
