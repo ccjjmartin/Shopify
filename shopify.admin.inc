@@ -107,18 +107,13 @@ function shopify_admin_collection_sync_form($form, &$form_state) {
 function shopify_admin_collection_sync_form_submit($form, $form_state) {
   // Pull collection information.
   $client = shopify_api_client();
-  $info = $client->call('GET', '/admin/collects.json');
-  if (!$info) {
+  $collects = $client->call('GET', '/admin/collects.json');
+  if (!$collects) {
     return;
   }
 
-  // May not be the best way to do this.
-  $collects = array();
-  foreach ($info as $c) {
-  }
-
   // Handle the creation of new collections.
-  foreach ($info as $c) {
+  foreach ($collects as $c) {
     try {
       $c_info = $client->call('GET', '/admin/smart_collections/' . $c['collection_id'] . '.json');
     } catch (Exception $e) {
@@ -139,9 +134,13 @@ function shopify_admin_collection_sync_form_submit($form, $form_state) {
           'vid' => $vocab->vid,
           'name' => $c_info['title'],
           'description' => $c_info['body_html'],
-// 'field_shopify_collection_image' => array(),// @todo: Download and save image.
         ));
-        taxonomy_term_save($new_term);
+        if (taxonomy_term_save($new_term) && isset($c_info['image']['src'])) {
+          // Save the image for this term.
+          shopify_collections_save_image($new_term, $c_info['image']['src']);
+        }
+
+//        shopify_collections_save_image($new_term, )
         drupal_set_message(t('Created new collection: @name', array('@name' => $c_info['title'])));
         unset($new_term);
       }
@@ -166,6 +165,18 @@ function shopify_admin_collection_sync_form_submit($form, $form_state) {
       }
     }
   }
+}
+
+function shopify_collections_save_image($term, $image_url) {
+  $directory = file_build_uri('shopify_images');
+  if (!file_prepare_directory($directory, FILE_CREATE_DIRECTORY)) {
+    // If our directory doesn't exist and can't be created, use the default.
+    $directory = NULL;
+  }
+  $file = system_retrieve_file($image_url, $directory, TRUE, FILE_EXISTS_REPLACE);
+  $term = entity_metadata_wrapper('taxonomy_term', $term);
+  $term->shopify_collection_image->set((array) $file);
+  $term->save();
 }
 
 /**
