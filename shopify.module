@@ -835,6 +835,7 @@ function shopify_form_shopify_product_form_alter(&$form, &$form_state, $hook) {
   $disable = array(
     'shopify_product_images',
     'shopify_product_tags',
+    'shopify_product_collections',
     'title',
   );
 
