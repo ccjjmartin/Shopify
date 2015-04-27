@@ -9,6 +9,8 @@ dependencies[] = views
 dependencies[] = taxonomy
 dependencies[] = number
 
+scripts[] = shopify.js
+
 package = Shopify
 
 files[] = shopify.entity.inc
