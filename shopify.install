@@ -325,6 +325,72 @@ function shopify_install() {
         'module' => 'taxonomy',
       ),
   );
+
+  field_update_instance($instance);
+
+  $vocabulary = new stdClass;
+  $vocabulary->name = 'Shopify Collections';
+  $vocabulary->machine_name = 'shopify_collections';
+  taxonomy_vocabulary_save($vocabulary);
+
+  // Create collection image field.
+  field_create_field(array(
+    'field_name' => 'shopify_collection_image',
+    'type' => 'image',
+    'cardinality' => 1,
+    'settings' => array(),
+  ));
+
+  $instance = array(
+    'field_name' => 'shopify_collection_image',
+    'entity_type' => 'taxonomy_term',
+    'bundle' => 'shopify_collections',
+    'label' => 'Shopify Collection Image',
+    'required' => FALSE,
+    'default_value_function' => '',
+    'widget' => array(
+      'type' => 'image_image',
+      'settings' => array('image_style' => 'thumbnail', 'image_link' => ''),
+    ),
+  );
+
+  field_create_instance($instance);
+
+  // Create field to track the collection ID from Shopify.
+  field_create_field(array(
+    'field_name' => 'shopify_collection_id',
+    'type' => 'number_integer',
+    'cardinality' => 1,
+    'settings' => array(),
+  ));
+
+  $instance = array(
+    'field_name' => 'shopify_collection_id',
+    'entity_type' => 'taxonomy_term',
+    'bundle' => 'shopify_collections',
+    'label' => 'Shopify Collection ID',
+    'required' => TRUE,
+    'default_value_function' => '',
+  );
+
+  field_create_instance($instance);
+
+
+  $instance = field_info_instance('shopify_product', 'shopify_product_images', 'shopify_product');
+  $instance['display'] = array(
+    'default' =>
+      array(
+        'label' => 'hidden',
+        'type' => 'image',
+        'weight' => '0',
+        'settings' =>
+          array(
+            'image_style' => 'shopify_product_thumbnail',
+            'image_link' => '',
+          ),
+        'module' => 'image',
+      ),
+  );
   field_update_instance($instance);
 
   $product_settings = array(
@@ -559,7 +625,6 @@ function shopify_install() {
   );
 
   variable_set('field_bundle_settings_shopify_product__shopify_product', $product_settings);
-
   // Please keep the product settings last.
 
 }
@@ -572,6 +637,7 @@ function shopify_uninstall() {
   field_delete_field('shopify_collection_image');
   field_delete_field('shopify_product_tags');
   field_delete_field('shopify_product_collections');
+  field_delete_field('shopify_collection_id');
   $vocabulary = taxonomy_vocabulary_machine_name_load('shopify_tags');
   taxonomy_vocabulary_delete($vocabulary->vid);
   $vocabulary = taxonomy_vocabulary_machine_name_load('shopify_collections');

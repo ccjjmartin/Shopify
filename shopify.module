@@ -62,24 +62,14 @@ function shopify_menu() {
     'type' => MENU_DEFAULT_LOCAL_TASK,
   );
   $items['admin/shopify/sync'] = array(
-    'title' => 'Sync Products',
-    'description' => 'Sync Shopify Products',
+    'title' => 'Sync',
+    'description' => 'Sync Shopify store information to the website.',
     'page callback' => 'drupal_get_form',
-    'page arguments' => array('shopify_admin_product_sync_form'),
+    'page arguments' => array('shopify_admin_sync_form'),
     'access arguments' => array('administer shopify'),
     'type' => MENU_LOCAL_TASK,
     'file' => 'shopify.admin.inc',
   );
-  $items['admin/shopify/sync-collections'] = array(
-    'title' => 'Sync Collections',
-    'description' => 'Sync Shopify Collections',
-    'page callback' => 'drupal_get_form',
-    'page arguments' => array('shopify_admin_collection_sync_form'),
-    'access arguments' => array('administer shopify'),
-    'type' => MENU_LOCAL_TASK,
-    'file' => 'shopify.admin.inc',
-  );
-
   $items['admin/shopify/webhooks'] = array(
     'title' => 'Webhooks',
     'description' => 'Manage Shopify Webhooks',
@@ -142,6 +132,25 @@ function shopify_delete_all_products() {
   $existing = db_query('SELECT s.id FROM {shopify_products} s');
   $ids = $existing->fetchCol();
   shopify_product_delete_multiple($ids);
+}
+
+/**
+ * Delete all Shopify collections.
+ */
+function shopify_delete_all_collections() {
+  $vocab = taxonomy_vocabulary_machine_name_load('shopify_collections');
+  $tids = db_select('taxonomy_term_data', 'ttd')
+    ->fields('ttd', array('tid'))
+    ->condition('vid', $vocab->vid)
+    ->execute()->fetchAllAssoc('tid');
+  if ($tids) {
+    entity_delete_multiple('taxonomy_term', array_keys($tids));
+
+    // Delete collection field values with these tid values.
+    db_delete('field_data_shopify_product_collections')
+      ->condition('shopify_product_collections_tid', array_keys($tids), 'IN')
+      ->execute();
+  }
 }
 
 /**
@@ -630,6 +639,50 @@ function shopify_api_get_products($options = array()) {
 }
 
 /**
+ * Get Shopify collections from the API.
+ *
+ * @param array $options
+ *   Arguments to pass to the API.
+ * @param string $type
+ *   Type of collections to get, options are:
+ *   - both: Get smart and custom collections.
+ *   - smart: Get smart collections only.
+ *   - custom: Get custom collections only.
+ *
+ * @return array
+ *   Returns the API response data.
+ *
+ * @throws \ShopifyApiException
+ */
+function shopify_api_get_collections($options = array(), $type = 'both') {
+  $client = shopify_api_client();
+  $smart_collections = $custom_collections = array();
+  if ($type == 'both' || $type == 'smart') {
+    $smart_collections = $client->call('GET', '/admin/smart_collections.json', $options);
+  }
+  if ($type == 'both' || $type == 'custom') {
+    $custom_collections = $client->call('GET', '/admin/custom_collections.json', $options);
+  }
+  return array_merge($smart_collections, $custom_collections);
+}
+
+/**
+ * Get Shopify collects from the API.
+ *
+ * @param array $options
+ *   Arguments to pass the API.
+ *
+ * @return array
+ *   Returns the API response data.
+ *
+ * @throws \ShopifyApiException
+ */
+function shopify_api_get_collects($options = array()) {
+  $client = shopify_api_client();
+  return $client->call('GET', '/admin/collects.json', $options);
+}
+
+/**
  * Get the Shopify product count from the API.
  *
  * @param array $options
@@ -643,6 +696,34 @@ function shopify_api_get_products($options = array()) {
 function shopify_api_get_product_count($options = array()) {
   $client = shopify_api_client();
   return $client->call('GET', '/admin/products/count.json', $options);
+}
+
+/**
+ * Get Shopify collections count from the API.
+ *
+ * @param array $options
+ *   Arguments to pass to the API.
+ * @param string $type
+ *   Type of collections to count, options are:
+ *   - both: Get smart and custom collections count.
+ *   - smart: Get smart collections count only.
+ *   - custom: Get custom collections count only.
+ *
+ * @return array
+ *   Returns the API response data.
+ *
+ * @throws \ShopifyApiException
+ */
+function shopify_api_get_collection_count($options = array(), $type = 'both') {
+  $client = shopify_api_client();
+  $smart_count = $custom_count = 0;
+  if ($type == 'both' || $type == 'smart') {
+    $smart_count = $client->call('GET', '/admin/smart_collections/count.json', $options);
+  }
+  if ($type == 'both' || $type == 'custom') {
+    $custom_count = $client->call('GET', '/admin/custom_collections/count.json', $options);
+  }
+  return $custom_count + $smart_count;
 }
 
 /**
@@ -824,7 +905,13 @@ function shopify_image_default_styles() {
 function shopify_products_reset_sync_datestamp() {
   $datetime = new DateTime('1/1/1970');
   $last_updated = $datetime->format('Y-m-d H:i');
-  variable_set('shopify_last_sync', $last_updated);
+  variable_set('shopify_last_product_sync', $last_updated);
+}
+
+function shopify_collections_reset_sync_datestamp() {
+  $datetime = new DateTime('1/1/1970');
+  $last_updated = $datetime->format('Y-m-d H:i');
+  variable_set('shopify_last_collection_sync', $last_updated);
 }
 
 function shopify_form_shopify_product_form_alter(&$form, &$form_state, $hook) {
