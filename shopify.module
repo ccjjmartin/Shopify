@@ -100,6 +100,10 @@ function shopify_menu() {
   return $items;
 }
 
+function shopify_menu_alter(&$items) {
+  $items['admin/shopify/products/add']['access callback'] = FALSE;
+}
+
 function shopify_incoming_webhook($hook) {
   $json = file_get_contents('php://input');
   $payload = json_decode($json, TRUE);
