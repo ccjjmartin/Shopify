@@ -1088,7 +1088,6 @@ function shopify_block_view($delta = '') {
             url: 'https://$domain/cart.json',
             dataType: 'jsonp',
             success: function(data) {
-                console.log(data);
                 var total = 0;
                 for(i=0;i<data.items.length;i++){
                   total += data.items[i].quantity;
