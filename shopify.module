@@ -48,7 +48,7 @@ function shopify_menu() {
     'page callback' => 'entity_ui_entity_page_view',
     'page arguments' => array(2),
     'load arguments' => array('shopify_product'),
-    'access arguments' => array(TRUE),
+    'access callback' => TRUE,
   );
   $items['admin/shopify'] = array(
     'page callback' => 'shopify_admin_page',
@@ -80,6 +80,12 @@ function shopify_menu() {
     'file' => 'shopify.admin.inc',
   );
 
+  $items['shopify/added-to-cart'] = array(
+    'page callback' => 'shopify_added_to_cart',
+    'access callback' => TRUE,
+    'type' => MENU_CALLBACK,
+  );
+
   $items['shopify/webhook/%'] = array(
     'page callback' => 'shopify_incoming_webhook',
     'page arguments' => array(2),
@@ -88,6 +94,27 @@ function shopify_menu() {
   );
 
   return $items;
+}
+
+/**
+ * Add to cart callback.
+ *
+ * Displays an "Added to cart" message to the user.
+ * Certain data must be POSTed to this callback:
+ *  - product_id: The parent product ID.
+ *  - variant_id: The specific variant ID.
+ */
+function shopify_added_to_cart() {
+  $data = drupal_get_query_array(file_get_contents('php://input'));
+  $parent = shopify_product_load_single($data['product_id'], 0);
+  $product = shopify_product_load_single($data['product_id'], $data['variant_id']);
+  drupal_set_message(t('@parent - @title (@price) added to !cart_link', array(
+    '@parent' => $parent->label(),
+    '@title' => $product->label(),
+    '@price' => shopify_money_format() . $product->wrapper()->price->value(),
+    '!cart_link' => l(t('your cart'), 'https://' . shopify_store_info()->myshopify_domain . '/cart', array('attributes' => array('target' => '_blank'))),
+  )));
+  print '';
 }
 
 function shopify_menu_alter(&$items) {
@@ -519,6 +546,11 @@ function shopify_add_to_cart_form($form, &$form_state, ShopifyProduct $product =
       'submit' => array(
         '#type' => 'submit',
         '#value' => t('Add to Cart'),
+        '#attributes' => array(
+          'onclick' => 'javascript:Drupal.shopify.display_add_to_cart_message(this);',
+          'data-product-id' => $default_variant->product_id,
+          'data-variant-id' => $default_variant->variant_id,
+        ),
       ),
     );
   }
