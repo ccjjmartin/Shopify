@@ -48,7 +48,7 @@ function shopify_menu() {
     'page callback' => 'entity_ui_entity_page_view',
     'page arguments' => array(2),
     'load arguments' => array('shopify_product'),
-    'access arguments' => array(TRUE),
+    'access callback' => TRUE,
   );
   $items['admin/shopify'] = array(
     'page callback' => 'shopify_admin_page',
