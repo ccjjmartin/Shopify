@@ -328,34 +328,6 @@ function shopify_install() {
 
   field_update_instance($instance);
 
-  $vocabulary = new stdClass;
-  $vocabulary->name = 'Shopify Collections';
-  $vocabulary->machine_name = 'shopify_collections';
-  taxonomy_vocabulary_save($vocabulary);
-
-  // Create collection image field.
-  field_create_field(array(
-    'field_name' => 'shopify_collection_image',
-    'type' => 'image',
-    'cardinality' => 1,
-    'settings' => array(),
-  ));
-
-  $instance = array(
-    'field_name' => 'shopify_collection_image',
-    'entity_type' => 'taxonomy_term',
-    'bundle' => 'shopify_collections',
-    'label' => 'Shopify Collection Image',
-    'required' => FALSE,
-    'default_value_function' => '',
-    'widget' => array(
-      'type' => 'image_image',
-      'settings' => array('image_style' => 'thumbnail', 'image_link' => ''),
-    ),
-  );
-
-  field_create_instance($instance);
-
   // Create field to track the collection ID from Shopify.
   field_create_field(array(
     'field_name' => 'shopify_collection_id',
@@ -642,7 +614,8 @@ function shopify_uninstall() {
   taxonomy_vocabulary_delete($vocabulary->vid);
   $vocabulary = taxonomy_vocabulary_machine_name_load('shopify_collections');
   taxonomy_vocabulary_delete($vocabulary->vid);
-  variable_del('shopify_last_sync');
+  variable_del('shopify_last_product_sync');
+  variable_del('shopify_last_collection_sync');
   variable_del('shopify_store_info');
   field_purge_batch(20);
 }
