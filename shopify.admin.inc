@@ -32,7 +32,8 @@ function shopify_admin_page() {
 /**
  * Shopify products sync page form.
  */
-function shopify_admin_product_sync_form($form, &$form_state) {
+function shopify_admin_sync_form($form, &$form_state) {
+
   try {
     shopify_api_get_shop_info();
   } catch (Exception $e) {
@@ -41,8 +42,8 @@ function shopify_admin_product_sync_form($form, &$form_state) {
     return $form;
   }
 
-  $last_updated = variable_get('shopify_last_sync');
-  if ($last_updated == '1970-01-01 00:00') {
+  $last_updated = variable_get('shopify_last_product_sync');
+  if ($last_updated == '1970-01-01 00:00' || !$last_updated) {
     $last_updated = 'never';
   }
 
@@ -50,12 +51,16 @@ function shopify_admin_product_sync_form($form, &$form_state) {
   $info .= 'be pulled and synced. Products updated via webhooks will be updated anyway. ';
   $info .= 'Custom fields you\'ve added yourself will not be overridden on update.';
 
-  $form['info'] = array(
-    '#type' => 'markup',
-    '#markup' => t($info, array('!last_updated' => $last_updated)),
+  $form['products'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Sync Products'),
+    '#description' => t($info, array('!last_updated' => $last_updated)),
+    '#collapsible' => TRUE,
+    '#collapsed' => TRUE,
+    '#tree' => TRUE,
   );
 
-  $form['num_per_batch'] = array(
+  $form['products']['num_per_batch'] = array(
     '#type' => 'select',
     '#title' => 'Choose how many products to sync per batch operation (not per batch).',
     '#options' => array(
@@ -66,108 +71,150 @@ function shopify_admin_product_sync_form($form, &$form_state) {
     '#default_value' => 250,
   );
 
-  $form['delete'] = array(
+  $form['products']['delete'] = array(
     '#type' => 'checkbox',
-    '#title' => t('Delete all products then re-import fresh. CAUTION: Product entities will be completely deleted then re-imported. Custom fields will be erased, comments deleted, etc.'),
+    '#title' => t('Delete all products then re-import fresh.') . '<br /><strong>' . t('CAUTION: Product entities will be completely deleted then re-imported. Custom fields will be erased, comments deleted, etc.') . '</strong>',
   );
 
-  $form['update_anyway'] = array(
+  $form['products']['update_anyway'] = array(
     '#type' => 'checkbox',
-    '#title' => t('Update all products regardless of last sync time. Product entities will be updated, not  deleted.'),
+    '#title' => t('Update all products regardless of last sync time. Product entities will be updated, not deleted.'),
   );
 
-  $form['submit'] = array(
+  $form['products']['submit'] = array(
     '#type' => 'submit',
     '#value' => 'Sync Products',
+    '#submit' => array('shopify_admin_product_sync_form_submit'),
+  );
+
+  $last_updated = variable_get('shopify_last_collection_sync');
+  if ($last_updated == '1970-01-01 00:00' || !$last_updated) {
+    $last_updated = 'never';
+  }
+  $form['collections'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Sync Collections'),
+    '#description' => t('Last sync !last_updated.', array('!last_updated' => $last_updated)),
+    '#collapsible' => TRUE,
+    '#collapsed' => TRUE,
+    '#tree' => TRUE,
+  );
+  $form['collections']['delete'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Delete all collections then re-import fresh.') . '<br /><strong>' . t('CAUTION: Collection terms will be completely deleted then re-imported. Custom fields will be erased, comments deleted, etc.') . '</strong>',
+  );
+  $form['collections']['submit'] = array(
+    '#type' => 'submit',
+    '#value' => 'Sync Collections',
+    '#submit' => array('shopify_admin_collection_sync_form_submit'),
   );
 
   return $form;
 }
 
 /**
- * Shopify products sync page form.
+ * Submit handler for collection syncing.
  */
-function shopify_admin_collection_sync_form($form, &$form_state) {
-  try {
-    shopify_api_get_shop_info();
-  } catch (Exception $e) {
-    drupal_set_message(t('Unable to connect to your Shopify store.'), 'error');
-    $form['oops'] = array('#markup' => t('<a href="/admin/shopify">Unable to connect to your store.</a>'));
-    return $form;
+function shopify_admin_collection_sync_form_submit($form, &$form_state) {
+  if ($form_state['values']['collections']['delete']) {
+    shopify_delete_all_collections();
   }
+  $batch = shopify_sync_collections_batch();
+  batch_set($batch);
+}
 
-  $form['submit'] = array(
-    '#type' => 'submit',
-    '#value' => 'Sync Collections',
+/**
+ * Shopify collections sync batch callback.
+ */
+function shopify_sync_collections_batch() {
+  // Get all smart/custom collection data.
+  $collections = shopify_api_get_collections(array('limit' => 250));
+  $operations = array();
+  foreach ($collections as $count => $c) {
+    $operations[] = array(
+      'shopify_sync_collections_batch_op',
+      array(
+        $c,
+        t('(Processing page @operation)', array('@operation' => $count + 1)),
+      ),
+    );
+  }
+  $batch = array(
+    'operations' => $operations,
+    'finished' => 'shopify_sync_collections_batch_finished',
+    'file' => drupal_get_path('module', 'shopify') . '/shopify.admin.inc',
   );
-
-  return $form;
+  return $batch;
 }
 
-function shopify_admin_collection_sync_form_submit($form, $form_state) {
-  // Pull collection information.
-  $client = shopify_api_client();
-  $collects = $client->call('GET', '/admin/collects.json');
-  if (!$collects) {
-    return;
+/**
+ * Batch operation for syncing Shopify collections.
+ *
+ * @param array $collection
+ *   Collection data.
+ * @param string $operation_details
+ *   Operation details.
+ * @param array $context
+ *   Batch context.
+ */
+function shopify_sync_collections_batch_op($collection, $operation_details, &$context) {
+  // Make sure this collection exists and create one if needed.
+  $vocab = taxonomy_vocabulary_machine_name_load('shopify_collections');
+  $t = taxonomy_get_term_by_name($collection['title'], $vocab->machine_name);
+  if (!$t) {
+    // Need to create this taxonomy.
+    $t = entity_create('taxonomy_term', array(
+      'vid' => $vocab->vid,
+      'name' => $collection['title'],
+      'description' => $collection['body_html'],
+      'shopify_collection_id' => array('und' => array(array('value' => $collection['id']))),
+    ));
+    if (taxonomy_term_save($t) && isset($collection['image']['src'])) {
+      // Save the image for this term.
+      shopify_collections_save_image($t, $collection['image']['src']);
+    }
+    drupal_set_message(t('Created new collection: @name', array('@name' => $collection['title'])));
+  }
+  else {
+    $t = array_shift($t);
   }
 
-  // Handle the creation of new collections.
+  // Get products for this collection ID.
+  $collects = shopify_api_get_collects(array('collection_id' => $collection['id']));
+
   foreach ($collects as $c) {
-    try {
-      $c_info = $client->call('GET', '/admin/smart_collections/' . $c['collection_id'] . '.json');
-    } catch (Exception $e) {
-      // Perchance this is actually a custom_collection?
-      try {
-        $c_info = $client->call('GET', '/admin/custom_collections/' . $c['collection_id'] . '.json');
-      } catch (Exception $e) {
-        $c_info = FALSE;
+    // Update this product information.
+    $product = shopify_product_load_single($c['product_id']);
+    if (!$product) {
+      continue;
+    }
+    $collections = $product->wrapper()->shopify_product_collections->value();
+    foreach ($collections as $collect) {
+      if ($collect->tid == $t->tid) {
+        // Product already in collection.
+        continue 2;
       }
     }
-    if ($c_info) {
-      // Check if this collection already exists.
-      $vocab = taxonomy_vocabulary_machine_name_load('shopify_collections');
-      $t = taxonomy_get_term_by_name($c_info['title'], $vocab->machine_name);
-      if (!$t) {
-        // Need to create this taxonomy.
-        $new_term = entity_create('taxonomy_term', array(
-          'vid' => $vocab->vid,
-          'name' => $c_info['title'],
-          'description' => $c_info['body_html'],
-        ));
-        if (taxonomy_term_save($new_term) && isset($c_info['image']['src'])) {
-          // Save the image for this term.
-          shopify_collections_save_image($new_term, $c_info['image']['src']);
-        }
-
-//        shopify_collections_save_image($new_term, )
-        drupal_set_message(t('Created new collection: @name', array('@name' => $c_info['title'])));
-        unset($new_term);
-      }
-      // Update this product information.
-      $t = taxonomy_get_term_by_name($c_info['title'], $vocab->machine_name);
-      $t = reset($t);
-      if ($t) {
-        $product = shopify_product_load_single($c['product_id']);
-        $collections = $product->wrapper()->shopify_product_collections->value();
-        foreach ($collections as $collect) {
-          if ($collect->tid == $t->tid) {
-            // Product already in collection.
-            continue 2;
-          }
-        }
-        $product->wrapper()->shopify_product_collections[] = $t->tid;
-        $product->save();
-        drupal_set_message(t('Put product @p into collection @c.', array(
-          '@p' => $product->title,
-          '@c' => $t->name,
-        )));
-      }
-    }
+    $product->wrapper()->shopify_product_collections[] = $t->tid;
+    $product->save();
+    drupal_set_message(t('Put product @p into collection @c.', array(
+      '@p' => $product->title,
+      '@c' => $collection['title'],
+    )));
   }
+  $context['results'][] = $collection;
+  $context['message'] = t('Syncing collection @title...', array('@title' => $collection['title']));
 }
 
-function shopify_collections_save_image($term, $image_url) {
+/**
+ * Saves an image for a Shopify collection.
+ *
+ * @param stdClass $term
+ *   Taxonomy term entity.
+ * @param string $image_url
+ *   Remote image URL for the collection image.
+ */
+function shopify_collections_save_image(stdClass $term, $image_url) {
   $directory = file_build_uri('shopify_images');
   if (!file_prepare_directory($directory, FILE_CREATE_DIRECTORY)) {
     // If our directory doesn't exist and can't be created, use the default.
@@ -180,20 +227,45 @@ function shopify_collections_save_image($term, $image_url) {
 }
 
 /**
+ * Batch finished callback for collections batch.
+ */
+function shopify_sync_collections_batch_finished($success, $results, $operations) {
+  if ($success) {
+    drupal_set_message(t('Processed @count collections.', array('@count' => count($results))));
+    $datetime = new DateTime();
+    $last_updated = $datetime->format('Y-m-d H:i');
+    variable_set('shopify_last_collection_sync', $last_updated);
+  }
+  else {
+    // An error occurred.
+    // $operations contains the operations that remained unprocessed.
+    $error_operation = reset($operations);
+    drupal_set_message(
+      t('An error occurred while processing @operation with arguments : @args',
+        array(
+          '@operation' => $error_operation[0],
+          '@args' => print_r($error_operation[0], TRUE),
+        )
+      )
+    );
+  }
+}
+
+/**
  * Shopify product sync form submit handler.
  *
  * @see shopify_admin_product_sync_form()
  */
 function shopify_admin_product_sync_form_submit($form, &$form_state) {
   // @todo Probably should have a batch just for this.
-  if ($form_state['values']['delete']) {
+  if ($form_state['values']['products']['delete']) {
     shopify_delete_all_products();
     shopify_products_reset_sync_datestamp();
   }
-  if ($form_state['values']['update_anyway']) {
+  if ($form_state['values']['products']['update_anyway']) {
     shopify_products_reset_sync_datestamp();
   }
-  $batch = shopify_sync_products_batch(array('num_per_batch' => $form_state['values']['num_per_batch']));
+  $batch = shopify_sync_products_batch(array('num_per_batch' => $form_state['values']['products']['num_per_batch']));
   batch_set($batch);
 }
 
@@ -205,14 +277,14 @@ function shopify_sync_products_batch($params) {
   // Get count of products
   $num_products = shopify_api_get_product_count(
     array(
-      'updated_at_min' => variable_get('shopify_last_sync')
+      'updated_at_min' => variable_get('shopify_last_product_sync')
     )
   );
   $num_operations = ceil($num_products / $params['num_per_batch']);
   $operations = array();
   for ($page = 1; $page <= $num_operations; $page++) {
     $operations[] = array(
-      'shopify_sync_products_batch_op_1',
+      'shopify_sync_products_batch_op',
       array(
         $page,
         $params['num_per_batch'],
@@ -231,12 +303,12 @@ function shopify_sync_products_batch($params) {
 /**
  * Shopify products sync batch operation handler.
  */
-function shopify_sync_products_batch_op_1($page, $num_per_batch, $operation_details, &$context) {
+function shopify_sync_products_batch_op($page, $num_per_batch, $operation_details, &$context) {
   $products = shopify_api_get_products(
     array(
       'page' => $page,
       'limit' => $num_per_batch,
-      'updated_at_min' => variable_get('shopify_last_sync')
+      'updated_at_min' => variable_get('shopify_last_product_sync')
     )
   );
   foreach ($products as $product) {
@@ -257,14 +329,14 @@ function shopify_sync_products_batch_op_1($page, $num_per_batch, $operation_deta
 /**
  * Shopify product sync batch operation finished callback.
  *
- * @see shopify_sync_products_batch_op_1()
+ * @see shopify_sync_products_batch_op()
  */
 function shopify_sync_products_batch_finished($success, $results, $operations) {
   if ($success) {
     drupal_set_message(t('Processed @count products and variants.', array('@count' => count($results))));
     $datetime = new DateTime();
     $last_updated = $datetime->format('Y-m-d H:i');
-    variable_set('shopify_last_sync', $last_updated);
+    variable_set('shopify_last_product_sync', $last_updated);
   }
   else {
     // An error occurred.

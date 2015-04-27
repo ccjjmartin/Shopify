@@ -369,7 +369,7 @@ class ShopifyProductController extends EntityAPIController {
 
   /**
    * Renders a single entity property.
-//   */
+   * //   */
 //  protected function renderEntityProperty($wrapper, $name, $property, $view_mode, $langcode, &$content) {
 //    $info = $property->info();
 //
@@ -656,12 +656,14 @@ class ShopifyProductsUIController extends EntityDefaultUIController {
   protected function overviewTableRow($conditions, $id, $entity, $additional_cols = array()) {
     $entity_uri = entity_uri($this->entityType, $entity);
 
-    $row[] = array('data' => array(
-      '#theme' => 'entity_ui_overview_item',
-      '#label' => entity_label($this->entityType, $entity),
-      '#name' => !empty($this->entityInfo['exportable']) ? entity_id($this->entityType, $entity) : FALSE,
-      '#url' => $entity_uri ? $entity_uri : FALSE,
-      '#entity_type' => $this->entityType),
+    $row[] = array(
+      'data' => array(
+        '#theme' => 'entity_ui_overview_item',
+        '#label' => entity_label($this->entityType, $entity),
+        '#name' => !empty($this->entityInfo['exportable']) ? entity_id($this->entityType, $entity) : FALSE,
+        '#url' => $entity_uri ? $entity_uri : FALSE,
+        '#entity_type' => $this->entityType
+      ),
     );
 
     // Add in any passed additional cols.
@@ -671,10 +673,12 @@ class ShopifyProductsUIController extends EntityDefaultUIController {
 
     // Add a row for the exportable status.
     if (!empty($this->entityInfo['exportable'])) {
-      $row[] = array('data' => array(
-        '#theme' => 'entity_status',
-        '#status' => $entity->{$this->statusKey},
-      ));
+      $row[] = array(
+        'data' => array(
+          '#theme' => 'entity_status',
+          '#status' => $entity->{$this->statusKey},
+        )
+      );
     }
     // In case this is a bundle, we add links to the field ui tabs.
     $field_ui = !empty($this->entityInfo['bundle of']) && entity_type_is_fieldable($this->entityInfo['bundle of']) && module_exists('field_ui');
@@ -685,7 +689,10 @@ class ShopifyProductsUIController extends EntityDefaultUIController {
 
     // Add operations depending on the status.
     if (entity_has_status($this->entityType, $entity, ENTITY_FIXED)) {
-      $row[] = array('data' => l(t('clone'), $this->path . '/manage/' . $id . '/clone'), 'colspan' => $this->operationCount());
+      $row[] = array(
+        'data' => l(t('clone'), $this->path . '/manage/' . $id . '/clone'),
+        'colspan' => $this->operationCount()
+      );
     }
     else {
       $row[] = l(t('Edit Drupal Entity'), $this->path . '/manage/' . $id);
@@ -713,8 +720,8 @@ class ShopifyProductsUIController extends EntityDefaultUIController {
 //  public function hook_menu() {
 //    parent::hook_menu();
 //    // @todo Add a nice page callback to point at Shopify's add product page.
-      // @todo Remove the Delete callback.
-      // @todo Remove the Add callback
+  // @todo Remove the Delete callback.
+  // @todo Remove the Add callback
 //  }
 
 }
