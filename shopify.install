@@ -185,6 +185,7 @@ function shopify_install() {
     'widget' => array(
       'type' => 'image_image',
       'settings' => array('image_style' => 'thumbnail', 'image_link' => ''),
+      'weight' => 0,
     ),
   );
 
@@ -206,6 +207,7 @@ function shopify_install() {
     'default_value_function' => '',
     'widget' => array(
       'type' => 'taxonomy_autocomplete',
+      'weight' => 1,
       'settings' => array(
         'allowed_values' => array(
           'vocabulary' => 'shopify_tags',
@@ -239,6 +241,7 @@ function shopify_install() {
     'default_value_function' => '',
     'widget' => array(
       'type' => 'taxonomy_autocomplete',
+      'weight' => 2,
       'settings' => array(
         'allowed_values' => array(
           'vocabulary' => 'shopify_collections',
@@ -347,7 +350,6 @@ function shopify_install() {
 
   field_create_instance($instance);
 
-
   $instance = field_info_instance('shopify_product', 'shopify_product_images', 'shopify_product');
   $instance['display'] = array(
     'default' =>
@@ -387,7 +389,7 @@ function shopify_install() {
           array(
             'metatags' =>
               array (
-                'weight' => '99',
+                'weight' => '3',
               ),
           ),
         'display' =>
