@@ -523,8 +523,6 @@ function shopify_field_extra_fields() {
  * Creates the edit/update form for the entity.
  */
 function shopify_product_form($form, &$form_state, ShopifyProduct $product = NULL, $action = 'new') {
-  global $user;
-
   $form['#id'] = 'shopify-product-create-form';
   $form_state['shopify_product'] = $product ?: new ShopifyProduct();
 
@@ -545,8 +543,18 @@ function shopify_product_form($form, &$form_state, ShopifyProduct $product = NUL
   );
 
   field_attach_form('shopify_product', $product, $form, $form_state);
-
+  // No idea why this is nessasary...
+  $form['#submit'][] = 'shopify_product_form_submit';
   return $form;
+}
+
+/**
+ * Form API submit callback for the entity type form.
+ */
+function shopify_product_form_submit(&$form, &$form_state) {
+  $product = entity_ui_form_submit_build_entity($form, $form_state);
+  $product->save();
+  $form_state['redirect'] = 'admin/shopify/products';
 }
 
 /**
@@ -832,5 +840,20 @@ function shopify_form_shopify_product_form_alter(&$form, &$form_state, $hook) {
 
   foreach ($disable as $key) {
     $form[$key]['#disabled'] = TRUE;
+  }
+}
+
+function shopify_field_attach_form($entity_type, $entity, &$form, &$form_state, $langcode) {
+  if ($entity_type == 'shopify_product') {
+    metatag_metatags_form($form, 'shopify_product:shopify_product', $entity->metatags);
+  }
+}
+
+/**
+ * Implements hook_ctools_plugin_api().
+ */
+function shopify_ctools_plugin_api($owner, $api) {
+  if ($owner == 'metatag' && $api == 'metatag') {
+    return array('version' => 1);
   }
 }
