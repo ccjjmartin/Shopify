@@ -44,18 +44,58 @@ function shopify_views_default_views() {
  * Implements hook_menu().
  */
 function shopify_menu() {
-  $items['products/view/%shopify_product'] = array(
+  $items['product/%shopify_product'] = array(
     'page callback' => 'entity_ui_entity_page_view',
-    'page arguments' => array(2),
+    'page arguments' => array(1),
     'load arguments' => array('shopify_product'),
-    'access callback' => TRUE,
+    'access callback' => 'entity_access',
+    'access arguments' => array('view', 'shopify_product', 1),
+    'title callback' => 'shopify_product_title',
+    'title arguments' => array(1),
   );
+
+  // Add "View" tab on Product page
+  $items['product/%shopify_product/view'] = array(
+    'title' => 'View',
+    'page callback' => 'entity_ui_entity_page_view',
+    'page arguments' => array(1),
+    'load arguments' => array('shopify_product'),
+    'access callback' => 'entity_access',
+    'access arguments' => array('view', 'shopify_product', 1),
+    'type' => MENU_DEFAULT_LOCAL_TASK,
+  );
+
+  // Add "Edit" tab on Product page
+  $items['product/%shopify_product/edit'] = array(
+    'page callback' => 'shopify_redirect_to_edit',
+    'page arguments' => array(1),
+    'load arguments' => array('shopify_product'),
+    'access callback' => 'entity_access',
+    'access arguments' => array('update', 'shopify_product', 1),
+    'title' => 'Edit',
+    'type' => MENU_LOCAL_TASK,
+    'weight' => 1,
+  );
+
+  // Add "View" tab to edit form
+  $items['admin/shopify/products/manage/%shopify_product/view'] = array(
+    'page callback' => 'shopify_redirect_to_view',
+    'page arguments' => array(4),
+    'load arguments' => array('shopify_product'),
+    'access callback' => 'entity_access',
+    'access arguments' => array('view', 'shopify_product', 4),
+    'title' => 'View',
+    'type' => MENU_LOCAL_TASK,
+    'weight' => 1,
+  );
+
   $items['admin/shopify'] = array(
     'page callback' => 'shopify_admin_page',
     'title' => 'Shopify',
     'access arguments' => array('administer shopify'),
     'file' => 'shopify.admin.inc',
   );
+
   $items['admin/shopify/overview'] = array(
     'title' => 'Shopify Overview',
     'description' => 'Shopify Overview',
@@ -97,6 +137,28 @@ function shopify_menu() {
 }
 
 /**
+ * Implements hook_menu_alter().
+ */
+function shopify_menu_alter(&$items) {
+  // Products are added on shopify, not in Drupal.
+  $items['admin/shopify/products/add']['access callback'] = FALSE;
+}
+
+function shopify_redirect_to_edit($product) {
+  $path = "admin/shopify/products/manage/{$product->id}/edit";
+  drupal_goto($path);
+}
+
+function shopify_redirect_to_view($product) {
+  $uri = entity_uri('shopify_product', $product);
+  drupal_goto($uri['path']);
+}
+
+function shopify_product_title($product) {
+  return $product->title;
+}
+
+/**
  * Add to cart callback.
  *
  * Displays an "Added to cart" message to the user.
@@ -115,10 +177,6 @@ function shopify_added_to_cart() {
     '!cart_link' => l(t('your cart'), 'https://' . shopify_store_info()->myshopify_domain . '/cart', array('attributes' => array('target' => '_blank'))),
   )));
   print '';
-}
-
-function shopify_menu_alter(&$items) {
-  $items['admin/shopify/products/add']['access callback'] = FALSE;
 }
 
 function shopify_incoming_webhook($hook) {
@@ -667,7 +725,7 @@ function shopify_product_access() {
  */
 function shopify_product_uri(ShopifyProduct $entity) {
   return array(
-    'path' => 'products/view/' . $entity->id,
+    'path' => 'product/' . $entity->id,
   );
 }
 
