@@ -110,6 +110,22 @@ function shopify_menu() {
     'type' => MENU_LOCAL_TASK,
     'file' => 'shopify.admin.inc',
   );
+  $items['admin/shopify/theme'] = array(
+    'title' => 'Theme',
+    'description' => 'Download a default Shopify Theme for your Shopify store.',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('shopify_admin_theme_download'),
+    'access arguments' => array('administer shopify'),
+    'type' => MENU_LOCAL_TASK,
+    'file' => 'shopify.admin.inc',
+  );
+  $items['admin/shopify/theme/download'] = array(
+    'page callback' => 'shopify_download_theme',
+    'access arguments' => array('administer shopify'),
+    'type' => MENU_CALLBACK,
+    'file' => 'shopify.admin.inc',
+  );
+
   $items['admin/shopify/webhooks'] = array(
     'title' => 'Webhooks',
     'description' => 'Manage Shopify Webhooks',
@@ -156,6 +172,14 @@ function shopify_redirect_to_view($product) {
 
 function shopify_product_title($product) {
   return $product->title;
+}
+
+/**
+ * Get the path to the store from the view.
+ */
+function shopify_store_path() {
+  $view = views_get_view('shopify_products');
+  return $view->display['page_products']->display_options['path'];
 }
 
 /**
