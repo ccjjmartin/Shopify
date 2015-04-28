@@ -24,39 +24,6 @@ function shopify_views_api() {
 }
 
 /**
- * Implements hook_views_handlers().
- */
-//function shopify_views_handlers() {
-//  return array(
-//    'info' => array(
-//      'path' => drupal_get_path('module', 'shopify') . '/views',
-//    ),
-//    'handlers' => array(
-//      // The name of my handler
-//      'add_to_cart_form_handler' => array(
-//        // The name of the handler we are extending.
-//        'parent' => 'views_handler_field',
-//      ),
-//    ),
-//  );
-//}
-
-///**
-// *  Implements hook_views_data().
-// */
-//function shopify_views_data() {
-//  $data = array();
-//  $data['shopify_products']['add_to_cart_form_handler'] = array(
-//    'title' => t('Add to Cart form'),
-//    'help' => t('Displays an add to cart form.'),
-//    'field' => array(
-//      'handler' => 'add_to_cart_form_handler',
-//    ),
-//  );
-//  return $data;
-//}
-
-/**
  * Implements hook_views_default_views().
  *
  * Imports views from the /views directory.
