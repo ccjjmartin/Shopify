@@ -49,6 +49,88 @@ function shopify_views_default_views() {
  * Implements hook_menu().
  */
 function shopify_menu() {
+
+  // Create nice shortcut links for shopify admin pages.
+  $store_url = 'https://' . shopify_store_info()->myshopify_domain;
+  $items['admin/shopify/store'] = array(
+    'title' => 'Admin',
+    'page callback' => 'drupal_goto',
+    'page arguments' => array($store_url . '/admin'),
+    'access arguments' => array('administer shopify'),
+    'options' => array('attributes' => array('target' => '_blank')),
+    'weight' => -999,
+  );
+  $items['admin/shopify/store/settings'] = array(
+    'title' => 'Settings',
+    'page callback' => 'drupal_goto',
+    'page arguments' => array($store_url . '/admin/settings/general'),
+    'access arguments' => array('administer shopify'),
+    'options' => array('attributes' => array('target' => '_blank')),
+  );
+  $items['admin/shopify/store/products'] = array(
+    'title' => 'Products',
+    'page callback' => 'drupal_goto',
+    'page arguments' => array($store_url . '/admin/products'),
+    'access arguments' => array('administer shopify'),
+    'options' => array('attributes' => array('target' => '_blank')),
+  );
+  $items['admin/shopify/store/collections'] = array(
+    'title' => 'Collections',
+    'page callback' => 'drupal_goto',
+    'page arguments' => array($store_url . '/admin/collections'),
+    'access arguments' => array('administer shopify'),
+    'options' => array('attributes' => array('target' => '_blank')),
+  );
+  $items['admin/shopify/store/gift_cards'] = array(
+    'title' => 'Gift Cards',
+    'page callback' => 'drupal_goto',
+    'page arguments' => array($store_url . '/admin/gift_cards'),
+    'access arguments' => array('administer shopify'),
+    'options' => array('attributes' => array('target' => '_blank')),
+  );
+  $items['admin/shopify/store/orders'] = array(
+    'title' => 'Orders',
+    'page callback' => 'drupal_goto',
+    'page arguments' => array($store_url . '/admin/orders'),
+    'access arguments' => array('administer shopify'),
+    'options' => array('attributes' => array('target' => '_blank')),
+  );
+  $items['admin/shopify/store/customers'] = array(
+    'title' => 'Customers',
+    'page callback' => 'drupal_goto',
+    'page arguments' => array($store_url . '/admin/customers'),
+    'access arguments' => array('administer shopify'),
+    'options' => array('attributes' => array('target' => '_blank')),
+  );
+  $items['admin/shopify/store/reports'] = array(
+    'title' => 'Reports',
+    'page callback' => 'drupal_goto',
+    'page arguments' => array($store_url . '/admin/reports'),
+    'access arguments' => array('administer shopify'),
+    'options' => array('attributes' => array('target' => '_blank')),
+  );
+  $items['admin/shopify/store/discounts'] = array(
+    'title' => 'Discounts',
+    'page callback' => 'drupal_goto',
+    'page arguments' => array($store_url . '/admin/discounts'),
+    'access arguments' => array('administer shopify'),
+    'options' => array('attributes' => array('target' => '_blank')),
+  );
+  $items['admin/shopify/store/apps'] = array(
+    'title' => 'Apps',
+    'page callback' => 'drupal_goto',
+    'page arguments' => array($store_url . '/admin/apps'),
+    'access arguments' => array('administer shopify'),
+    'options' => array('attributes' => array('target' => '_blank')),
+  );
+  $items['admin/shopify/store/configure'] = array(
+    'title' => 'Configure',
+    'page callback' => 'drupal_goto',
+    'page arguments' => array($store_url . '/admin/dashboard/online'),
+    'access arguments' => array('administer shopify'),
+    'options' => array('attributes' => array('target' => '_blank')),
+  );
+
   $items['product/%shopify_product'] = array(
     'page callback' => 'entity_ui_entity_page_view',
     'page arguments' => array(1),
