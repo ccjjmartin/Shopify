@@ -4,6 +4,11 @@
  * Main module file containing hooks and functions.
  */
 
+// Load include files.
+module_load_include('inc', 'shopify', 'includes/shopify.webhooks');
+module_load_include('inc', 'shopify', 'includes/shopify.search');
+module_load_include('inc', 'shopify', 'includes/shopify.metatag');
+
 /**
  *  Implements hook_init().
  */
@@ -93,7 +98,7 @@ function shopify_menu() {
     'page callback' => 'shopify_admin_page',
     'title' => 'Shopify',
     'access arguments' => array('administer shopify'),
-    'file' => 'shopify.admin.inc',
+    'file' => 'includes/shopify.admin.inc',
   );
 
   $items['admin/shopify/overview'] = array(
@@ -108,7 +113,7 @@ function shopify_menu() {
     'page arguments' => array('shopify_admin_sync_form'),
     'access arguments' => array('administer shopify'),
     'type' => MENU_LOCAL_TASK,
-    'file' => 'shopify.admin.inc',
+    'file' => 'includes/shopify.admin.inc',
   );
   $items['admin/shopify/theme'] = array(
     'title' => 'Theme',
@@ -117,13 +122,13 @@ function shopify_menu() {
     'page arguments' => array('shopify_admin_theme_download'),
     'access arguments' => array('administer shopify'),
     'type' => MENU_LOCAL_TASK,
-    'file' => 'shopify.admin.inc',
+    'file' => 'includes/shopify.admin.inc',
   );
   $items['admin/shopify/theme/download'] = array(
     'page callback' => 'shopify_download_theme',
     'access arguments' => array('administer shopify'),
     'type' => MENU_CALLBACK,
-    'file' => 'shopify.admin.inc',
+    'file' => 'includes/shopify.admin.inc',
   );
 
   $items['admin/shopify/webhooks'] = array(
@@ -133,7 +138,7 @@ function shopify_menu() {
     'page arguments' => array('shopify_webhooks_admin'),
     'access arguments' => array('administer shopify webhooks'),
     'type' => MENU_LOCAL_TASK,
-    'file' => 'shopify.admin.inc',
+    'file' => 'includes/shopify.admin.inc',
   );
 
   $items['shopify/added-to-cart'] = array(
@@ -201,42 +206,6 @@ function shopify_added_to_cart() {
     '!cart_link' => l(t('your cart'), 'https://' . shopify_store_info()->myshopify_domain . '/cart', array('attributes' => array('target' => '_blank'))),
   )));
   print '';
-}
-
-function shopify_incoming_webhook($hook) {
-  $json = file_get_contents('php://input');
-  $payload = json_decode($json, TRUE);
-  watchdog('shopify_webhook', var_export($payload, TRUE));
-  $function = 'shopify_webhook_' . $hook;
-  foreach (module_implements($function) as $module) {
-    module_invoke($module, $function, $payload);
-  }
-  print '';
-}
-
-function shopify_shopify_webhook_products_create($payload) {
-  shopify_shopify_webhook_products_update($payload);
-}
-
-/**
- * Implements hook_shopify_webhook_collections_update().
- */
-function shopify_shopify_webhook_collections_update($payload) {
-  shopify_collection_update($payload, $sync_products = TRUE);
-}
-
-/**
- * Implements hook_shopify_webhook_collections_delete().
- */
-function shopify_shopify_webhook_collections_delete($payload) {
-  shopify_collection_delete($payload['id']);
-}
-
-/**
- * Implements hook_shopify_webhook_collections_create().
- */
-function shopify_shopify_webhook_collections_create($payload) {
-  shopify_collection_create($payload, $sync_products = TRUE);
 }
 
 /**
@@ -372,23 +341,6 @@ function shopify_collection_load($collection_id) {
     return reset($terms);
   }
   return NULL;
-}
-
-function shopify_shopify_webhook_products_update($product) {
-  $product_entity = shopify_product_update($product['id'], 0, $product);
-  $product_entity->save();
-  foreach ($product['variants'] as $v) {
-    $variant = shopify_product_update($product['id'], $v['id'], $v);
-    $variant->save();
-  }
-}
-
-function shopify_shopify_webhook_products_delete($product) {
-  shopify_delete_by_product_id($product['id']);
-}
-
-function shopify_shopify_webook_carts_update($payload) {
-  //watchdog('shopify', print_r($payload, TRUE));
 }
 
 /**
@@ -1278,116 +1230,4 @@ function shopify_ctools_plugin_api($owner, $api) {
   if ($owner == 'metatag' && $api == 'metatag') {
     return array('version' => 1);
   }
-}
-
-/**
- * Implements hook_search_info().
- */
-function shopify_search_info() {
-  return array(
-    'title' => 'Products',
-  );
-}
-
-/**
- * Implements hook_search_access().
- */
-function shopify_search_access() {
-  return user_access('access shopify products');
-}
-
-/**
- * Implements hook_search_reset().
- */
-function shopify_search_reset() {
-  db_update('search_dataset')
-    ->fields(array('reindex' => REQUEST_TIME))
-    ->condition('type', 'shopify_product')
-    ->execute();
-}
-
-/**
- * Implements hook_search_execute().
- */
-function shopify_search_execute($keys = NULL, $conditions = NULL) {
-  $keys = preg_replace('!\*+!', '%', $keys);
-  $query = db_select('shopify_products')->extend('PagerDefault');
-  $query->fields('shopify_products', array('id', 'variant_id'));
-  $query->condition('variant_id', '0');
-  $query->condition(db_or()
-    ->condition('title', '%' . db_like($keys) . '%', 'LIKE')
-    ->condition('body_html', '%' . db_like($keys) . '%', 'LIKE'));
-  $product_ids = $query
-    ->limit(15)
-    ->execute()
-    ->fetchCol();
-  $products = shopify_product_load_multiple($product_ids);
-
-  $results = array();
-  foreach ($products as $product) {
-    $build = entity_view('shopify_product', array($product), 'search_result');
-    $rendered = drupal_render($build);
-    $uri = entity_uri('shopify_product', $product);
-    $results[] = array(
-      'link' => url($uri['path'], array_merge($uri['options'], array('absolute' => TRUE))),
-      'title' => $product->title,
-      'snippet' => search_excerpt($keys, $rendered),
-      'language' => entity_language('node', $product),
-    );
-  }
-
-  return $results;
-}
-
-/**
- * Implements hook_search_status().
- */
-function shopify_search_status() {
-  $total = db_query('SELECT COUNT(*) FROM {shopify_products}')->fetchField();
-  $remaining = db_query("SELECT COUNT(*) FROM shopify_products sp LEFT JOIN search_dataset d ON d.type = 'shopify_product' AND d.sid = sp.id WHERE d.sid IS NULL AND sp.variant_id = 0 OR d.reindex <> 0")->fetchField();
-  return array('remaining' => $remaining, 'total' => $total);
-}
-
-/**
- * Implements hook_update_index().
- */
-function shopify_update_index() {
-  $limit = (int) variable_get('search_cron_limit', 100);
-
-  $result = db_query_range("SELECT id FROM shopify_products sp LEFT JOIN search_dataset d ON d.type = 'shopify_product' AND d.sid = sp.id WHERE d.sid IS NULL AND sp.variant_id = 0 OR d.reindex <> 0  ORDER BY d.reindex ASC, sp.id ASC", 0, $limit, array(), array('target' => 'slave'));
-
-  foreach ($result as $product) {
-    _shopify_index_product($product);
-  }
-
-}
-
-/**
- * Indexes a single product.
- *
- * @param $product
- *   The product to index.
- */
-function _shopify_index_product($product) {
-  $product = shopify_product_load($product->id);
-
-  // Save the changed time of the most recent indexed product, for the search
-  // results half-life calculation.
-  variable_set('shopify_cron_last', $product->updated_at);
-
-  // Render the product.
-  $build = entity_view('shopify_product', array($product), 'search_index');
-  unset($build['#theme']);
-  $product->rendered = drupal_render($build);
-
-  $text = '<h1>' . check_plain($product->title) . '</h1>' . $product->rendered;
-
-  // Fetch extra data normally not visible
-  $extra = module_invoke_all('shopify_product_update_index', $product);
-  foreach ($extra as $t) {
-    $text .= $t;
-  }
-
-  // Update index
-  search_index($product->id, 'shopify_product', $text);
 }

@@ -1,5 +1,12 @@
 <?php
+/**
+ * @file
+ * Contains functions relating to metatags integration.
+ */
 
+/**
+ * Implements hook_metatag_config_default().
+ */
 function shopify_metatag_config_default() {
   // @todo these produce errors
   // "The Page title is using the following invalid tokens: [shopify_product:title]."

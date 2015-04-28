@@ -309,7 +309,7 @@ function shopify_sync_collections_batch() {
   $batch = array(
     'operations' => $operations,
     'finished' => 'shopify_sync_collections_batch_finished',
-    'file' => drupal_get_path('module', 'shopify') . '/shopify.admin.inc',
+    'file' => drupal_get_path('module', 'shopify') . '/includes/shopify.admin.inc',
   );
   return $batch;
 }
@@ -408,7 +408,7 @@ function shopify_sync_products_batch($params) {
   $batch = array(
     'operations' => $operations,
     'finished' => 'shopify_sync_products_batch_finished',
-    'file' => drupal_get_path('module', 'shopify') . '/shopify.admin.inc',
+    'file' => drupal_get_path('module', 'shopify') . '/includes/shopify.admin.inc',
   );
   return $batch;
 }
