@@ -1,3 +1,7 @@
+/**
+ * @file
+ * Contains javascript specific to Shopify module functionality.
+ */
 (function ($) {
 
   Drupal.shopify = {

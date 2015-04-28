@@ -68,7 +68,7 @@ function shopify_search_execute($keys = NULL, $conditions = NULL) {
  */
 function shopify_search_status() {
   $total = db_query('SELECT COUNT(*) FROM {shopify_products}')->fetchField();
-  $remaining = db_query("SELECT COUNT(*) FROM shopify_products sp LEFT JOIN search_dataset d ON d.type = 'shopify_product' AND d.sid = sp.id WHERE d.sid IS NULL AND sp.variant_id = 0 OR d.reindex <> 0")->fetchField();
+  $remaining = db_query("SELECT COUNT(*) FROM {shopify_products} sp LEFT JOIN {search_dataset} d ON d.type = 'shopify_product' AND d.sid = sp.id WHERE d.sid IS NULL AND sp.variant_id = 0 OR d.reindex <> 0")->fetchField();
   return array('remaining' => $remaining, 'total' => $total);
 }
 
@@ -78,7 +78,7 @@ function shopify_search_status() {
 function shopify_update_index() {
   $limit = (int) variable_get('search_cron_limit', 100);
 
-  $result = db_query_range("SELECT id FROM shopify_products sp LEFT JOIN search_dataset d ON d.type = 'shopify_product' AND d.sid = sp.id WHERE d.sid IS NULL AND sp.variant_id = 0 OR d.reindex <> 0  ORDER BY d.reindex ASC, sp.id ASC", 0, $limit, array(), array('target' => 'slave'));
+  $result = db_query_range("SELECT id FROM {shopify_products} sp LEFT JOIN {search_dataset} d ON d.type = 'shopify_product' AND d.sid = sp.id WHERE d.sid IS NULL AND sp.variant_id = 0 OR d.reindex <> 0  ORDER BY d.reindex ASC, sp.id ASC", 0, $limit, array(), array('target' => 'slave'));
 
   foreach ($result as $product) {
     _shopify_index_product($product);

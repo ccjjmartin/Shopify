@@ -92,16 +92,15 @@ function shopify_zip_download($filepath, $filename) {
  */
 function shopify_zip_folder($path) {
   // Get real path for our folder
-  $rootPath = realpath($path);
+  $root_path = realpath($path);
 
   // Initialize archive object
   $zip = new ZipArchive();
   $zip->open($path . '.zip', ZipArchive::CREATE | ZipArchive::OVERWRITE);
 
   // Create recursive directory iterator
-  /** @var SplFileInfo[] $files */
   $files = new RecursiveIteratorIterator(
-    new RecursiveDirectoryIterator($rootPath),
+    new RecursiveDirectoryIterator($root_path),
     RecursiveIteratorIterator::LEAVES_ONLY
   );
 
@@ -109,11 +108,11 @@ function shopify_zip_folder($path) {
     // Skip directories (they would be added automatically)
     if (!$file->isDir()) {
       // Get real and relative path for current file
-      $filePath = $file->getRealPath();
-      $relativePath = substr($filePath, strlen($rootPath) + 1);
+      $file_path = $file->getRealPath();
+      $relative_path = substr($file_path, strlen($root_path) + 1);
 
       // Add current file to archive
-      $zip->addFile($filePath, $relativePath);
+      $zip->addFile($file_path, $relative_path);
     }
   }
 
@@ -466,6 +465,9 @@ function shopify_sync_products_batch_finished($success, $results, $operations) {
   }
 }
 
+/**
+ * Shopify webhooks admin form.
+ */
 function shopify_webhooks_admin($form, &$form_state) {
   try {
     $webhooks = shopify_api_get_webhooks();
@@ -640,6 +642,9 @@ function shopify_webhooks_admin($form, &$form_state) {
   return $form;
 }
 
+/**
+ * Shopify webhooks admin form remove submit handler.
+ */
 function shopify_remove_webhooks_submit($form, &$form_state) {
   if ($form_state['values']['op'] == 'Remove') {
     foreach ($form_state['values']['registered'] as $id => $v) {
@@ -650,11 +655,17 @@ function shopify_remove_webhooks_submit($form, &$form_state) {
   }
 }
 
+/**
+ * Shopify webhooks admin form validation handler.
+ */
 function shopify_register_webhooks_validate($form, &$form_state) {
   $hostname = &$form_state['values']['register']['hostname'];
   $hostname = rtrim($hostname, '/');
 }
 
+/**
+ * Shopify webhooks register submit handler.
+ */
 function shopify_register_webhooks_submit($form, &$form_state) {
   $values = $form_state['values'];
   variable_set('shopify_last_registered_host', $values['register']['hostname']);

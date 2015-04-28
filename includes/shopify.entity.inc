@@ -658,6 +658,13 @@ class ShopifyProductsUIController extends EntityDefaultUIController {
     return $render;
   }
 
+  /**
+   * Generates the row for the passed entity and may be overridden in order to
+   * customize the rows.
+   *
+   * @param $additional_cols
+   *   Additional columns to be added after the entity label column.
+   */
   protected function overviewTableRow($conditions, $id, $entity, $additional_cols = array()) {
     $entity_uri = entity_uri($this->entityType, $entity);
 

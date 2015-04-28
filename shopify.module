@@ -10,7 +10,7 @@ module_load_include('inc', 'shopify', 'includes/shopify.search');
 module_load_include('inc', 'shopify', 'includes/shopify.metatag');
 
 /**
- *  Implements hook_init().
+ * Implements hook_init().
  */
 function shopify_init() {
   // Mostly used for quick testing of things right now.
@@ -247,18 +247,39 @@ function shopify_menu_alter(&$items) {
   $items['admin/shopify/products/add']['access callback'] = FALSE;
 }
 
-function shopify_redirect_to_edit($product) {
+/**
+ * Redirect to product edit page.
+ *
+ * @param ShopifyProduct $product
+ *   Shopify product entity.
+ */
+function shopify_redirect_to_edit(ShopifyProduct $product) {
   $path = "admin/shopify/products/manage/{$product->id}/edit";
   drupal_goto($path);
 }
 
-function shopify_redirect_to_view($product) {
+/**
+ * Redirect to product view page.
+ *
+ * @param ShopifyProduct $product
+ *   Shopify product entity.
+ */
+function shopify_redirect_to_view(ShopifyProduct $product) {
   $uri = entity_uri('shopify_product', $product);
   drupal_goto($uri['path']);
 }
 
-function shopify_product_title($product) {
-  return $product->title;
+/**
+ * Get the product label.
+ *
+ * @param ShopifyProduct $product
+ *   Shopify product entity.
+ *
+ * @return string
+ *   Shopify product title.
+ */
+function shopify_product_title(ShopifyProduct $product) {
+  return $product->labe();
 }
 
 /**
@@ -400,6 +421,9 @@ function shopify_collection_delete($collection_id) {
     ->execute();
 }
 
+/**
+ * Gets the Shopify collections vocabulary.
+ */
 function shopify_collection_vocabulary() {
   return taxonomy_vocabulary_machine_name_load('shopify_collections');
 }
@@ -936,10 +960,24 @@ function shopify_api_get_shop_info($refresh = FALSE) {
   return (object) $info;
 }
 
+/**
+ * Gets the admin path for the Shopify store.
+ */
 function shopify_api_get_shop_admin_path() {
   return 'https://' . shopify_api_get_shop_info()->domain . '/admin';
 }
 
+/**
+ * Gets the Shopify store product path.
+ *
+ * @param int $product_id
+ *   Product ID.
+ * @param int $variant_id
+ *   Variant ID.
+ *
+ * @return string
+ *   Product path.
+ */
 function shopify_api_get_product_path($product_id, $variant_id = 0) {
   $variant_path = '';
   if ($variant_id != 0) {
@@ -1116,21 +1154,59 @@ function shopify_api_get_product_images($product_id) {
   return $client->call('GET', "/admin/products/{$product_id}/images.json");
 }
 
+/**
+ * Get Shopify webhooks.
+ *
+ * @return array
+ *   Returns the API response data.
+ *
+ * @throws \ShopifyApiException
+ */
 function shopify_api_get_webhooks() {
   $client = shopify_api_client();
   return $client->call('GET', "/admin/webhooks.json");
 }
 
+/**
+ * Get the Shopify webhooks count.
+ *
+ * @return array
+ *   Returns the API response data.
+ *
+ * @throws \ShopifyApiException
+ */
 function shopify_api_get_webhook_count($options = array()) {
   $client = shopify_api_client();
   return $client->call('GET', "/admin/webhooks/count.json");
 }
 
+/**
+ * Creates a new Shopify webhook.
+ *
+ * @param array $post
+ *   Data to POST to the API.
+ *
+ * @return array
+ *   Returns the API response data.
+ *
+ * @throws \ShopifyApiException
+ */
 function shopify_api_create_webhook($post) {
   $client = shopify_api_client();
   return $client->call('POST', "/admin/webhooks.json", $post);
 }
 
+/**
+ * Deletes a new Shopify webhook.
+ *
+ * @param int $id
+ *   Webhook ID to delete.
+ *
+ * @return array
+ *   Returns the API response data.
+ *
+ * @throws \ShopifyApiException
+ */
 function shopify_api_delete_webhook($id) {
   $client = shopify_api_client();
   return $client->call('DELETE', "/admin/webhooks/{$id}.json");
@@ -1229,7 +1305,7 @@ function shopify_image_default_styles() {
 }
 
 /**
- *  Implements hook_block_info().
+ * Implements hook_block_info().
  */
 function shopify_block_info() {
   $blocks['cart'] = array(
@@ -1240,7 +1316,7 @@ function shopify_block_info() {
 }
 
 /**
- *  Implements hook_block_view().
+ * Implements hook_block_view().
  */
 function shopify_block_view($delta = '') {
   $block = array();
@@ -1272,18 +1348,27 @@ _HTML
   return $block;
 }
 
+/**
+ * Resets the product sync timestamp.
+ */
 function shopify_products_reset_sync_datestamp() {
   $datetime = new DateTime('1/1/1970');
   $last_updated = $datetime->format('Y-m-d H:i');
   variable_set('shopify_last_product_sync', $last_updated);
 }
 
+/**
+ * Resets the collections sync timestamp.
+ */
 function shopify_collections_reset_sync_datestamp() {
   $datetime = new DateTime('1/1/1970');
   $last_updated = $datetime->format('Y-m-d H:i');
   variable_set('shopify_last_collection_sync', $last_updated);
 }
 
+/**
+ * Modifies the product form to disable fields and add help text.
+ */
 function shopify_form_shopify_product_form_alter(&$form, &$form_state, $hook) {
   $product = menu_get_object('shopify_product', 4);
   $edit_url = shopify_api_get_product_path($product->product_id, $product->variant_id);
