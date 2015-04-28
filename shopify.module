@@ -5,12 +5,13 @@
  */
 
 // Load include files.
+module_load_include('inc', 'shopify', 'includes/shopify.api');
 module_load_include('inc', 'shopify', 'includes/shopify.webhooks');
 module_load_include('inc', 'shopify', 'includes/shopify.search');
 module_load_include('inc', 'shopify', 'includes/shopify.metatag');
 
 /**
- *  Implements hook_init().
+ * Implements hook_init().
  */
 function shopify_init() {
   // Mostly used for quick testing of things right now.
@@ -49,6 +50,88 @@ function shopify_views_default_views() {
  * Implements hook_menu().
  */
 function shopify_menu() {
+
+  // Create nice shortcut links for shopify admin pages.
+  $store_url = 'https://' . shopify_store_info()->myshopify_domain;
+  $items['admin/shopify/store'] = array(
+    'title' => 'Admin',
+    'page callback' => 'drupal_goto',
+    'page arguments' => array($store_url . '/admin'),
+    'access arguments' => array('administer shopify'),
+    'options' => array('attributes' => array('target' => '_blank')),
+    'weight' => -999,
+  );
+  $items['admin/shopify/store/settings'] = array(
+    'title' => 'Settings',
+    'page callback' => 'drupal_goto',
+    'page arguments' => array($store_url . '/admin/settings/general'),
+    'access arguments' => array('administer shopify'),
+    'options' => array('attributes' => array('target' => '_blank')),
+  );
+  $items['admin/shopify/store/products'] = array(
+    'title' => 'Products',
+    'page callback' => 'drupal_goto',
+    'page arguments' => array($store_url . '/admin/products'),
+    'access arguments' => array('administer shopify'),
+    'options' => array('attributes' => array('target' => '_blank')),
+  );
+  $items['admin/shopify/store/collections'] = array(
+    'title' => 'Collections',
+    'page callback' => 'drupal_goto',
+    'page arguments' => array($store_url . '/admin/collections'),
+    'access arguments' => array('administer shopify'),
+    'options' => array('attributes' => array('target' => '_blank')),
+  );
+  $items['admin/shopify/store/gift_cards'] = array(
+    'title' => 'Gift Cards',
+    'page callback' => 'drupal_goto',
+    'page arguments' => array($store_url . '/admin/gift_cards'),
+    'access arguments' => array('administer shopify'),
+    'options' => array('attributes' => array('target' => '_blank')),
+  );
+  $items['admin/shopify/store/orders'] = array(
+    'title' => 'Orders',
+    'page callback' => 'drupal_goto',
+    'page arguments' => array($store_url . '/admin/orders'),
+    'access arguments' => array('administer shopify'),
+    'options' => array('attributes' => array('target' => '_blank')),
+  );
+  $items['admin/shopify/store/customers'] = array(
+    'title' => 'Customers',
+    'page callback' => 'drupal_goto',
+    'page arguments' => array($store_url . '/admin/customers'),
+    'access arguments' => array('administer shopify'),
+    'options' => array('attributes' => array('target' => '_blank')),
+  );
+  $items['admin/shopify/store/reports'] = array(
+    'title' => 'Reports',
+    'page callback' => 'drupal_goto',
+    'page arguments' => array($store_url . '/admin/reports'),
+    'access arguments' => array('administer shopify'),
+    'options' => array('attributes' => array('target' => '_blank')),
+  );
+  $items['admin/shopify/store/discounts'] = array(
+    'title' => 'Discounts',
+    'page callback' => 'drupal_goto',
+    'page arguments' => array($store_url . '/admin/discounts'),
+    'access arguments' => array('administer shopify'),
+    'options' => array('attributes' => array('target' => '_blank')),
+  );
+  $items['admin/shopify/store/apps'] = array(
+    'title' => 'Apps',
+    'page callback' => 'drupal_goto',
+    'page arguments' => array($store_url . '/admin/apps'),
+    'access arguments' => array('administer shopify'),
+    'options' => array('attributes' => array('target' => '_blank')),
+  );
+  $items['admin/shopify/store/configure'] = array(
+    'title' => 'Configure',
+    'page callback' => 'drupal_goto',
+    'page arguments' => array($store_url . '/admin/dashboard/online'),
+    'access arguments' => array('administer shopify'),
+    'options' => array('attributes' => array('target' => '_blank')),
+  );
+
   $items['product/%shopify_product'] = array(
     'page callback' => 'entity_ui_entity_page_view',
     'page arguments' => array(1),
@@ -165,18 +248,39 @@ function shopify_menu_alter(&$items) {
   $items['admin/shopify/products/add']['access callback'] = FALSE;
 }
 
-function shopify_redirect_to_edit($product) {
+/**
+ * Redirect to product edit page.
+ *
+ * @param ShopifyProduct $product
+ *   Shopify product entity.
+ */
+function shopify_redirect_to_edit(ShopifyProduct $product) {
   $path = "admin/shopify/products/manage/{$product->id}/edit";
   drupal_goto($path);
 }
 
-function shopify_redirect_to_view($product) {
+/**
+ * Redirect to product view page.
+ *
+ * @param ShopifyProduct $product
+ *   Shopify product entity.
+ */
+function shopify_redirect_to_view(ShopifyProduct $product) {
   $uri = entity_uri('shopify_product', $product);
   drupal_goto($uri['path']);
 }
 
-function shopify_product_title($product) {
-  return $product->title;
+/**
+ * Get the product label.
+ *
+ * @param ShopifyProduct $product
+ *   Shopify product entity.
+ *
+ * @return string
+ *   Shopify product title.
+ */
+function shopify_product_title(ShopifyProduct $product) {
+  return $product->labe();
 }
 
 /**
@@ -318,6 +422,9 @@ function shopify_collection_delete($collection_id) {
     ->execute();
 }
 
+/**
+ * Gets the Shopify collections vocabulary.
+ */
 function shopify_collection_vocabulary() {
   return taxonomy_vocabulary_machine_name_load('shopify_collections');
 }
@@ -733,7 +840,7 @@ function shopify_product_load($id, $reset = FALSE) {
  * @param boolean $reset
  *   A boolean indicating that the internal cache should be reset.
  *
- * @return ShopifyProduct
+ * @return ShopifyProduct[]
  *   An array of product entity objects, indexed by id.
  */
 function shopify_product_load_multiple($ids = array(), $conditions = array(), $reset = FALSE) {
@@ -800,7 +907,7 @@ function shopify_product_form($form, &$form_state, ShopifyProduct $product = NUL
   );
 
   field_attach_form('shopify_product', $product, $form, $form_state);
-  // No idea why this is nessasary...
+  // No idea why this is necessary...
   $form['#submit'][] = 'shopify_product_form_submit';
   return $form;
 }
@@ -1157,7 +1264,7 @@ function shopify_image_default_styles() {
 }
 
 /**
- *  Implements hook_block_info().
+ * Implements hook_block_info().
  */
 function shopify_block_info() {
   $blocks['cart'] = array(
@@ -1168,7 +1275,7 @@ function shopify_block_info() {
 }
 
 /**
- *  Implements hook_block_view().
+ * Implements hook_block_view().
  */
 function shopify_block_view($delta = '') {
   $block = array();
@@ -1200,18 +1307,27 @@ _HTML
   return $block;
 }
 
+/**
+ * Resets the product sync timestamp.
+ */
 function shopify_products_reset_sync_datestamp() {
   $datetime = new DateTime('1/1/1970');
   $last_updated = $datetime->format('Y-m-d H:i');
   variable_set('shopify_last_product_sync', $last_updated);
 }
 
+/**
+ * Resets the collections sync timestamp.
+ */
 function shopify_collections_reset_sync_datestamp() {
   $datetime = new DateTime('1/1/1970');
   $last_updated = $datetime->format('Y-m-d H:i');
   variable_set('shopify_last_collection_sync', $last_updated);
 }
 
+/**
+ * Modifies the product form to disable fields and add help text.
+ */
 function shopify_form_shopify_product_form_alter(&$form, &$form_state, $hook) {
   $product = menu_get_object('shopify_product', 4);
   $edit_url = shopify_api_get_product_path($product->product_id, $product->variant_id);
