@@ -1326,8 +1326,8 @@ function _shopify_index_product($product) {
   // results half-life calculation.
   variable_set('shopify_cron_last', $product->updated_at);
 
-  // Render the node.
-  $build = entity_view($product, 'search_index');
+  // Render the product.
+  $build = entity_view('shopify_product', array($product), 'search_index');
   unset($build['#theme']);
   $product->rendered = drupal_render($build);
 
