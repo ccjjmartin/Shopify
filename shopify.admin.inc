@@ -5,6 +5,173 @@
  */
 
 /**
+ * Theme download admin page.
+ */
+function shopify_admin_theme_download($form, $form_state) {
+  $form = array();
+  $form['download'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Shopify Theme'),
+    '#description' => t('Download and upload this Shopify theme to your !link.', array(
+        '!link' => l(t('Shopify store'), 'http://' . shopify_store_info()->myshopify_domain . '/admin/themes', array('attributes' => array('target' => '_blank'))),
+      )) . '<br />' . t('This theme will disable most Shopify store features except for the shopping cart and will redirect the user to the store on the Drupal site.'),
+  );
+  $form['download']['actions'] = array(
+    '#type' => 'actions',
+    'submit' => array(
+      '#type' => 'submit',
+      '#value' => t('Download'),
+    ),
+  );
+  return $form;
+}
+
+/**
+ * Submit callback for download the Shopify theme folder.
+ */
+function shopify_admin_theme_download_submit($form, $form_state) {
+  // Copy the default theme to a temp folder.
+  try {
+    shopify_recurse_copy(drupal_get_path('module', 'shopify') . '/default_shopify_theme', file_directory_temp() . '/default_shopify_theme');
+  } catch (Exception $e) {
+    drupal_set_message(t('Could not copy default_shopify_theme to the temp directory: @error', array('@error' => $e->getMessage())), 'error');
+  }
+
+  // Modify the {{ replace }} contents within theme files.
+  try {
+    shopify_find_and_replace(file_directory_temp() . '/default_shopify_theme/*', '{{ drupal.store.url }}', url(shopify_store_path(), array('absolute' => TRUE)));
+  } catch (Exception $e) {
+    drupal_set_message(t('Could not find and replace placeholder text: @error', array('@error' => $e->getMessage())), 'error');
+  }
+
+  // Zip the theme folder.
+  try {
+    shopify_zip_folder(file_directory_temp() . '/default_shopify_theme');
+  } catch (Exception $e) {
+    drupal_set_message(t('Could not ZIP the default_shopify_theme folder: @error', array('@error' => $e->getMessage())), 'error');
+  }
+
+  // Download the file to the user's browser.
+  try {
+    shopify_zip_download(file_directory_temp() . '/default_shopify_theme.zip', 'default_shopify_theme.zip');
+  } catch (Exception $e) {
+    drupal_set_message(t('Could not download the ZIP folder: @error', array('@error' => $e->getMessage())), 'error');
+  }
+}
+
+/**
+ * Download a zip file to the user's browser.
+ *
+ * @param string $filepath
+ *   Full file path on the server.
+ * @param string $filename
+ *   Name of the file when downloaded.
+ */
+function shopify_zip_download($filepath, $filename) {
+  // Reset any previous headers.
+  header("Pragma: public");
+  header("Expires: 0");
+  header("Cache-Control: must-revalidate, post-check=0, pre-check=0");
+  header("Cache-Control: public");
+  header("Content-Description: File Transfer");
+  header("Content-type: application/octet-stream");
+  header("Content-Disposition: attachment; filename=\"$filename\"");
+  header("Content-Transfer-Encoding: binary");
+  header("Content-Length: " . filesize($filepath));
+  @readfile($filepath);
+  ob_end_flush();
+}
+
+/**
+ * ZIP a folder.
+ *
+ * @param string $path
+ *   Path to the folder.
+ *
+ * @link http://stackoverflow.com/questions/4914750/how-to-zip-a-whole-folder-using-php @endlink
+ */
+function shopify_zip_folder($path) {
+  // Get real path for our folder
+  $rootPath = realpath($path);
+
+  // Initialize archive object
+  $zip = new ZipArchive();
+  $zip->open($path . '.zip', ZipArchive::CREATE | ZipArchive::OVERWRITE);
+
+  // Create recursive directory iterator
+  /** @var SplFileInfo[] $files */
+  $files = new RecursiveIteratorIterator(
+    new RecursiveDirectoryIterator($rootPath),
+    RecursiveIteratorIterator::LEAVES_ONLY
+  );
+
+  foreach ($files as $name => $file) {
+    // Skip directories (they would be added automatically)
+    if (!$file->isDir()) {
+      // Get real and relative path for current file
+      $filePath = $file->getRealPath();
+      $relativePath = substr($filePath, strlen($rootPath) + 1);
+
+      // Add current file to archive
+      $zip->addFile($filePath, $relativePath);
+    }
+  }
+
+  // Zip archive will be created only after closing object
+  $zip->close();
+}
+
+/**
+ * Find and replace text in a folder recursively.
+ *
+ * @param string $dir
+ *   Directory to search in.
+ * @param string $find_text
+ *   Text to find.
+ * @param string $replace_text
+ *   Text to replace the found text.
+ */
+function shopify_find_and_replace($dir, $find_text, $replace_text) {
+  foreach (glob($dir) as $path_to_file) {
+    if (strpos($path_to_file, '.') === FALSE) {
+      // This is a directory.
+      shopify_find_and_replace($path_to_file . '/*', $find_text, $replace_text);
+    }
+    else {
+      $file_contents = file_get_contents($path_to_file);
+      $file_contents = str_replace($find_text, $replace_text, $file_contents);
+      file_put_contents($path_to_file, $file_contents);
+    }
+  }
+}
+
+/**
+ * Copy an entire directory and contents.
+ *
+ * @param string $src
+ *   Source directory.
+ * @param string $dst
+ *   Destination directory.
+ *
+ * @link http://stackoverflow.com/questions/2050859/copy-entire-contents-of-a-directory-to-another-using-php @endlink
+ */
+function shopify_recurse_copy($src, $dst) {
+  $dir = opendir($src);
+  @mkdir($dst);
+  while (FALSE !== ($file = readdir($dir))) {
+    if (($file != '.') && ($file != '..')) {
+      if (is_dir($src . '/' . $file)) {
+        shopify_recurse_copy($src . '/' . $file, $dst . '/' . $file);
+      }
+      else {
+        copy($src . '/' . $file, $dst . '/' . $file);
+      }
+    }
+  }
+  closedir($dir);
+}
+
+/**
  * Admin page callback.
  */
 function shopify_admin_page() {
