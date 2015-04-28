@@ -24,6 +24,39 @@ function shopify_views_api() {
 }
 
 /**
+ * Implements hook_views_handlers().
+ */
+//function shopify_views_handlers() {
+//  return array(
+//    'info' => array(
+//      'path' => drupal_get_path('module', 'shopify') . '/views',
+//    ),
+//    'handlers' => array(
+//      // The name of my handler
+//      'add_to_cart_form_handler' => array(
+//        // The name of the handler we are extending.
+//        'parent' => 'views_handler_field',
+//      ),
+//    ),
+//  );
+//}
+
+///**
+// *  Implements hook_views_data().
+// */
+//function shopify_views_data() {
+//  $data = array();
+//  $data['shopify_products']['add_to_cart_form_handler'] = array(
+//    'title' => t('Add to Cart form'),
+//    'help' => t('Displays an add to cart form.'),
+//    'field' => array(
+//      'handler' => 'add_to_cart_form_handler',
+//    ),
+//  );
+//  return $data;
+//}
+
+/**
  * Implements hook_views_default_views().
  *
  * Imports views from the /views directory.
@@ -407,6 +440,7 @@ function shopify_entity_info() {
       'uri callback' => 'shopify_product_uri',
       'entity class' => 'ShopifyProduct',
       'controller class' => 'ShopifyProductController',
+      'views controller class' => 'ShopifyProductViewsController',
       'base table' => 'shopify_products',
       'metatags' => TRUE,
       'entity keys' => array(
@@ -1231,9 +1265,9 @@ function shopify_search_execute($keys = NULL, $conditions = NULL) {
   $query = db_select('shopify_products')->extend('PagerDefault');
   $query->fields('shopify_products', array('id', 'variant_id'));
   $query->condition('variant_id', '0');
-  $query->condition(db_or()->
-    condition('title', '%' . db_like($keys) . '%', 'LIKE')->
-    condition('body_html', '%' . db_like($keys) . '%', 'LIKE'));
+  $query->condition(db_or()
+    ->condition('title', '%' . db_like($keys) . '%', 'LIKE')
+    ->condition('body_html', '%' . db_like($keys) . '%', 'LIKE'));
   $product_ids = $query
     ->limit(15)
     ->execute()
@@ -1269,7 +1303,7 @@ function shopify_search_status() {
  * Implements hook_update_index().
  */
 function shopify_update_index() {
-  $limit = (int)variable_get('search_cron_limit', 100);
+  $limit = (int) variable_get('search_cron_limit', 100);
 
   $result = db_query_range("SELECT id FROM shopify_products sp LEFT JOIN search_dataset d ON d.type = 'shopify_product' AND d.sid = sp.id WHERE d.sid IS NULL AND sp.variant_id = 0 OR d.reindex <> 0  ORDER BY d.reindex ASC, sp.id ASC", 0, $limit, array(), array('target' => 'slave'));
 
