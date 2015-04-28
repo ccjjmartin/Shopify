@@ -191,11 +191,25 @@ function shopify_install() {
 
   field_create_instance($instance);
 
+  $vocabulary = new stdClass;
+  $vocabulary->name = 'Shopify Tags';
+  $vocabulary->machine_name = 'shopify_tags';
+  taxonomy_vocabulary_save($vocabulary);
+
+  $vocab = taxonomy_vocabulary_machine_name_load('shopify_tags');
+
   field_create_field(array(
     'field_name' => 'shopify_product_tags',
     'type' => 'taxonomy_term_reference',
     'cardinality' => -1,
-    'settings' => array(),
+    'settings' => array(
+      'allowed_values' => array(
+        array(
+          'vocabulary' => 'shopify_tags',
+          'parent' => 0
+        ),
+      )
+    ),
   ));
 
   $instance = array(
@@ -208,20 +222,14 @@ function shopify_install() {
     'widget' => array(
       'type' => 'taxonomy_autocomplete',
       'weight' => 1,
-      'settings' => array(
-        'allowed_values' => array(
-          'vocabulary' => 'shopify_tags',
-          'parent' => 0
-        )
-      ),
     ),
   );
 
   field_create_instance($instance);
 
   $vocabulary = new stdClass;
-  $vocabulary->name = 'Shopify Tags';
-  $vocabulary->machine_name = 'shopify_tags';
+  $vocabulary->name = 'Shopify Collections';
+  $vocabulary->machine_name = 'shopify_collections';
   taxonomy_vocabulary_save($vocabulary);
 
   // Create field and taxonomy for collections.
@@ -229,7 +237,14 @@ function shopify_install() {
     'field_name' => 'shopify_product_collections',
     'type' => 'taxonomy_term_reference',
     'cardinality' => -1,
-    'settings' => array(),
+    'settings' => array(
+      'allowed_values' => array(
+        array(
+          'vocabulary' => 'shopify_collections',
+          'parent' => 0
+        ),
+      ),
+    ),
   ));
 
   $instance = array(
@@ -242,21 +257,10 @@ function shopify_install() {
     'widget' => array(
       'type' => 'taxonomy_autocomplete',
       'weight' => 2,
-      'settings' => array(
-        'allowed_values' => array(
-          'vocabulary' => 'shopify_collections',
-          'parent' => 0
-        ),
-      ),
     ),
   );
 
   field_create_instance($instance);
-
-  $vocabulary = new stdClass;
-  $vocabulary->name = 'Shopify Collections';
-  $vocabulary->machine_name = 'shopify_collections';
-  taxonomy_vocabulary_save($vocabulary);
 
   // Create collection image field.
   field_create_field(array(
@@ -388,7 +392,7 @@ function shopify_install() {
         'form' =>
           array(
             'metatags' =>
-              array (
+              array(
                 'weight' => '3',
               ),
           ),
