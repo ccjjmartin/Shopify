@@ -14,3 +14,4 @@ scripts[] = shopify.js
 package = Shopify
 
 files[] = shopify.entity.inc
+files[] = views/views_handler_field_shopify_product_add_to_cart_form.inc

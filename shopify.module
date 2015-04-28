@@ -465,6 +465,7 @@ function shopify_entity_info() {
       'uri callback' => 'shopify_product_uri',
       'entity class' => 'ShopifyProduct',
       'controller class' => 'ShopifyProductController',
+      'views controller class' => 'ShopifyProductViewsController',
       'base table' => 'shopify_products',
       'metatags' => TRUE,
       'entity keys' => array(
@@ -535,6 +536,7 @@ function shopify_add_to_cart_form($form, &$form_state, ShopifyProduct $product =
   $form_id = 'shopify-add-to-cart-form-' . $product->handle;
   $form['#id'] = $form_id;
   $form['#action'] = 'https://' . variable_get('shopify_api_domain') . '/cart/add';
+  $form['#attributes']['class'] = 'shopify-add-to-cart-form';
 
   if ($product) {
     $form['#product'] = $product;
@@ -554,6 +556,10 @@ function shopify_add_to_cart_form($form, &$form_state, ShopifyProduct $product =
   else {
     $default_variant = $product;
   }
+
+  // Set data attributes for use in JS.
+  $form['#attributes']['data-product-id'] = $default_variant->product_id;
+  $form['#attributes']['data-variant-id'] = $default_variant->variant_id;
 
   $form['product'] = array();
 
@@ -604,11 +610,6 @@ function shopify_add_to_cart_form($form, &$form_state, ShopifyProduct $product =
       'submit' => array(
         '#type' => 'submit',
         '#value' => t('Add to Cart'),
-        '#attributes' => array(
-          'onclick' => 'javascript:Drupal.shopify.display_add_to_cart_message(this);',
-          'data-product-id' => $default_variant->product_id,
-          'data-variant-id' => $default_variant->variant_id,
-        ),
       ),
     );
   }
@@ -1289,9 +1290,9 @@ function shopify_search_execute($keys = NULL, $conditions = NULL) {
   $query = db_select('shopify_products')->extend('PagerDefault');
   $query->fields('shopify_products', array('id', 'variant_id'));
   $query->condition('variant_id', '0');
-  $query->condition(db_or()->
-    condition('title', '%' . db_like($keys) . '%', 'LIKE')->
-    condition('body_html', '%' . db_like($keys) . '%', 'LIKE'));
+  $query->condition(db_or()
+    ->condition('title', '%' . db_like($keys) . '%', 'LIKE')
+    ->condition('body_html', '%' . db_like($keys) . '%', 'LIKE'));
   $product_ids = $query
     ->limit(15)
     ->execute()
@@ -1327,7 +1328,7 @@ function shopify_search_status() {
  * Implements hook_update_index().
  */
 function shopify_update_index() {
-  $limit = (int)variable_get('search_cron_limit', 100);
+  $limit = (int) variable_get('search_cron_limit', 100);
 
   $result = db_query_range("SELECT id FROM shopify_products sp LEFT JOIN search_dataset d ON d.type = 'shopify_product' AND d.sid = sp.id WHERE d.sid IS NULL AND sp.variant_id = 0 OR d.reindex <> 0  ORDER BY d.reindex ASC, sp.id ASC", 0, $limit, array(), array('target' => 'slave'));
 

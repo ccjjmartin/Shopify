@@ -725,3 +725,25 @@ class ShopifyProductsUIController extends EntityDefaultUIController {
 //  }
 
 }
+
+/**
+ * Class ShopifyProductViewsController
+ */
+class ShopifyProductViewsController extends EntityDefaultViewsController {
+
+  /**
+   * Defines the result for hook_views_data().
+   */
+  public function views_data() {
+    $data = parent::views_data();
+    $data['shopify_products']['add_to_cart_form'] = array(
+      'title' => t('Add to Cart form'),
+      'help' => t('Displays an add to cart form.'),
+      'field' => array(
+        'handler' => 'views_handler_field_shopify_product_add_to_cart_form',
+      ),
+    );
+    return $data;
+  }
+
+}
