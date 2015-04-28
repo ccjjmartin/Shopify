@@ -280,7 +280,7 @@ function shopify_redirect_to_view(ShopifyProduct $product) {
  *   Shopify product title.
  */
 function shopify_product_title(ShopifyProduct $product) {
-  return $product->labe();
+  return $product->label();
 }
 
 /**
