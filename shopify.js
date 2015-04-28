@@ -8,11 +8,17 @@
   /**
    * Display an "Added to cart" message by sending a POST request to the backend.
    */
-  Drupal.shopify.display_add_to_cart_message = function (el) {
-    var $el = $(el);
-    $.post('/shopify/added-to-cart', {
-      product_id: $el.data('product-id'),
-      variant_id: $el.data('variant-id')
+  Drupal.shopify.display_add_to_cart_message = function () {
+    var $forms = $('form.shopify-add-to-cart-form');
+    $forms.unbind('submit').submit(function (e) {
+      var $form = $(this);
+      e.preventDefault();
+      $.post('/shopify/added-to-cart', {
+        product_id: $form.data('product-id'),
+        variant_id: $form.data('variant-id')
+      }, function (data) {
+        $form.get(0).submit();
+      });
     });
   };
 
@@ -20,6 +26,7 @@
     attach: function (context, settings) {
       Drupal.shopify.ctx = context;
       Drupal.shopify.settings = settings;
+      Drupal.shopify.display_add_to_cart_message();
     }
   }
 
