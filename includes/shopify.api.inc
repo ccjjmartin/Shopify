@@ -62,7 +62,7 @@ function shopify_api_get_product_path($product_id, $variant_id = 0) {
  *
  * @throws \ShopifyApiException
  */
-function shopify_api_get_products($options = array()) {
+function shopify_api_get_products(array $options = array()) {
   $client = shopify_api_client();
   return $client->call('GET', '/admin/products.json', $options);
 }
@@ -83,7 +83,7 @@ function shopify_api_get_products($options = array()) {
  *
  * @throws \ShopifyApiException
  */
-function shopify_api_get_collections($options = array(), $type = 'both') {
+function shopify_api_get_collections(array $options = array(), $type = 'both') {
   $client = shopify_api_client();
   $smart_collections = $custom_collections = array();
   if ($type == 'both' || $type == 'smart') {
@@ -106,7 +106,7 @@ function shopify_api_get_collections($options = array(), $type = 'both') {
  *
  * @throws \ShopifyApiException
  */
-function shopify_api_get_collects($options = array()) {
+function shopify_api_get_collects(array $options = array()) {
   $client = shopify_api_client();
   return $client->call('GET', '/admin/collects.json', $options);
 }
@@ -117,17 +117,30 @@ function shopify_api_get_collects($options = array()) {
  * @param array $options
  *   Arguments to pass to the API.
  *
- * @return array
- *   Returns the API response data.
+ * @return int
+ *   Returns the product count.
  *
  * @throws \ShopifyApiException
  */
-function shopify_api_get_product_count($options = array()) {
+function shopify_api_get_product_count(array $options = array()) {
   $client = shopify_api_client();
   return $client->call('GET', '/admin/products/count.json', $options);
 }
 
-function shopify_api_get_product_variants_count($product_id, $options = array()) {
+/**
+ * Get the Shopify variants count for a specific product from the API.
+ *
+ * @param int $product_id
+ *   Product ID.
+ * @param array $options
+ *   Arguments to pass to the API.
+ *
+ * @return int
+ *   Returns the number of variants for this product.
+ *
+ * @throws \ShopifyApiException
+ */
+function shopify_api_get_product_variants_count($product_id, array $options = array()) {
   $client = shopify_api_client();
   return $client->call('GET', '/admin/products/' . $product_id . '/variants/count.json', $options);
 }
@@ -143,12 +156,12 @@ function shopify_api_get_product_variants_count($product_id, $options = array())
  *   - smart: Get smart collections count only.
  *   - custom: Get custom collections count only.
  *
- * @return array
- *   Returns the API response data.
+ * @return int
+ *   Returns the collection count.
  *
  * @throws \ShopifyApiException
  */
-function shopify_api_get_collection_count($options = array(), $type = 'both') {
+function shopify_api_get_collection_count(array $options = array(), $type = 'both') {
   $client = shopify_api_client();
   $smart_count = $custom_count = 0;
   if ($type == 'both' || $type == 'smart') {
@@ -165,15 +178,17 @@ function shopify_api_get_collection_count($options = array(), $type = 'both') {
  *
  * @param int $product_id
  *   Shopify Product ID.
+ * @param array $options
+ *   Arguments to pass to the API.
  *
  * @return array
  *   Returns the API response data.
  *
  * @throws \ShopifyApiException
  */
-function shopify_api_get_product($product_id) {
+function shopify_api_get_product($product_id, array $options = array()) {
   $client = shopify_api_client();
-  return $client->call('GET', "/admin/products/{$product_id}.json");
+  return $client->call('GET', "/admin/products/{$product_id}.json", $options);
 }
 
 /**
@@ -181,6 +196,8 @@ function shopify_api_get_product($product_id) {
  *
  * @param int $product_id
  *   Shopify Product ID.
+ * @param array $options
+ *   Arguments to pass to the API.
  *
  * @return array
  *   Returns the API response data.
@@ -197,15 +214,17 @@ function shopify_api_get_product_variants($product_id, array $options = array())
  *
  * @param int $variant_id
  *   Shopify Variant ID.
+ * @param array $options
+ *   Arguments to pass to the API.
  *
  * @return array
  *   Returns the API response data.
  *
  * @throws \ShopifyApiException
  */
-function shopify_api_get_variant($variant_id) {
+function shopify_api_get_variant($variant_id, array $options = array()) {
   $client = shopify_api_client();
-  return $client->call('GET', "/admin/variants/{$variant_id}.json");
+  return $client->call('GET', "/admin/variants/{$variant_id}.json", $options);
 }
 
 /**
@@ -227,27 +246,33 @@ function shopify_api_get_product_images($product_id) {
 /**
  * Get Shopify webhooks.
  *
+ * @param array $options
+ *   Arguments to pass to the API.
+ *
  * @return array
  *   Returns the API response data.
  *
  * @throws \ShopifyApiException
  */
-function shopify_api_get_webhooks() {
+function shopify_api_get_webhooks(array $options = array()) {
   $client = shopify_api_client();
-  return $client->call('GET', "/admin/webhooks.json");
+  return $client->call('GET', "/admin/webhooks.json", $options);
 }
 
 /**
  * Get the Shopify webhooks count.
  *
- * @return array
- *   Returns the API response data.
+ * @param array $options
+ *   Arguments to pass to the API.
+ *
+ * @return int
+ *   Returns the webhooks count.
  *
  * @throws \ShopifyApiException
  */
-function shopify_api_get_webhook_count($options = array()) {
+function shopify_api_get_webhook_count(array $options = array()) {
   $client = shopify_api_client();
-  return $client->call('GET', "/admin/webhooks/count.json");
+  return $client->call('GET', "/admin/webhooks/count.json", $options);
 }
 
 /**
