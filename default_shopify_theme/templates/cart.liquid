@@ -32,7 +32,7 @@
             <div class="grid">
 
               <div class="grid-item one-half large--two-thirds">
-                <a href="{{ item.url }}" class="h5">
+                <a href="http://d7.localhost/shopify/redirect?variant_id={{ item.variant_id }}" class="h5">
                   {{ item.product.title }}
                 </a>
                 {% if item.product.variants.size > 1 %}
@@ -59,7 +59,7 @@
               </div>
 
               <div class="grid-item one-half large--one-third">
-                <a href="{{ item.url | within: collections.all }}" class="cart-image">
+                <a href="http://d7.localhost/shopify/redirect?variant_id={{ item.variant_id }}" class="cart-image">
                   <img src="{{ item | img_url: 'medium' }}" alt="{{ item.title | escape }}">
                 </a>
               </div>

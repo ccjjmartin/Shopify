@@ -225,6 +225,12 @@ function shopify_menu() {
     'file' => 'includes/shopify.admin.inc',
   );
 
+  $items['shopify/redirect'] = array(
+    'page callback' => 'shopify_redirect',
+    'access callback' => TRUE,
+    'type' => MENU_CALLBACK,
+  );
+
   $items['shopify/added-to-cart'] = array(
     'page callback' => 'shopify_added_to_cart',
     'access callback' => TRUE,
@@ -247,6 +253,35 @@ function shopify_menu() {
 function shopify_menu_alter(&$items) {
   // Products are added on shopify, not in Drupal.
   $items['admin/shopify/products/add']['access callback'] = FALSE;
+}
+
+/**
+ * Redirect a URL to a product page based on query params.
+ */
+function shopify_redirect() {
+  $params = drupal_get_query_parameters();
+  if (isset($params['variant_id'])) {
+    // Check that we have this product.
+    if ($product = shopify_variant_load_single($params['variant_id'])) {
+      if ($parent = shopify_product_load_single($product->product_id, 0)) {
+        // Send the user to the product page.
+        drupal_goto('products/' . $parent->id, array('query' => array('variant_id' => $params['variant_id'])));
+      }
+    }
+  }
+  elseif (isset($params['product_id'])) {
+    if ($product = shopify_product_load_single($params['product_id'], 0)) {
+      // Send the user to the product page.
+      drupal_goto('products/' . $product->id, array('query' => array('variant_id' => $params['variant_id'])));
+    }
+  }
+  elseif (isset($params['collection_id'])) {
+    if ($collection = shopify_collection_load($params['collection_id'])) {
+      drupal_goto('products/collections/' . $collection->tid);
+    }
+  }
+  // Missing or bad data, can't find the right product/variant.
+  drupal_not_found();
 }
 
 /**
@@ -539,6 +574,28 @@ function shopify_product_load_single($product_id, $variant_id = 0) {
 }
 
 /**
+ * Load a single Shopify Product variant given a variant ID.
+ *
+ * @param int $variant_id
+ *   Shopify Variant ID.
+ *
+ * @return ShopifyProduct
+ *   Returns the loaded Shopify Product variant entity.
+ */
+function shopify_variant_load_single($variant_id) {
+  $query = new EntityFieldQuery();
+  $query->entityCondition('entity_type', 'shopify_product')
+    ->propertyCondition('variant_id', $variant_id)
+    ->addMetaData('account', user_load(1)); // Run the query as user 1.
+  $result = $query->execute();
+  if (isset($result['shopify_product'])) {
+    $ids = array_keys($result['shopify_product']);
+    $shopify_product = entity_load_single('shopify_product', reset($ids));
+  }
+  return isset($shopify_product) ? $shopify_product : NULL;
+}
+
+/**
  * Implements hook_entity_info().
  */
 function shopify_entity_info() {
@@ -657,8 +714,18 @@ function shopify_add_to_cart_form($form, &$form_state, ShopifyProduct $product =
   }
 
   if ((!isset($form_state['values']) || empty($form_state['values']['options'])) && $product->variants) {
-    // Set default variant to the first one we have.
+    // Set default variant to first one in the list.
     $default_variant = reset($product->variants);
+
+    // Set default variant to whatever is passed as an arg in the URL.
+    if (isset($_GET['variant_id'])) {
+      foreach ($product->variants as $variant) {
+        if ($variant->variant_id == $_GET['variant_id']) {
+          $default_variant = $variant;
+          break;
+        }
+      }
+    }
   }
   elseif ($product->variants) {
     // Set variant based on options passed.
@@ -985,8 +1052,14 @@ function shopify_product_form($form, &$form_state, ShopifyProduct $product = NUL
       '#description' => t('Optionally specify an alternative URL by which this content can be accessed. For example, type "about" when writing an about page. Use a relative path and don\'t add a trailing slash or the URL alias won\'t work.'),
     );
     $form['path']['pid'] = array('#type' => 'value', '#value' => $path['pid']);
-    $form['path']['source'] = array('#type' => 'value', '#value' => $path['source']);
-    $form['path']['language'] = array('#type' => 'value', '#value' => $path['language']);
+    $form['path']['source'] = array(
+      '#type' => 'value',
+      '#value' => $path['source']
+    );
+    $form['path']['language'] = array(
+      '#type' => 'value',
+      '#value' => $path['language']
+    );
   }
 
   // No idea why this is necessary...
