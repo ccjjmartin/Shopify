@@ -196,9 +196,10 @@ function shopify_menu() {
   );
 
   $items['admin/shopify/overview'] = array(
-    'title' => 'Shopify Overview',
-    'description' => 'Shopify Overview',
+    'title' => 'Overview',
+    'description' => 'View general information about your Shopify store.',
     'type' => MENU_DEFAULT_LOCAL_TASK,
+    'weight' => -10,
   );
   $items['admin/shopify/sync'] = array(
     'title' => 'Sync',
@@ -276,8 +277,13 @@ function shopify_webhook_access() {
  * Implements hook_menu_alter().
  */
 function shopify_menu_alter(&$items) {
+  $items['admin/shopify/products']['title'] = 'Products';
+  $items['admin/shopify/products']['type'] = MENU_LOCAL_TASK;
+  $items['admin/shopify/products']['weight'] = -5;
   // Products are added on shopify, not in Drupal.
-  $items['admin/shopify/products/add']['access callback'] = FALSE;
+  $items['admin/shopify/products/add']['page callback'] = 'drupal_goto';
+  $items['admin/shopify/products/add']['page arguments'] = array('https://' . shopify_store_info()->myshopify_domain . '/admin/products/new');
+  $items['admin/shopify/products/add']['options'] = array('attributes' => array('target' => '_blank'));
 }
 
 /**
