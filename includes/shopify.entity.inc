@@ -357,6 +357,23 @@ class ShopifyProduct extends Entity {
 class ShopifyProductController extends EntityAPIController {
 
   /**
+   * Implements EntityAPIControllerInterface.
+   */
+  public function view($entities, $view_mode = 'full', $langcode = NULL, $page = NULL) {
+    // Don't let someone view a specific variant page.
+    if ($view_mode == 'full' && $page == TRUE) {
+      foreach ($entities as $entity) {
+        if ($entity->variant_id) {
+          if ($parent = shopify_product_load_single($entity->product_id)) {
+            drupal_goto('product/' . $parent->id, array('query' => array('variant_id' => $entity->variant_id)));
+          }
+        }
+      }
+    }
+    return parent::view($entities, $view_mode, $langcode, $page);
+  }
+
+  /**
    * Implements EntityAPIController.
    */
   public function buildContent($entity, $view_mode = 'full', $langcode = NULL, $content = array()) {
