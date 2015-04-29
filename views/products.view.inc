@@ -95,6 +95,11 @@ $handler->display->display_options['filters']['variant_id']['id'] = 'variant_id'
 $handler->display->display_options['filters']['variant_id']['table'] = 'shopify_products';
 $handler->display->display_options['filters']['variant_id']['field'] = 'variant_id';
 $handler->display->display_options['filters']['variant_id']['value']['value'] = '0';
+/* Filter criterion: Shopify Product: Published Date */
+$handler->display->display_options['filters']['published_at']['id'] = 'published_at';
+$handler->display->display_options['filters']['published_at']['table'] = 'shopify_products';
+$handler->display->display_options['filters']['published_at']['field'] = 'published_at';
+$handler->display->display_options['filters']['published_at']['operator'] = 'not empty';
 
 /* Display: Products Page */
 $handler = $view->new_display('page', 'Products Page', 'page');
