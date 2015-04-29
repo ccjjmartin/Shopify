@@ -20,7 +20,7 @@ function shopify_incoming_webhook($hook) {
   }
 
   // Allow modules to hook into webhooks firing.
-  module_invoke_all('shopify_webhook', $payload);
+  module_invoke_all('shopify_webhook', $hook, $payload);
   module_invoke_all('shopify_webhook_' . $hook, $payload);
 
   print '';
