@@ -748,6 +748,7 @@ class ShopifyProductViewsController extends EntityDefaultViewsController {
    */
   public function views_data() {
     $data = parent::views_data();
+
     $data['shopify_products']['add_to_cart_form'] = array(
       'title' => t('Add to Cart form'),
       'help' => t('Displays an add to cart form.'),
@@ -755,6 +756,38 @@ class ShopifyProductViewsController extends EntityDefaultViewsController {
         'handler' => 'views_handler_field_shopify_product_add_to_cart_form',
       ),
     );
+
+    $data['shopify_products']['id'] = array(
+      'title' => t('Entity ID'),
+      'help' => t('The entity id associated with this product'),
+      'field' => array(
+        'handler' => 'views_handler_field_numeric',
+        'click sortable' => TRUE,
+      ),
+      'filter' => array(
+        'handler' => 'views_handler_filter_numeric',
+      ),
+      'sort' => array(
+        'handler' => 'views_handler_sort',
+      ),
+    );
+
+    $data['shopify_products']['view_link'] = array(
+      'field' => array(
+        'title' => t('Link'),
+        'help' => t('Provide a simple link to the product.'),
+        'handler' => 'views_handler_field_shopify_product_link',
+      ),
+    );
+
+    $data['shopify_products']['edit_link'] = array(
+      'field' => array(
+        'title' => t('Edit link'),
+        'help' => t('Provide a simple link to edit the product entity.'),
+        'handler' => 'views_handler_field_shopify_product_edit_link',
+      ),
+    );
+
     return $data;
   }
 
