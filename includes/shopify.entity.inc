@@ -789,6 +789,17 @@ class ShopifyProductViewsController extends EntityDefaultViewsController {
       ),
     );
 
+    $data['shopify_products']['body_html'] = array(
+      'title' => t('Body HTML'),
+      'help' => t('Product description.'),
+      'field' => array(
+        'format' => 'filtered_html',
+        'handler' => 'views_handler_field_markup',
+        'click sortable' => FALSE,
+      ),
+    );
+
+
     $data['shopify_products']['view_link'] = array(
       'field' => array(
         'title' => t('Link'),
