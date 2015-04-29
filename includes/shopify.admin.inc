@@ -39,6 +39,13 @@ function shopify_admin_theme_download_submit($form, $form_state) {
 
   // Modify the {{ replace }} contents within theme files.
   try {
+    shopify_find_and_replace(file_directory_temp() . '/default_shopify_theme/*', '{{ drupal.site.url }}', url('', array('absolute' => TRUE)));
+  } catch (Exception $e) {
+    drupal_set_message(t('Could not find and replace placeholder text: @error', array('@error' => $e->getMessage())), 'error');
+  }
+
+  // Modify the {{ replace }} contents within theme files.
+  try {
     shopify_find_and_replace(file_directory_temp() . '/default_shopify_theme/*', '{{ drupal.store.url }}', url(shopify_store_path(), array('absolute' => TRUE)));
   } catch (Exception $e) {
     drupal_set_message(t('Could not find and replace placeholder text: @error', array('@error' => $e->getMessage())), 'error');
