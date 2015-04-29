@@ -12,12 +12,22 @@ module_load_include('inc', 'shopify', 'includes/shopify.metatag');
 module_load_include('inc', 'shopify', 'includes/shopify.path');
 
 /**
- * Implements hook_init().
+ * Implements hook_taxonomy_term_view().
  */
-function shopify_init() {
-  // Mostly used for quick testing of things right now.
-//  $client = shopify_api_client();
-//  $info = $client->call('GET', '/admin/collects.json');
+function shopify_taxonomy_term_view($term, $view_mode, $langcode) {
+  if ($view_mode !== 'full') {
+    return;
+  }
+  switch ($term->vocabulary_machine_name) {
+    case 'shopify_collections':
+      $uri = entity_uri('taxonomy_term', $term);
+      drupal_goto($uri['path']);
+      break;
+    case 'shopify_tags':
+      $uri = entity_uri('taxonomy_term', $term);
+      drupal_goto($uri['path']);
+      break;
+  }
 }
 
 /**
@@ -186,9 +196,10 @@ function shopify_menu() {
   );
 
   $items['admin/shopify/overview'] = array(
-    'title' => 'Shopify Overview',
-    'description' => 'Shopify Overview',
+    'title' => 'Overview',
+    'description' => 'View general information about your Shopify store.',
     'type' => MENU_DEFAULT_LOCAL_TASK,
+    'weight' => -10,
   );
   $items['admin/shopify/sync'] = array(
     'title' => 'Sync',
@@ -240,7 +251,7 @@ function shopify_menu() {
   $items['shopify/webhook/%'] = array(
     'page callback' => 'shopify_incoming_webhook',
     'page arguments' => array(2),
-    'access callback' => TRUE,
+    'access callback' => 'shopify_webhook_access',
     'type' => MENU_CALLBACK,
   );
 
@@ -248,11 +259,31 @@ function shopify_menu() {
 }
 
 /**
+ * Checks to ensure that this incoming webhook is indeed from Shopify.
+ *
+ * @link https://docs.shopify.com/api/webhooks/using-webhooks#verify-webhook Documentation @endlink
+ */
+function shopify_webhook_access() {
+  if (!isset($_SERVER['HTTP_X_SHOPIFY_HMAC_SHA256'])) {
+    // Header is required.
+    return FALSE;
+  }
+  $data = file_get_contents('php://input');
+  // Compare their hmac to our own that we calculate.
+  return $_SERVER['HTTP_X_SHOPIFY_HMAC_SHA256'] === base64_encode(hash_hmac('sha256', $data, variable_get('shopify_api_secret'), TRUE));
+}
+
+/**
  * Implements hook_menu_alter().
  */
 function shopify_menu_alter(&$items) {
+  $items['admin/shopify/products']['title'] = 'Products';
+  $items['admin/shopify/products']['type'] = MENU_LOCAL_TASK;
+  $items['admin/shopify/products']['weight'] = -5;
   // Products are added on shopify, not in Drupal.
-  $items['admin/shopify/products/add']['access callback'] = FALSE;
+  $items['admin/shopify/products/add']['page callback'] = 'drupal_goto';
+  $items['admin/shopify/products/add']['page arguments'] = array('https://' . shopify_store_info()->myshopify_domain . '/admin/products/new');
+  $items['admin/shopify/products/add']['options'] = array('attributes' => array('target' => '_blank'));
 }
 
 /**
