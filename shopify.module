@@ -275,6 +275,11 @@ function shopify_redirect() {
       drupal_goto('products/' . $product->id, array('query' => array('variant_id' => $params['variant_id'])));
     }
   }
+  elseif (isset($params['collection_id'])) {
+    if ($collection = shopify_collection_load($params['collection_id'])) {
+      drupal_goto('products/collections/' . $collection->tid);
+    }
+  }
   // Missing or bad data, can't find the right product/variant.
   drupal_not_found();
 }
@@ -1047,8 +1052,14 @@ function shopify_product_form($form, &$form_state, ShopifyProduct $product = NUL
       '#description' => t('Optionally specify an alternative URL by which this content can be accessed. For example, type "about" when writing an about page. Use a relative path and don\'t add a trailing slash or the URL alias won\'t work.'),
     );
     $form['path']['pid'] = array('#type' => 'value', '#value' => $path['pid']);
-    $form['path']['source'] = array('#type' => 'value', '#value' => $path['source']);
-    $form['path']['language'] = array('#type' => 'value', '#value' => $path['language']);
+    $form['path']['source'] = array(
+      '#type' => 'value',
+      '#value' => $path['source']
+    );
+    $form['path']['language'] = array(
+      '#type' => 'value',
+      '#value' => $path['language']
+    );
   }
 
   // No idea why this is necessary...
