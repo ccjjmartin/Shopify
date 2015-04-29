@@ -280,7 +280,7 @@ function shopify_redirect_to_view(ShopifyProduct $product) {
  *   Shopify product title.
  */
 function shopify_product_title(ShopifyProduct $product) {
-  return $product->labe();
+  return $product->label();
 }
 
 /**
@@ -928,15 +928,25 @@ function shopify_product_form_submit(&$form, &$form_state) {
  * actually do something.
  */
 function shopify_entity_info_alter(&$entity_info) {
-  $entity_info['taxonomy_term']['bundles']['shopify_tags']['uri callback'] = 'shopify_taxonomy_term_uri';
+  $entity_info['taxonomy_term']['bundles']['shopify_tags']['uri callback'] = 'shopify_taxonomy_tag_term_uri';
+  $entity_info['taxonomy_term']['bundles']['shopify_collections']['uri callback'] = 'shopify_taxonomy_collection_term_uri';
 }
 
 /**
  * Entity uri callback for shopify_tag taxonomy terms.
  */
-function shopify_taxonomy_term_uri($term) {
+function shopify_taxonomy_tag_term_uri($term) {
   return array(
     'path' => 'products/tags/' . $term->tid,
+  );
+}
+
+/**
+ * Entity uri callback for shopify_tag taxonomy terms.
+ */
+function shopify_taxonomy_collection_term_uri($term) {
+  return array(
+    'path' => 'products/collections/' . $term->tid,
   );
 }
 
