@@ -127,6 +127,11 @@ function shopify_api_get_product_count($options = array()) {
   return $client->call('GET', '/admin/products/count.json', $options);
 }
 
+function shopify_api_get_product_variants_count($product_id, $options = array()) {
+  $client = shopify_api_client();
+  return $client->call('GET', '/admin/products/' . $product_id . '/variants/count.json', $options);
+}
+
 /**
  * Get Shopify collections count from the API.
  *
@@ -182,9 +187,9 @@ function shopify_api_get_product($product_id) {
  *
  * @throws \ShopifyApiException
  */
-function shopify_api_get_product_variants($product_id) {
+function shopify_api_get_product_variants($product_id, array $options = array()) {
   $client = shopify_api_client();
-  return $client->call('GET', "/admin/products/{$product_id}/variants.json");
+  return $client->call('GET', "/admin/products/{$product_id}/variants.json", $options);
 }
 
 /**

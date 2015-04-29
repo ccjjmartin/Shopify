@@ -377,7 +377,10 @@ function shopify_admin_product_sync_form_submit($form, &$form_state) {
   if ($form_state['values']['products']['update_anyway']) {
     shopify_products_reset_sync_datestamp();
   }
-  $batch = shopify_sync_products_batch(array('num_per_batch' => $form_state['values']['products']['num_per_batch']));
+  $batch = shopify_sync_products_batch(array(
+    'delete_products' => $form_state['values']['products']['delete'],
+    'num_per_batch' => $form_state['values']['products']['num_per_batch'],
+  ));
   batch_set($batch);
 }
 
@@ -404,12 +407,78 @@ function shopify_sync_products_batch($params) {
       ),
     );
   }
+
+  // Only run the deleted batch op if we are NOT deleting all products first.
+  if (!$params['delete_products']) {
+    // Last operation to delete orphaned products (deleted in Shopify).
+    $operations[] = array(
+      'shopify_sync_products_deleted_batch_op',
+      array(),
+    );
+  }
+
   $batch = array(
     'operations' => $operations,
     'finished' => 'shopify_sync_products_batch_finished',
     'file' => drupal_get_path('module', 'shopify') . '/includes/shopify.admin.inc',
   );
   return $batch;
+}
+
+/**
+ * Delete products in the system that were deleted on Shopify.
+ */
+function shopify_sync_products_deleted_batch_op(&$context) {
+  $product_count = shopify_api_get_product_count();
+  $products = $variants = array();
+  for ($page = 1; $page <= ceil($product_count / 250); $page++) {
+    // Build a list of all products in the Shopify system.
+    $products = shopify_api_get_products(array(
+      'limit' => 250,
+      'page' => $page,
+      'fields' => 'id',
+    ));
+    // Get variant count for this product.
+    foreach ($products as $p) {
+      $variant_count = shopify_api_get_product_variants_count($p['id']);
+      for ($variant_page = 1; $variant_page <= ceil($variant_count / 250); $variant_page++) {
+        $variants = array_merge($variants, shopify_api_get_product_variants($p['id'], array(
+          'limit' => 250,
+          'page' => $variant_page,
+          'fields' => 'id',
+        )));
+      }
+    }
+  }
+
+  // Format result set as an array of product and variant IDs.
+  $product_ids = array();
+  array_walk_recursive($products, function ($p) use (&$product_ids) {
+    $product_ids[] = $p;
+  });
+  $variant_ids = array();
+  array_walk_recursive($variants, function ($v) use (&$variant_ids) {
+    $variant_ids[] = $v;
+  });
+
+  // Delete products in the DB that we did not pull back.
+  $deleted_products = db_delete('shopify_products')
+    ->condition('product_id', $product_ids, 'NOT IN')
+    ->condition('variant_id', 0)// Only delete products that are not a variant.
+    ->execute();
+  $deleted_variants = db_delete('shopify_products')
+    ->condition('variant_id', $variant_ids, 'NOT IN')
+    ->condition('variant_id', 0, '!=')// Only delete variants.
+    ->execute();
+
+  // Tell the user about what we did.
+  if ($deleted_products + $deleted_variants > 0) {
+    drupal_set_message(t('Deleted @p and @v from the store.', array(
+      '@p' => format_plural($deleted_products, '@count product', '@count products'),
+      '@v' => format_plural($deleted_variants, '@count variant', '@count variants'),
+    )));
+    $context['message'] = t('Deleting orphaned products/variants...');
+  }
 }
 
 /**
