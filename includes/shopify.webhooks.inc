@@ -64,6 +64,14 @@ function shopify_shopify_webhook_orders_paid($payload) {
 /**
  * Implements hook_shopify_webhook_WEBHOOK().
  */
+function shopify_shopify_webhook_shop_update($payload) {
+  // Update store info on the site.
+  variable_set('shopify_store_info', $payload);
+}
+
+/**
+ * Implements hook_shopify_webhook_WEBHOOK().
+ */
 function shopify_shopify_webhook_collections_create($payload) {
   shopify_collection_create($payload, $sync_products = TRUE);
 }
