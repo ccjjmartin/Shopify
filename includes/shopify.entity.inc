@@ -757,6 +757,26 @@ class ShopifyProductViewsController extends EntityDefaultViewsController {
       ),
     );
 
+    $data['shopify_products']['title'] = array(
+      'title' => t('Product Title'),
+      'help' => t('The product title.'),
+      'field' => array(
+        'field' => 'title',
+        'handler' => 'views_handler_field_shopify_product',
+        'click sortable' => TRUE,
+        'link_to_product default' => TRUE,
+      ),
+      'sort' => array(
+        'handler' => 'views_handler_sort',
+      ),
+      'filter' => array(
+        'handler' => 'views_handler_filter_string',
+      ),
+      'argument' => array(
+        'handler' => 'views_handler_argument_string',
+      ),
+    );
+
     $data['shopify_products']['id'] = array(
       'title' => t('Entity ID'),
       'help' => t('The entity id associated with this product'),
