@@ -240,11 +240,26 @@ function shopify_menu() {
   $items['shopify/webhook/%'] = array(
     'page callback' => 'shopify_incoming_webhook',
     'page arguments' => array(2),
-    'access callback' => TRUE,
+    'access callback' => 'shopify_webhook_access',
     'type' => MENU_CALLBACK,
   );
 
   return $items;
+}
+
+/**
+ * Checks to ensure that this incoming webhook is indeed from Shopify.
+ *
+ * @link https://docs.shopify.com/api/webhooks/using-webhooks#verify-webhook Documentation @endlink
+ */
+function shopify_webhook_access() {
+  if (!isset($_SERVER['HTTP_X_SHOPIFY_HMAC_SHA256'])) {
+    // Header is required.
+    return FALSE;
+  }
+  $data = file_get_contents('php://input');
+  // Compare their hmac to our own that we calculate.
+  return $_SERVER['HTTP_X_SHOPIFY_HMAC_SHA256'] === base64_encode(hash_hmac('sha256', $data, variable_get('shopify_api_secret'), TRUE));
 }
 
 /**
