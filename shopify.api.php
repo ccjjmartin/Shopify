@@ -14,8 +14,8 @@
  */
 function hook_shopify_webhook($webhook, $payload) {
   switch ($webhook) {
-    case 'app_uninstalled':
-      module_disable('shopify');
+    case 'shop_update':
+      // Update shop info on the site.
       break;
   }
 }
