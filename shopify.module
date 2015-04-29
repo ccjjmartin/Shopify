@@ -934,7 +934,6 @@ function shopify_product_form($form, &$form_state, ShopifyProduct $product = NUL
     '#weight' => 40,
   );
 
-  field_attach_form('shopify_product', $product, $form, $form_state);
 
   if (module_exists('path')) {
     $path = array();
@@ -992,6 +991,8 @@ function shopify_product_form($form, &$form_state, ShopifyProduct $product = NUL
 
   // No idea why this is necessary...
   $form['#submit'][] = 'shopify_product_form_submit';
+
+  field_attach_form('shopify_product', $product, $form, $form_state);
   return $form;
 }
 
