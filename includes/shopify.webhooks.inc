@@ -50,6 +50,20 @@ function shopify_shopify_webhook_collections_delete($payload) {
 /**
  * Implements hook_shopify_webhook_WEBHOOK().
  */
+function shopify_shopify_webhook_orders_paid($payload) {
+  // Update product inventory counts for purchased products.
+  foreach ($payload['line_items'] as $line_item) {
+    if ($variant = shopify_product_load_by_variant_id($line_item['variant_id'])) {
+      shopify_product_update($line_item['product_id'], $variant->variant_id, shopify_api_get_variant($variant->variant_id, array(
+        'fields' => 'inventory_quantity,old_inventory_quantity',
+      )));
+    }
+  }
+}
+
+/**
+ * Implements hook_shopify_webhook_WEBHOOK().
+ */
 function shopify_shopify_webhook_collections_create($payload) {
   shopify_collection_create($payload, $sync_products = TRUE);
 }
