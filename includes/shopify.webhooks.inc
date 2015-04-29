@@ -13,11 +13,16 @@
 function shopify_incoming_webhook($hook) {
   $json = file_get_contents('php://input');
   $payload = json_decode($json, TRUE);
-  watchdog('shopify_webhook', var_export($payload, TRUE));
-  $function = 'shopify_webhook_' . $hook;
-  foreach (module_implements($function) as $module) {
-    module_invoke($module, $function, $payload);
+
+  // Log webhooks if the debug option is set.
+  if (variable_get('shopify_webhooks_debug', FALSE)) {
+    watchdog('shopify_webhook', $hook . ':' . var_export($payload, TRUE));
   }
+
+  // Allow modules to hook into webhooks firing.
+  module_invoke_all('shopify_webhook', $payload);
+  module_invoke_all('shopify_webhook_' . $hook, $payload);
+
   print '';
 }
 

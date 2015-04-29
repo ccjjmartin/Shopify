@@ -551,6 +551,32 @@ function shopify_webhooks_admin($form, &$form_state) {
     '#markup' => t('<p>It is <strong>highly recommended</strong> that you at least have webhooks registered for product events to keep your store automatically in sync with Shopify. Make sure you\'ve registered all development, staging and production environment URLs.</p>'),
   );
 
+  $message = '<p>Pro Tip: If you\'re developing locally and need to test webhooks ';
+  $message .= 'download and install <a href="https://ngrok.com">ngrok</a> for a tunnel to your localhost. ';
+  $message .= 'The service is free. Here is a command-line example: <br /><code>';
+  $message .= 'ngrok http -host-header=YOUR_LOCALHOST_NAME_HERE.COM 80</code>. ';
+  $message .= 'Place the "Forwarding" address into the hostname field above and ';
+  $message .= 'register the hooks you want to test. The forwarding address ';
+  $message .= 'address will look something like <code>http://0e1ff1cb.ngrok.io</code></p>';
+
+  $form['tips'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Tips'),
+    '#collapsible' => TRUE,
+    '#collapsed' => TRUE,
+  );
+
+  $form['tips']['UI'] = array(
+    '#markup' => t('<p>Webhooks created via the Shopify website will not appear here, but event hooks will still work.</p>'),
+  );
+
+  $form['tips']['standard_hooks'] = array(
+    '#markup' => t('<p>Be sure to add the product/collection webhooks to automatically keep your products/collections in sync with Shopify. Other hooks do nothing unless you write code implementing the hook yourself.</p>'),
+  );
+
+  $form['tips']['ngrok'] = array(
+    '#markup' => t($message),
+  );
 
   $form['registered'] = array(
     '#type' => 'fieldset',
@@ -573,7 +599,7 @@ function shopify_webhooks_admin($form, &$form_state) {
     );
   }
 
-  $form['remove_submit'] = array(
+  $form['registered']['remove_submit'] = array(
     '#type' => 'submit',
     '#value' => t('Remove'),
     '#submit' => array('shopify_remove_webhooks_submit'),
@@ -600,9 +626,9 @@ function shopify_webhooks_admin($form, &$form_state) {
       'delete' => t('Checkout Deleted'),
     ),
     'collections' => array(
-      'create' => t('Collection Created'),
-      'update' => t('Collection Updated'),
-      'delete' => t('Collection Deleted'),
+      'create' => t('Collection Created - Highly Recommended'),
+      'update' => t('Collection Updated - Highly Recommended'),
+      'delete' => t('Collection Deleted - Highly Recommended'),
     ),
     'customers' => array(
       'create' => t('Customer Created'),
@@ -651,7 +677,7 @@ function shopify_webhooks_admin($form, &$form_state) {
       '#type' => 'fieldset',
       '#title' => t(str_replace('_', ' ', ucwords($group_name))),
       '#collapsible' => TRUE,
-      '#collapsed' => $group_name == 'products' ? FALSE : TRUE,
+      '#collapsed' => ($group_name == 'products' || $group_name == 'collections') ? FALSE : TRUE,
     );
 
     foreach ($group_options as $topic => $description) {
@@ -674,38 +700,17 @@ function shopify_webhooks_admin($form, &$form_state) {
     '#description' => t('Do not include a trailing slash.'),
   );
 
-  $form['register']['register_submit'] = array(
+  $form['debug'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Debug webhooks in watchdog'),
+    '#default_value' => variable_get('shopify_webhooks_debug', FALSE),
+  );
+
+  $form['save'] = array(
     '#type' => 'submit',
-    '#value' => t('Register'),
+    '#value' => t('Save'),
     '#submit' => array('shopify_register_webhooks_submit'),
     '#validate' => array('shopify_register_webhooks_validate'),
-  );
-
-  $message = '<p>Pro Tip: If you\'re developing locally and need to test webhooks ';
-  $message .= 'download in install <a href="https://ngrok.com">ngrok</a> for a tunnel to your localhost. ';
-  $message .= 'The service is free. Here is a commandline example: <br /><code>';
-  $message .= 'ngrok http -host-header=YOUR_LOCALHOST_NAME_HERE.COM 80</code>. ';
-  $message .= 'Place the "Forwarding" address into the hostname field above and ';
-  $message .= 'register the hooks you want to test. The forwarding address ';
-  $message .= 'address will look something like <code>http://0e1ff1cb.ngrok.io</code></p>';
-
-  $form['tips'] = array(
-    '#type' => 'fieldset',
-    '#title' => t('Tips'),
-    '#collapsible' => TRUE,
-    '#collapsed' => TRUE,
-  );
-
-  $form['tips']['UI'] = array(
-    '#markup' => t('<p>Webhooks created via the Shopify website will not appear here, but event hooks will still work.</p>'),
-  );
-
-  $form['tips']['standard_hooks'] = array(
-    '#markup' => t('<p>Be sure to add the product webhooks to automatically keep your products in sync with Shopify. Other hooks do nothing unless you write code implementing the hook yourself.</p>'),
-  );
-
-  $form['tips']['ngrok'] = array(
-    '#markup' => t($message),
   );
 
   return $form;
@@ -737,11 +742,13 @@ function shopify_register_webhooks_validate($form, &$form_state) {
  */
 function shopify_register_webhooks_submit($form, &$form_state) {
   $values = $form_state['values'];
+
+  variable_set('shopify_webhooks_debug', $values['debug']);
   variable_set('shopify_last_registered_host', $values['register']['hostname']);
 
-  if ($form_state['values']['op'] == 'Register') {
+  if ($form_state['values']['op'] == 'Save') {
 
-    unset($values['register']['register_submit']);
+    unset($values['save']);
     $hostname = $values['register']['hostname'];
     unset($values['register']['hostname']);
 
