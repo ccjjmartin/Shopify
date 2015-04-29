@@ -9,6 +9,7 @@ module_load_include('inc', 'shopify', 'includes/shopify.api');
 module_load_include('inc', 'shopify', 'includes/shopify.webhooks');
 module_load_include('inc', 'shopify', 'includes/shopify.search');
 module_load_include('inc', 'shopify', 'includes/shopify.metatag');
+module_load_include('inc', 'shopify', 'includes/shopify.path');
 
 /**
  * Implements hook_init().
@@ -606,6 +607,33 @@ function shopify_entity_info() {
 }
 
 /**
+ * Implements hook_entity_insert().
+ */
+function shopify_entity_insert($entity, $type) {
+  if (module_exists('path') && $type == 'shopify_product') {
+    _shopify_product_insert_path($entity);
+  }
+}
+
+/**
+ * Implements hook_entity_update().
+ */
+function shopify_entity_update($entity, $type) {
+  if (module_exists('path') && $type == 'shopify_product') {
+    _shopify_product_update_path($entity);
+  }
+}
+
+/**
+ * Implements hook_entity_delete().
+ */
+function shopify_entity_delete($entity, $type) {
+  if (module_exists('path') && $type == 'shopify_product') {
+    _shopify_product_delete_path($entity);
+  }
+}
+
+/**
  * Page callback for the bundle admin.
  */
 function shopify_products_fields_admin() {
@@ -907,6 +935,61 @@ function shopify_product_form($form, &$form_state, ShopifyProduct $product = NUL
   );
 
   field_attach_form('shopify_product', $product, $form, $form_state);
+
+  if (module_exists('path')) {
+    $path = array();
+    if (!empty($form_state['shopify_product']->id)) {
+      $conditions = array('source' => 'product/' . $form_state['shopify_product']->id);
+      $langcode = entity_language('shopify_product', $form_state['shopify_product']);
+
+      if ($langcode == NULL) {
+        $conditions['language'] = LANGUAGE_NONE;
+      }
+      elseif ($langcode != LANGUAGE_NONE) {
+        $conditions['language'] = $langcode;
+      }
+
+      $path = path_load($conditions);
+      if ($path === FALSE) {
+        $path = array();
+      }
+    }
+    $path += array(
+      'pid' => NULL,
+      'source' => isset($form_state['shopify_product']->id) ? 'product/' . $form_state['shopify_product']->id : NULL,
+      'alias' => '',
+      'language' => isset($langcode) ? $langcode : LANGUAGE_NONE,
+    );
+
+    $form['path'] = array(
+      '#type' => 'fieldset',
+      '#title' => t('URL path settings'),
+      '#collapsible' => TRUE,
+      '#collapsed' => empty($path['alias']),
+      '#group' => 'additional_settings',
+      '#attributes' => array(
+        'class' => array('path-form'),
+      ),
+      '#attached' => array(
+        'js' => array(drupal_get_path('module', 'path') . '/path.js'),
+      ),
+      '#access' => user_access('create url aliases') || user_access('administer url aliases'),
+      '#weight' => 30,
+      '#tree' => TRUE,
+      '#element_validate' => array('path_form_element_validate'),
+    );
+    $form['path']['alias'] = array(
+      '#type' => 'textfield',
+      '#title' => t('URL alias'),
+      '#default_value' => $path['alias'],
+      '#maxlength' => 255,
+      '#description' => t('Optionally specify an alternative URL by which this content can be accessed. For example, type "about" when writing an about page. Use a relative path and don\'t add a trailing slash or the URL alias won\'t work.'),
+    );
+    $form['path']['pid'] = array('#type' => 'value', '#value' => $path['pid']);
+    $form['path']['source'] = array('#type' => 'value', '#value' => $path['source']);
+    $form['path']['language'] = array('#type' => 'value', '#value' => $path['language']);
+  }
+
   // No idea why this is necessary...
   $form['#submit'][] = 'shopify_product_form_submit';
   return $form;
