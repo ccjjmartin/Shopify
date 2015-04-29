@@ -783,13 +783,24 @@ function shopify_add_to_cart_form($form, &$form_state, ShopifyProduct $product =
       '#type' => 'hidden',
       '#value' => 'back',
     );
-    $form['product']['variant']['actions'] = array(
-      '#type' => 'actions',
-      'submit' => array(
-        '#type' => 'submit',
-        '#value' => t('Add to Cart'),
-      ),
-    );
+    if ($default_variant->inventory_policy == 'continue' || $default_variant->inventory_quantity > 0) {
+      $form['product']['variant']['actions'] = array(
+        '#type' => 'actions',
+        'submit' => array(
+          '#type' => 'submit',
+          '#value' => t('Add to Cart'),
+        ),
+      );
+    }
+    else {
+      $form['product']['variant']['actions'] = array(
+        '#type' => 'actions',
+        'submit' => array(
+          '#markup' => t('Out of stock'),
+        ),
+      );
+    }
+
   }
   else {
     $form['product']['variant']['actions'] = array(
