@@ -12,12 +12,22 @@ module_load_include('inc', 'shopify', 'includes/shopify.metatag');
 module_load_include('inc', 'shopify', 'includes/shopify.path');
 
 /**
- * Implements hook_init().
+ * Implements hook_taxonomy_term_view().
  */
-function shopify_init() {
-  // Mostly used for quick testing of things right now.
-//  $client = shopify_api_client();
-//  $info = $client->call('GET', '/admin/collects.json');
+function shopify_taxonomy_term_view($term, $view_mode, $langcode) {
+  if ($view_mode !== 'full') {
+    return;
+  }
+  switch ($term->vocabulary_machine_name) {
+    case 'shopify_collections':
+      $uri = entity_uri('taxonomy_term', $term);
+      drupal_goto($uri['path']);
+      break;
+    case 'shopify_tags':
+      $uri = entity_uri('taxonomy_term', $term);
+      drupal_goto($uri['path']);
+      break;
+  }
 }
 
 /**
