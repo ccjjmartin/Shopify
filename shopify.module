@@ -846,6 +846,7 @@ function shopify_add_to_cart_form($form, &$form_state, ShopifyProduct $product =
         '#title' => check_plain(t($select_list['name'])),
         '#options' => array(),
         '#default_value' => $default_variant ? $default_variant->option_values[$key] : NULL,
+        '#attributes' => array('class' => array('shopify-variant-option')),
         '#ajax' => array(
           'wrapper' => $form_id,
           'method' => 'replace',
@@ -864,7 +865,11 @@ function shopify_add_to_cart_form($form, &$form_state, ShopifyProduct $product =
 
   if ($default_variant) {
     $form['product']['variant']['price'] = array(
-      '#markup' => shopify_money_format() . $default_variant->wrapper()->price->value(),
+      '#type' => 'container',
+      '#attributes' => array('class' => array('shopify-price')),
+      'value' => array(
+        '#markup' => shopify_money_format() . $default_variant->wrapper()->price->value(),
+      ),
     );
     // Required POST fields for add to cart form.
     $form['id'] = array(
@@ -880,6 +885,7 @@ function shopify_add_to_cart_form($form, &$form_state, ShopifyProduct $product =
         '#type' => 'actions',
         'submit' => array(
           '#type' => 'submit',
+          '#attributes' => array('class' => array('shopify-add-to-cart-button')),
           '#value' => t('Add to Cart'),
         ),
       );
