@@ -17,7 +17,8 @@ $view->disabled = FALSE; /* Edit this to true to make a default view disabled in
 $handler = $view->new_display('default', 'Master', 'default');
 $handler->display->display_options['title'] = 'Products';
 $handler->display->display_options['use_more_always'] = FALSE;
-$handler->display->display_options['access']['type'] = 'none';
+$handler->display->display_options['access']['type'] = 'perm';
+$handler->display->display_options['access']['perm'] = 'view shopify products';
 $handler->display->display_options['cache']['type'] = 'none';
 $handler->display->display_options['query']['type'] = 'views_query';
 $handler->display->display_options['query']['options']['distinct'] = TRUE;
@@ -30,7 +31,7 @@ $handler->display->display_options['row_plugin'] = 'fields';
 $handler->display->display_options['relationships']['shopify_product_collections_tid']['id'] = 'shopify_product_collections_tid';
 $handler->display->display_options['relationships']['shopify_product_collections_tid']['table'] = 'field_data_shopify_product_collections';
 $handler->display->display_options['relationships']['shopify_product_collections_tid']['field'] = 'shopify_product_collections_tid';
-/* Field: Shopify Product: Title */
+/* Field: Shopify Product: Product Title */
 $handler->display->display_options['fields']['title']['id'] = 'title';
 $handler->display->display_options['fields']['title']['table'] = 'shopify_products';
 $handler->display->display_options['fields']['title']['field'] = 'title';
@@ -51,7 +52,7 @@ $handler->display->display_options['fields']['shopify_product_images']['settings
 );
 $handler->display->display_options['fields']['shopify_product_images']['delta_limit'] = '1';
 $handler->display->display_options['fields']['shopify_product_images']['delta_offset'] = '0';
-/* Field: Shopify Product: Body */
+/* Field: Shopify Product: Body HTML */
 $handler->display->display_options['fields']['body_html']['id'] = 'body_html';
 $handler->display->display_options['fields']['body_html']['table'] = 'shopify_products';
 $handler->display->display_options['fields']['body_html']['field'] = 'body_html';
@@ -86,7 +87,7 @@ $handler->display->display_options['fields']['shopify_product_collections']['set
   'field_formatter_label' => '',
 );
 $handler->display->display_options['fields']['shopify_product_collections']['delta_offset'] = '0';
-/* Sort criterion: Shopify Product: Title */
+/* Sort criterion: Shopify Product: Product Title */
 $handler->display->display_options['sorts']['title']['id'] = 'title';
 $handler->display->display_options['sorts']['title']['table'] = 'shopify_products';
 $handler->display->display_options['sorts']['title']['field'] = 'title';
@@ -117,7 +118,7 @@ $handler->display->display_options['relationships']['shopify_product_tags_tid'][
 $handler->display->display_options['relationships']['shopify_product_tags_tid']['table'] = 'field_data_shopify_product_tags';
 $handler->display->display_options['relationships']['shopify_product_tags_tid']['field'] = 'shopify_product_tags_tid';
 $handler->display->display_options['defaults']['fields'] = FALSE;
-/* Field: Shopify Product: Title */
+/* Field: Shopify Product: Product Title */
 $handler->display->display_options['fields']['title']['id'] = 'title';
 $handler->display->display_options['fields']['title']['table'] = 'shopify_products';
 $handler->display->display_options['fields']['title']['field'] = 'title';
@@ -138,7 +139,7 @@ $handler->display->display_options['fields']['shopify_product_images']['settings
 );
 $handler->display->display_options['fields']['shopify_product_images']['delta_limit'] = '1';
 $handler->display->display_options['fields']['shopify_product_images']['delta_offset'] = '0';
-/* Field: Shopify Product: Body */
+/* Field: Shopify Product: Body HTML */
 $handler->display->display_options['fields']['body_html']['id'] = 'body_html';
 $handler->display->display_options['fields']['body_html']['table'] = 'shopify_products';
 $handler->display->display_options['fields']['body_html']['field'] = 'body_html';
@@ -205,7 +206,7 @@ $handler->display->display_options['relationships']['shopify_product_collections
 $handler->display->display_options['relationships']['shopify_product_collections_tid']['table'] = 'field_data_shopify_product_collections';
 $handler->display->display_options['relationships']['shopify_product_collections_tid']['field'] = 'shopify_product_collections_tid';
 $handler->display->display_options['defaults']['fields'] = FALSE;
-/* Field: Shopify Product: Title */
+/* Field: Shopify Product: Product Title */
 $handler->display->display_options['fields']['title']['id'] = 'title';
 $handler->display->display_options['fields']['title']['table'] = 'shopify_products';
 $handler->display->display_options['fields']['title']['field'] = 'title';
@@ -226,7 +227,7 @@ $handler->display->display_options['fields']['shopify_product_images']['settings
 );
 $handler->display->display_options['fields']['shopify_product_images']['delta_limit'] = '1';
 $handler->display->display_options['fields']['shopify_product_images']['delta_offset'] = '0';
-/* Field: Shopify Product: Body */
+/* Field: Shopify Product: Body HTML */
 $handler->display->display_options['fields']['body_html']['id'] = 'body_html';
 $handler->display->display_options['fields']['body_html']['table'] = 'shopify_products';
 $handler->display->display_options['fields']['body_html']['field'] = 'body_html';

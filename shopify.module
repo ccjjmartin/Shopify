@@ -80,6 +80,10 @@ function shopify_permission() {
       'title' => t('Edit Shopify products'),
       'description' => t('Edit Shopify product fields, metadata, paths, etc.'),
     ),
+    'view shopify products' => array(
+      'title' => t('View Shopify products'),
+      'description' => t('View Shopify products.'),
+    ),
   );
 }
 
@@ -987,6 +991,12 @@ function shopify_product_access($op, ShopifyProduct $entity = NULL, $account = N
   if (user_access('administer shopify', $account) || user_access('edit shopify products', $account)) {
     // User has access to do all the things.
     return TRUE;
+  }
+  switch ($op) {
+    case 'view':
+      // Check if this product is published.
+      return $entity->published_at && user_access('view shopify products', $account);
+      break;
   }
   return FALSE;
 }
