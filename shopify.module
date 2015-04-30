@@ -366,6 +366,56 @@ function shopify_sync_collections(array $options = array()) {
       shopify_collection_update($collection, TRUE);
     }
   }
+  shopify_sync_deleted_collections(array('limit' => 250));
+}
+
+/**
+ * Sync deleted collections with the site.
+ *
+ * @param array $options
+ *   Array of options to pass the API.
+ *
+ * @return int
+ *   Returns the number of deleted collections.
+ */
+function shopify_sync_deleted_collections(array $options = array()) {
+  $collections_count = shopify_api_get_collection_count($options);
+  $collections = array();
+  if (!isset($options['limit'])) {
+    $options['limit'] = 250;
+  }
+  for ($page = 1; $page <= ceil($collections_count / $options['limit']); $page++) {
+
+    // Setup default options for the products API call.
+    $options['page'] = $page;
+    $options['fields'] = 'id';
+
+    // Build a list of all products in the Shopify system.
+    $collections = array_merge($collections, shopify_api_get_collections($options));
+  }
+
+  // Format result set as an array of product and variant IDs.
+  $collection_ids = array();
+  array_walk_recursive($collections, function ($c) use (&$collection_ids) {
+    $collection_ids[] = $c;
+  });
+
+  $count = 0;
+
+  $query = new EntityFieldQuery();
+  $query->entityCondition('entity_type', 'taxonomy_term');
+  $query->propertyCondition('vid', shopify_collection_vocabulary()->vid);
+  if ($collection_ids) {
+    $query->fieldCondition('shopify_collection_id', 'value', $collection_ids, 'NOT IN');
+  }
+  $result = $query->execute();
+
+  if (isset($result['taxonomy_term'])) {
+    entity_delete_multiple('taxonomy_term', array_keys($result['taxonomy_term']));
+    $count = count($result['taxonomy_term']);
+  }
+
+  return $count;
 }
 
 /**

@@ -334,14 +334,14 @@ function shopify_admin_collection_sync_form_submit($form, &$form_state) {
   if ($form_state['values']['collections']['delete']) {
     shopify_delete_all_collections();
   }
-  $batch = shopify_sync_collections_batch();
+  $batch = shopify_sync_collections_batch(array('delete_collections' => $form_state['values']['collections']['delete']));
   batch_set($batch);
 }
 
 /**
  * Shopify collections sync batch callback.
  */
-function shopify_sync_collections_batch() {
+function shopify_sync_collections_batch($params) {
   // Get all smart/custom collection data.
   $collections = shopify_api_get_collections(array('limit' => 250));
   $operations = array();
@@ -352,6 +352,13 @@ function shopify_sync_collections_batch() {
         $c,
         t('(Processing page @operation)', array('@operation' => $count + 1)),
       ),
+    );
+  }
+  if (!$params['delete_collections']) {
+    // Last operation to delete orphaned collections (deleted in Shopify).
+    $operations[] = array(
+      'shopify_sync_collections_deleted_batch_op',
+      array(),
     );
   }
   $batch = array(
@@ -472,6 +479,19 @@ function shopify_sync_products_batch($params) {
     'file' => drupal_get_path('module', 'shopify') . '/includes/shopify.admin.inc',
   );
   return $batch;
+}
+
+/**
+ * Delete collections in the system that were deleted on Shopify.
+ */
+function shopify_sync_collections_deleted_batch_op(&$context) {
+  // Tell the user that we deleted some collections.
+  if ($deleted = shopify_sync_deleted_collections(array('limit' => 250)) > 0) {
+    drupal_set_message(t('Deleted @count from the store.', array(
+      '@count' => format_plural($deleted, '@count collection', '@count collections'),
+    )));
+    $context['message'] = t('Deleting orphaned collections...');
+  }
 }
 
 /**
