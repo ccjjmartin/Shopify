@@ -58,6 +58,32 @@ function shopify_views_default_views() {
 }
 
 /**
+ * Implements hook_permission().
+ */
+function shopify_permission() {
+  return array(
+    'administer shopify' => array(
+      'title' => t('Administer Shopify'),
+      'description' => t('Full admin control over the Shopify store. Overrides all Shopify permissions.'),
+      'restrict access' => TRUE,
+    ),
+    'administer shopify webhooks' => array(
+      'title' => t('Administer Shopify webhooks'),
+      'description' => t('Create and remove webhooks from Shopify.'),
+      'restrict access' => TRUE,
+    ),
+    'sync shopify content' => array(
+      'title' => t('Sync Shopify content'),
+      'description' => t('Sync products and collections to the site.'),
+    ),
+    'edit shopify products' => array(
+      'title' => t('Edit Shopify products'),
+      'description' => t('Edit Shopify product fields, metadata, paths, etc.'),
+    ),
+  );
+}
+
+/**
  * Implements hook_menu().
  */
 function shopify_menu() {
@@ -68,6 +94,7 @@ function shopify_menu() {
     'title' => 'Admin',
     'page callback' => 'drupal_goto',
     'page arguments' => array($store_url . '/admin'),
+    'access callback' => 'shopify_user_access',
     'access arguments' => array('administer shopify'),
     'options' => array('attributes' => array('target' => '_blank')),
     'weight' => -999,
@@ -76,6 +103,7 @@ function shopify_menu() {
     'title' => 'Settings',
     'page callback' => 'drupal_goto',
     'page arguments' => array($store_url . '/admin/settings/general'),
+    'access callback' => 'shopify_user_access',
     'access arguments' => array('administer shopify'),
     'options' => array('attributes' => array('target' => '_blank')),
   );
@@ -83,6 +111,7 @@ function shopify_menu() {
     'title' => 'Products',
     'page callback' => 'drupal_goto',
     'page arguments' => array($store_url . '/admin/products'),
+    'access callback' => 'shopify_user_access',
     'access arguments' => array('administer shopify'),
     'options' => array('attributes' => array('target' => '_blank')),
   );
@@ -90,6 +119,7 @@ function shopify_menu() {
     'title' => 'Collections',
     'page callback' => 'drupal_goto',
     'page arguments' => array($store_url . '/admin/collections'),
+    'access callback' => 'shopify_user_access',
     'access arguments' => array('administer shopify'),
     'options' => array('attributes' => array('target' => '_blank')),
   );
@@ -97,6 +127,7 @@ function shopify_menu() {
     'title' => 'Gift Cards',
     'page callback' => 'drupal_goto',
     'page arguments' => array($store_url . '/admin/gift_cards'),
+    'access callback' => 'shopify_user_access',
     'access arguments' => array('administer shopify'),
     'options' => array('attributes' => array('target' => '_blank')),
   );
@@ -104,6 +135,7 @@ function shopify_menu() {
     'title' => 'Orders',
     'page callback' => 'drupal_goto',
     'page arguments' => array($store_url . '/admin/orders'),
+    'access callback' => 'shopify_user_access',
     'access arguments' => array('administer shopify'),
     'options' => array('attributes' => array('target' => '_blank')),
   );
@@ -111,6 +143,7 @@ function shopify_menu() {
     'title' => 'Customers',
     'page callback' => 'drupal_goto',
     'page arguments' => array($store_url . '/admin/customers'),
+    'access callback' => 'shopify_user_access',
     'access arguments' => array('administer shopify'),
     'options' => array('attributes' => array('target' => '_blank')),
   );
@@ -118,6 +151,7 @@ function shopify_menu() {
     'title' => 'Reports',
     'page callback' => 'drupal_goto',
     'page arguments' => array($store_url . '/admin/reports'),
+    'access callback' => 'shopify_user_access',
     'access arguments' => array('administer shopify'),
     'options' => array('attributes' => array('target' => '_blank')),
   );
@@ -125,6 +159,7 @@ function shopify_menu() {
     'title' => 'Discounts',
     'page callback' => 'drupal_goto',
     'page arguments' => array($store_url . '/admin/discounts'),
+    'access callback' => 'shopify_user_access',
     'access arguments' => array('administer shopify'),
     'options' => array('attributes' => array('target' => '_blank')),
   );
@@ -132,6 +167,7 @@ function shopify_menu() {
     'title' => 'Apps',
     'page callback' => 'drupal_goto',
     'page arguments' => array($store_url . '/admin/apps'),
+    'access callback' => 'shopify_user_access',
     'access arguments' => array('administer shopify'),
     'options' => array('attributes' => array('target' => '_blank')),
   );
@@ -139,6 +175,7 @@ function shopify_menu() {
     'title' => 'Configure',
     'page callback' => 'drupal_goto',
     'page arguments' => array($store_url . '/admin/dashboard/online'),
+    'access callback' => 'shopify_user_access',
     'access arguments' => array('administer shopify'),
     'options' => array('attributes' => array('target' => '_blank')),
   );
@@ -191,6 +228,7 @@ function shopify_menu() {
   $items['admin/shopify'] = array(
     'page callback' => 'shopify_admin_page',
     'title' => 'Shopify',
+    'access callback' => 'shopify_user_access',
     'access arguments' => array('administer shopify'),
     'file' => 'includes/shopify.admin.inc',
   );
@@ -206,7 +244,8 @@ function shopify_menu() {
     'description' => 'Sync Shopify store information to the website.',
     'page callback' => 'drupal_get_form',
     'page arguments' => array('shopify_admin_sync_form'),
-    'access arguments' => array('administer shopify'),
+    'access callback' => 'shopify_user_access',
+    'access arguments' => array('sync shopify content'),
     'type' => MENU_LOCAL_TASK,
     'file' => 'includes/shopify.admin.inc',
   );
@@ -215,12 +254,14 @@ function shopify_menu() {
     'description' => 'Download a default Shopify Theme for your Shopify store.',
     'page callback' => 'drupal_get_form',
     'page arguments' => array('shopify_admin_theme_download'),
+    'access callback' => 'shopify_user_access',
     'access arguments' => array('administer shopify'),
     'type' => MENU_LOCAL_TASK,
     'file' => 'includes/shopify.admin.inc',
   );
   $items['admin/shopify/theme/download'] = array(
     'page callback' => 'shopify_download_theme',
+    'access callback' => 'shopify_user_access',
     'access arguments' => array('administer shopify'),
     'type' => MENU_CALLBACK,
     'file' => 'includes/shopify.admin.inc',
@@ -231,6 +272,7 @@ function shopify_menu() {
     'description' => 'Manage Shopify Webhooks',
     'page callback' => 'drupal_get_form',
     'page arguments' => array('shopify_webhooks_admin'),
+    'access callback' => 'shopify_user_access',
     'access arguments' => array('administer shopify webhooks'),
     'type' => MENU_LOCAL_TASK,
     'file' => 'includes/shopify.admin.inc',
@@ -256,6 +298,16 @@ function shopify_menu() {
   );
 
   return $items;
+}
+
+/**
+ * Menu access callback that puts 'administer shopify' permission first.
+ */
+function shopify_user_access($string, $account = NULL) {
+  if (user_access('administer shopify', $account) || user_access($string, $account)) {
+    return TRUE;
+  }
+  return FALSE;
 }
 
 /**
@@ -931,8 +983,12 @@ function shopify_add_to_cart_ajax_callback($form, $form_state) {
  * @return bool
  *   Returns TRUE if the user has access to the product.
  */
-function shopify_product_access() {
-  return TRUE;
+function shopify_product_access($op, ShopifyProduct $entity = NULL, $account = NULL, $entity_type = 'shopify_product') {
+  if (user_access('administer shopify', $account) || user_access('edit shopify products', $account)) {
+    // User has access to do all the things.
+    return TRUE;
+  }
+  return FALSE;
 }
 
 /**
