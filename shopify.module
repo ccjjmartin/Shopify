@@ -333,10 +333,15 @@ function shopify_webhook_access() {
  * Implements hook_menu_alter().
  */
 function shopify_menu_alter(&$items) {
+  // Do not allow any user to delete products.
+  $items['admin/shopify/products/manage/%shopify_product/delete']['access callback'] = FALSE;
+
+  // Modify the products page display title and as a tab.
   $items['admin/shopify/products']['title'] = 'Products';
   $items['admin/shopify/products']['type'] = MENU_LOCAL_TASK;
   $items['admin/shopify/products']['weight'] = -5;
-  // Products are added on shopify, not in Drupal.
+
+  // Products are added on Shopify, not in Drupal.
   $items['admin/shopify/products/add']['page callback'] = 'drupal_goto';
   $items['admin/shopify/products/add']['page arguments'] = array('https://' . shopify_store_info()->myshopify_domain . '/admin/products/new');
   $items['admin/shopify/products/add']['options'] = array('attributes' => array('target' => '_blank'));
