@@ -623,5 +623,8 @@ function shopify_uninstall() {
   variable_del('shopify_last_product_sync');
   variable_del('shopify_last_collection_sync');
   variable_del('shopify_store_info');
+  variable_del('shopify_cron_sync_products');
+  variable_del('shopify_cron_sync_collections');
+  variable_del('shopify_cron_sync_time');
   field_purge_batch(20);
 }

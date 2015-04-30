@@ -282,7 +282,49 @@ function shopify_admin_sync_form($form, &$form_state) {
     '#submit' => array('shopify_admin_collection_sync_form_submit'),
   );
 
+  $form['cron'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Cron'),
+    '#description' => t('Settings for automatically syncing products/collections on cron run.<br /><strong>Only newly updated products/collections will be synced.</strong><br /><br />'),
+    '#tree' => TRUE,
+    '#collapsible' => TRUE,
+    '#collapsed' => TRUE,
+  );
+
+  // Cron settings.
+  $form['cron']['sync_products'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Sync Products on cron run.'),
+    '#default_value' => variable_get('shopify_cron_sync_products', FALSE),
+  );
+  $form['cron']['sync_collections'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Sync Collections on cron run.'),
+    '#default_value' => variable_get('shopify_cron_sync_collections', FALSE),
+  );
+  $form['cron']['sync_time'] = array(
+    '#type' => 'textfield',
+    '#title' => t('How often to sync'),
+    '#description' => t('Enter the number of seconds to wait to sync between cron runs.<br />To sync once per day, enter "86400". To sync once per hour, enter "3600".<br />Leave empty or "0" to sync on every cron run.'),
+    '#default_value' => variable_get('shopify_cron_sync_time', 0),
+  );
+  $form['cron']['save_cron'] = array(
+    '#type' => 'submit',
+    '#value' => t('Save cron settings'),
+    '#submit' => array('shopify_admin_cron_sync_form_submit'),
+  );
+
   return $form;
+}
+
+/**
+ * Submit handler for cron settings save.
+ */
+function shopify_admin_cron_sync_form_submit($form, $form_state) {
+  $v = $form_state['values'];
+  variable_set('shopify_cron_sync_products', $v['cron']['sync_products']);
+  variable_set('shopify_cron_sync_collections', $v['cron']['sync_collections']);
+  variable_set('shopify_cron_sync_time', $v['cron']['sync_time']);
 }
 
 /**

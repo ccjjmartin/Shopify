@@ -305,6 +305,69 @@ function shopify_menu() {
 }
 
 /**
+ * Implements hook_cron().
+ */
+function shopify_cron() {
+  // Check last cron run time vs. the cron speed setting.
+  if (variable_get('cron_last') + variable_get('shopify_cron_sync_time', 0) > REQUEST_TIME) {
+    // No need to sync yet.
+    return FALSE;
+  }
+  if (variable_get('shopify_cron_sync_products')) {
+    // Sync products.
+    shopify_sync_products(array(
+      'updated_at_min' => variable_get('shopify_last_product_sync'),
+      'limit' => 250,
+    ));
+  }
+  if (variable_get('shopify_cron_sync_collections')) {
+    // Sync collections.
+    shopify_sync_collections(array(
+      'updated_at_min' => variable_get('shopify_last_collection_sync'),
+      'limit' => 250,
+    ));
+  }
+}
+
+/**
+ * Sync Shopify products to the site.
+ *
+ * @param array $options
+ *   Array of options to pass the API call.
+ */
+function shopify_sync_products(array $options = array()) {
+  $products = shopify_api_get_products($options);
+  foreach ($products as $product) {
+    $shopify_product = shopify_product_update($product['id'], 0, $product);
+    $shopify_product->save();
+    foreach ($product['variants'] as $v) {
+      $variant = shopify_product_update($product['id'], $v['id'], $v);
+      $variant->save();
+    }
+  }
+}
+
+/**
+ * Sync Shopify collections to the site.
+ *
+ * @param array $options
+ *   Array of options to pass the API call.
+ */
+function shopify_sync_collections(array $options = array()) {
+  $collections = shopify_api_get_collections($options);
+  foreach ($collections as $collection) {
+    $term = shopify_collection_load($collection['id']);
+    if (!$term) {
+      // Need to create a new collection.
+      shopify_collection_create($collection, TRUE);
+    }
+    else {
+      shopify_collection_update($collection, TRUE);
+    }
+  }
+}
+
+/**
  * Menu access callback that puts 'administer shopify' permission first.
  */
 function shopify_user_access($string, $account = NULL) {
