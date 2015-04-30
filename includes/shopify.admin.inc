@@ -478,53 +478,10 @@ function shopify_sync_products_batch($params) {
  * Delete products in the system that were deleted on Shopify.
  */
 function shopify_sync_products_deleted_batch_op(&$context) {
-  $product_count = shopify_api_get_product_count();
-  $products = $variants = array();
-  for ($page = 1; $page <= ceil($product_count / 250); $page++) {
-    // Build a list of all products in the Shopify system.
-    $products = shopify_api_get_products(array(
-      'limit' => 250,
-      'page' => $page,
-      'fields' => 'id',
-    ));
-    // Get variant count for this product.
-    foreach ($products as $p) {
-      $variant_count = shopify_api_get_product_variants_count($p['id']);
-      for ($variant_page = 1; $variant_page <= ceil($variant_count / 250); $variant_page++) {
-        $variants = array_merge($variants, shopify_api_get_product_variants($p['id'], array(
-          'limit' => 250,
-          'page' => $variant_page,
-          'fields' => 'id',
-        )));
-      }
-    }
-  }
-
-  // Format result set as an array of product and variant IDs.
-  $product_ids = array();
-  array_walk_recursive($products, function ($p) use (&$product_ids) {
-    $product_ids[] = $p;
-  });
-  $variant_ids = array();
-  array_walk_recursive($variants, function ($v) use (&$variant_ids) {
-    $variant_ids[] = $v;
-  });
-
-  // Delete products in the DB that we did not pull back.
-  $deleted_products = db_delete('shopify_products')
-    ->condition('product_id', $product_ids, 'NOT IN')
-    ->condition('variant_id', 0)// Only delete products that are not a variant.
-    ->execute();
-  $deleted_variants = db_delete('shopify_products')
-    ->condition('variant_id', $variant_ids, 'NOT IN')
-    ->condition('variant_id', 0, '!=')// Only delete variants.
-    ->execute();
-
-  // Tell the user about what we did.
-  if ($deleted_products + $deleted_variants > 0) {
-    drupal_set_message(t('Deleted @p and @v from the store.', array(
-      '@p' => format_plural($deleted_products, '@count product', '@count products'),
-      '@v' => format_plural($deleted_variants, '@count variant', '@count variants'),
+  // Tell the user that we deleted some products/variants.
+  if ($deleted = shopify_sync_deleted_products(array('limit' => 250)) > 0) {
+    drupal_set_message(t('Deleted @count from the store.', array(
+      '@count' => format_plural($deleted, '@count product/variant', '@count products/variants'),
     )));
     $context['message'] = t('Deleting orphaned products/variants...');
   }
