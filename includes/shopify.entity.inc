@@ -210,10 +210,10 @@ class ShopifyProduct extends Entity {
   public function __construct(array $values = array()) {
     // Handle shopify product and variant IDs.
     if (!empty($values)) {
-      if (isset($values['id']) && !$values['product_id']) {
+      if (isset($values['id']) && (!isset($values['product_id']) || !$values['product_id'])) {
         $values['product_id'] = $values['id'];
       }
-      elseif (isset($values['id']) && $values['product_id']) {
+      elseif (isset($values['id']) && isset($values['product_id']) && $values['product_id']) {
         $values['variant_id'] = $values['id'];
       }
       unset($values['id']);
@@ -221,7 +221,7 @@ class ShopifyProduct extends Entity {
         $values['variant_id'] = 0;
       }
       // Format variant option values.
-      if (!$values['variants']) {
+      if (!isset($values['variants']) || !$values['variants']) {
         // This is a variant product.
         $values['option_values'] = $this->formatVariantOptions($values);
       }
@@ -309,7 +309,9 @@ class ShopifyProduct extends Entity {
         $terms[] = $tid;
       }
     }
-    $this->wrapper()->shopify_product_tags->set($terms);
+    if (isset($terms)) {
+      $this->wrapper()->shopify_product_tags->set($terms);
+    }
   }
 
   /**
