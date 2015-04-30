@@ -91,7 +91,25 @@ $handler->display->display_options['filters']['variant_id']['value']['value'] = 
 $handler->display->display_options['filters']['published_at']['id'] = 'published_at';
 $handler->display->display_options['filters']['published_at']['table'] = 'shopify_products';
 $handler->display->display_options['filters']['published_at']['field'] = 'published_at';
-$handler->display->display_options['filters']['published_at']['operator'] = 'not empty';
+$handler->display->display_options['filters']['published_at']['operator'] = '!=';
+$handler->display->display_options['filters']['published_at']['value']['value'] = '1/1/1970 -00:00';
+$handler->display->display_options['filters']['published_at']['expose']['operator_id'] = 'published_at_op';
+$handler->display->display_options['filters']['published_at']['expose']['label'] = 'Published Date';
+$handler->display->display_options['filters']['published_at']['expose']['operator'] = 'published_at_op';
+$handler->display->display_options['filters']['published_at']['expose']['identifier'] = 'published_at';
+$handler->display->display_options['filters']['published_at']['expose']['remember_roles'] = array(
+  2 => '2',
+  1 => 0,
+  3 => 0,
+);
+$handler->display->display_options['filters']['published_at']['group_info']['label'] = 'Published Date';
+$handler->display->display_options['filters']['published_at']['group_info']['identifier'] = 'published_at';
+$handler->display->display_options['filters']['published_at']['group_info']['remember'] = FALSE;
+$handler->display->display_options['filters']['published_at']['group_info']['group_items'] = array(
+  1 => array(),
+  2 => array(),
+  3 => array(),
+);
 
 /* Display: Products Page */
 $handler = $view->new_display('page', 'Products Page', 'page');
