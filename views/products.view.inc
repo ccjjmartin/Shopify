@@ -1,8 +1,4 @@
 <?php
-/**
- * @file
- * Default product listing view for Shopify module.
- */
 $view = new view();
 $view->name = 'products';
 $view->description = 'A View of Shopify Products';
@@ -27,10 +23,6 @@ $handler->display->display_options['pager']['type'] = 'full';
 $handler->display->display_options['pager']['options']['items_per_page'] = '10';
 $handler->display->display_options['style_plugin'] = 'default';
 $handler->display->display_options['row_plugin'] = 'fields';
-/* Relationship: Shopify Product: Shopify Collections (shopify_product_collections) */
-$handler->display->display_options['relationships']['shopify_product_collections_tid']['id'] = 'shopify_product_collections_tid';
-$handler->display->display_options['relationships']['shopify_product_collections_tid']['table'] = 'field_data_shopify_product_collections';
-$handler->display->display_options['relationships']['shopify_product_collections_tid']['field'] = 'shopify_product_collections_tid';
 /* Field: Shopify Product: Product Title */
 $handler->display->display_options['fields']['title']['id'] = 'title';
 $handler->display->display_options['fields']['title']['table'] = 'shopify_products';
@@ -71,8 +63,7 @@ $handler->display->display_options['fields']['add_to_cart_form']['element_label_
 $handler->display->display_options['fields']['shopify_product_tags']['id'] = 'shopify_product_tags';
 $handler->display->display_options['fields']['shopify_product_tags']['table'] = 'field_data_shopify_product_tags';
 $handler->display->display_options['fields']['shopify_product_tags']['field'] = 'shopify_product_tags';
-$handler->display->display_options['fields']['shopify_product_tags']['label'] = '';
-$handler->display->display_options['fields']['shopify_product_tags']['element_label_colon'] = FALSE;
+$handler->display->display_options['fields']['shopify_product_tags']['label'] = 'Tags';
 $handler->display->display_options['fields']['shopify_product_tags']['settings'] = array(
   'field_formatter_label' => '',
 );
@@ -179,6 +170,7 @@ $handler->display->display_options['defaults']['arguments'] = FALSE;
 $handler->display->display_options['arguments']['shopify_product_tags_tid']['id'] = 'shopify_product_tags_tid';
 $handler->display->display_options['arguments']['shopify_product_tags_tid']['table'] = 'field_data_shopify_product_tags';
 $handler->display->display_options['arguments']['shopify_product_tags_tid']['field'] = 'shopify_product_tags_tid';
+$handler->display->display_options['arguments']['shopify_product_tags_tid']['default_action'] = 'not found';
 $handler->display->display_options['arguments']['shopify_product_tags_tid']['exception']['title_enable'] = TRUE;
 $handler->display->display_options['arguments']['shopify_product_tags_tid']['exception']['title'] = 'Tags';
 $handler->display->display_options['arguments']['shopify_product_tags_tid']['title_enable'] = TRUE;
@@ -205,68 +197,12 @@ $handler->display->display_options['defaults']['relationships'] = FALSE;
 $handler->display->display_options['relationships']['shopify_product_collections_tid']['id'] = 'shopify_product_collections_tid';
 $handler->display->display_options['relationships']['shopify_product_collections_tid']['table'] = 'field_data_shopify_product_collections';
 $handler->display->display_options['relationships']['shopify_product_collections_tid']['field'] = 'shopify_product_collections_tid';
-$handler->display->display_options['defaults']['fields'] = FALSE;
-/* Field: Shopify Product: Product Title */
-$handler->display->display_options['fields']['title']['id'] = 'title';
-$handler->display->display_options['fields']['title']['table'] = 'shopify_products';
-$handler->display->display_options['fields']['title']['field'] = 'title';
-$handler->display->display_options['fields']['title']['label'] = '';
-$handler->display->display_options['fields']['title']['element_type'] = 'h2';
-$handler->display->display_options['fields']['title']['element_label_colon'] = FALSE;
-/* Field: Shopify Product: Shopify Product Image */
-$handler->display->display_options['fields']['shopify_product_images']['id'] = 'shopify_product_images';
-$handler->display->display_options['fields']['shopify_product_images']['table'] = 'field_data_shopify_product_images';
-$handler->display->display_options['fields']['shopify_product_images']['field'] = 'shopify_product_images';
-$handler->display->display_options['fields']['shopify_product_images']['label'] = '';
-$handler->display->display_options['fields']['shopify_product_images']['element_label_colon'] = FALSE;
-$handler->display->display_options['fields']['shopify_product_images']['click_sort_column'] = 'fid';
-$handler->display->display_options['fields']['shopify_product_images']['settings'] = array(
-  'image_style' => 'thumbnail',
-  'image_link' => 'content',
-  'field_formatter_label' => '',
-);
-$handler->display->display_options['fields']['shopify_product_images']['delta_limit'] = '1';
-$handler->display->display_options['fields']['shopify_product_images']['delta_offset'] = '0';
-/* Field: Shopify Product: Body HTML */
-$handler->display->display_options['fields']['body_html']['id'] = 'body_html';
-$handler->display->display_options['fields']['body_html']['table'] = 'shopify_products';
-$handler->display->display_options['fields']['body_html']['field'] = 'body_html';
-$handler->display->display_options['fields']['body_html']['label'] = '';
-$handler->display->display_options['fields']['body_html']['alter']['max_length'] = '500';
-$handler->display->display_options['fields']['body_html']['alter']['trim'] = TRUE;
-$handler->display->display_options['fields']['body_html']['alter']['html'] = TRUE;
-$handler->display->display_options['fields']['body_html']['element_label_colon'] = FALSE;
-/* Field: Shopify Product: Add to Cart form */
-$handler->display->display_options['fields']['add_to_cart_form']['id'] = 'add_to_cart_form';
-$handler->display->display_options['fields']['add_to_cart_form']['table'] = 'shopify_products';
-$handler->display->display_options['fields']['add_to_cart_form']['field'] = 'add_to_cart_form';
-$handler->display->display_options['fields']['add_to_cart_form']['label'] = '';
-$handler->display->display_options['fields']['add_to_cart_form']['element_label_colon'] = FALSE;
-/* Field: Shopify Product: Shopify Product Tags */
-$handler->display->display_options['fields']['shopify_product_tags']['id'] = 'shopify_product_tags';
-$handler->display->display_options['fields']['shopify_product_tags']['table'] = 'field_data_shopify_product_tags';
-$handler->display->display_options['fields']['shopify_product_tags']['field'] = 'shopify_product_tags';
-$handler->display->display_options['fields']['shopify_product_tags']['label'] = '';
-$handler->display->display_options['fields']['shopify_product_tags']['element_label_colon'] = FALSE;
-$handler->display->display_options['fields']['shopify_product_tags']['settings'] = array(
-  'field_formatter_label' => '',
-);
-$handler->display->display_options['fields']['shopify_product_tags']['delta_offset'] = '0';
-/* Field: Shopify Product: Shopify Collections */
-$handler->display->display_options['fields']['shopify_product_collections']['id'] = 'shopify_product_collections';
-$handler->display->display_options['fields']['shopify_product_collections']['table'] = 'field_data_shopify_product_collections';
-$handler->display->display_options['fields']['shopify_product_collections']['field'] = 'shopify_product_collections';
-$handler->display->display_options['fields']['shopify_product_collections']['label'] = 'Collections';
-$handler->display->display_options['fields']['shopify_product_collections']['hide_empty'] = TRUE;
-$handler->display->display_options['fields']['shopify_product_collections']['settings'] = array(
-  'field_formatter_label' => '',
-);
-$handler->display->display_options['fields']['shopify_product_collections']['delta_offset'] = '0';
 $handler->display->display_options['defaults']['arguments'] = FALSE;
 /* Contextual filter: Shopify Product: Shopify Collections (shopify_product_collections) */
 $handler->display->display_options['arguments']['shopify_product_collections_tid']['id'] = 'shopify_product_collections_tid';
 $handler->display->display_options['arguments']['shopify_product_collections_tid']['table'] = 'field_data_shopify_product_collections';
 $handler->display->display_options['arguments']['shopify_product_collections_tid']['field'] = 'shopify_product_collections_tid';
+$handler->display->display_options['arguments']['shopify_product_collections_tid']['default_action'] = 'not found';
 $handler->display->display_options['arguments']['shopify_product_collections_tid']['title_enable'] = TRUE;
 $handler->display->display_options['arguments']['shopify_product_collections_tid']['title'] = '%1';
 $handler->display->display_options['arguments']['shopify_product_collections_tid']['default_argument_type'] = 'fixed';
@@ -287,6 +223,11 @@ $handler->display->display_options['defaults']['title'] = FALSE;
 $handler->display->display_options['pager']['type'] = 'some';
 $handler->display->display_options['pager']['options']['items_per_page'] = '1';
 $handler->display->display_options['pager']['options']['offset'] = '0';
+$handler->display->display_options['defaults']['relationships'] = FALSE;
+/* Relationship: Shopify Product: Shopify Collections (shopify_product_collections) */
+$handler->display->display_options['relationships']['shopify_product_collections_tid']['id'] = 'shopify_product_collections_tid';
+$handler->display->display_options['relationships']['shopify_product_collections_tid']['table'] = 'field_data_shopify_product_collections';
+$handler->display->display_options['relationships']['shopify_product_collections_tid']['field'] = 'shopify_product_collections_tid';
 $handler->display->display_options['defaults']['fields'] = FALSE;
 /* Field: Taxonomy term: Shopify Collection Image */
 $handler->display->display_options['fields']['shopify_collection_image']['id'] = 'shopify_collection_image';
@@ -297,9 +238,8 @@ $handler->display->display_options['fields']['shopify_collection_image']['label'
 $handler->display->display_options['fields']['shopify_collection_image']['element_label_colon'] = FALSE;
 $handler->display->display_options['fields']['shopify_collection_image']['click_sort_column'] = 'fid';
 $handler->display->display_options['fields']['shopify_collection_image']['settings'] = array(
-  'image_style' => 'thumbnail',
+  'image_style' => 'medium',
   'image_link' => '',
-  'field_formatter_label' => '',
 );
 /* Field: Taxonomy term: Term description */
 $handler->display->display_options['fields']['description']['id'] = 'description';
