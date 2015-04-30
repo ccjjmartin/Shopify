@@ -1,5 +1,5 @@
-name = Shopify Store
-description = Enable displaying of your Shopify store inside your Drupal site.
+name = Shopify Ecommerce
+description = Display your Shopify store within your Drupal site.
 core = 7.x
 
 dependencies[] = entity (>=1.6)
