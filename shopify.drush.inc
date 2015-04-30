@@ -16,11 +16,28 @@ function shopify_drush_command() {
       'limit' => 'Limit the results to a max count. (default=10)',
       'sort-desc' => 'Sort by a column DESC.',
       'sort-asc' => 'Sort by a column ASC.',
+      'fields' => 'Comma-delimited list of additional fields to display.',
     ),
     'examples' => array(
       'drush shopify-products' => 'View most recent 10 created products.',
       'drush shopify-products --limit=100' => 'View most recent 100 created products.',
+      'drush shopify-products --fields=weight,taxable,sku' => 'View products with additional fields.',
       'drush shopify-products --sort-desc=price' => 'View most expensive products.',
+    ),
+    'bootstrap' => DRUSH_BOOTSTRAP_DRUSH,
+  );
+  $items['shopify-sync'] = array(
+    'description' => 'Sync Shopify products or collections to your site.',
+    'arguments' => array(
+      'type' => 'Type of data to sync: products, collections',
+    ),
+    'options' => array(
+      'options' => 'Array of options to pass to the API call. Pass as query string params.',
+    ),
+    'examples' => array(
+      'drush shopify-sync collections' => 'Sync all collections',
+      'drush shopify-sync products' => 'Sync all products',
+      'drush shopify-sync products --options="updated_at_min=2015-04-28T00:00:00-04:00&limit=1"' => 'Sync 1 product that was updated since a given date.',
     ),
     'bootstrap' => DRUSH_BOOTSTRAP_DRUSH,
   );
@@ -58,6 +75,29 @@ function shopify_drush_help($command) {
 }
 
 /**
+ * Sync products/collections command.
+ */
+function drush_shopify_sync($type) {
+  $options = array();
+  if ($query = drush_get_option('options')) {
+    $options = drupal_get_query_array($query);
+  }
+  switch ($type) {
+    case 'products':
+      drush_print('Starting product sync...');
+      shopify_sync_products($options);
+      break;
+    case 'collections':
+      drush_print('Starting collection sync...');
+      shopify_sync_collections($options);
+      break;
+    default:
+      return drush_set_error('Invalid sync type "' . $type . '".');
+  }
+  drush_print('Sync complete!');
+}
+
+/**
  * Display information about Shopify products.
  */
 function drush_shopify_products() {
@@ -77,20 +117,29 @@ function drush_shopify_products() {
     $products = entity_load('shopify_product', array_keys($result['shopify_product']));
     $rows = array();
     // Setup the header.
-    $rows[] = array('id', 'product_id', 'variant_id', 'title', 'price');
+    $rows[0] = array('id', 'product_id', 'variant_id', 'title', 'price');
+    if ($fields = drush_get_option('fields')) {
+      $fields = explode(',', $fields);
+      $rows[0] = array_merge($rows[0], $fields);
+    }
+    $count = 1;
     foreach ($products as $product) {
-      $rows[] = array(
+      $rows[$count] = array(
         $product->id,
         $product->product_id,
         $product->variant_id,
         $product->label(),
         $product->price,
       );
+      foreach ((array) $fields as $field) {
+        $rows[$count][] = $product->{$field};
+      }
+      $count++;
     }
     drush_print_table($rows, TRUE);
   }
   else {
-    drush_print_error('No products found.');
+    drush_set_error('No products found.');
   }
 }
 
