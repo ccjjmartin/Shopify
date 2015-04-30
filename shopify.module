@@ -1168,8 +1168,6 @@ function shopify_add_to_cart_ajax_callback($form, $form_state) {
 /**
  * Shopify product access callback.
  *
- * @todo: FIX THIS TO NOT BE COMPLETELY OPEN.
- *
  * @return bool
  *   Returns TRUE if the user has access to the product.
  */

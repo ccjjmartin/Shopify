@@ -187,12 +187,39 @@ function shopify_admin_page() {
     drupal_set_message(t('Unable to connect to your Shopify store.'), 'error');
     return t('Hmm.. we\'re unable to connect to your Shopify Store. <ul><li>Do you have a <a href="https://www.shopify.com/?ref=bonify">Shopify account</a>?</li><li>If you have an account you\'ll need to create your API key if you haven\'t already. See <a href="https://docs.shopify.com/support/configuration/apps/where-do-i-find-my-api-key">https://docs.shopify.com/support/configuration/apps/where-do-i-find-my-api-key</a> for more information.</li><li>Have you checked your <a href="/admin/config/services/shopify">API settings to make sure they match?</a></li><li><a href="/admin/reports/status">Can your server make outgoing HTTP requests?</li></ul>');
   }
+
+  // Get count of products in the site.
+  $product_count = db_select('shopify_products', 'pr')
+    ->fields('pr')
+    ->execute()->rowCount();
+
+  if (!$product_count) {
+    drupal_set_message(t('Did you !link to your site yet?', array(
+      '!link' => l(t('sync products'), 'admin/shopify/sync'),
+    )), 'warning');
+  }
+
+  // Get count of collections in the site.
+  $collection_count = db_select('taxonomy_term_data', 'ttd')
+    ->fields('ttd')
+    ->condition('vid', shopify_collection_vocabulary()->vid)
+    ->execute()->rowCount();
+
+  if (!$collection_count) {
+    drupal_set_message(t('Did you !link to your site yet?', array(
+      '!link' => l(t('sync collections'), 'admin/shopify/sync'),
+    )), 'warning');
+  }
+
   $store_meta = array(
     'My Store Admin' => l($info->myshopify_domain, 'https://' . $info->myshopify_domain . '/admin'),
-    'Owned By' => $info->shop_owner,
+    'Owned By' => $info->shop_owner . ' &lt;<a href="mailto:' . $info->email . '">' . $info->email . '</a>&gt;',
     'Address' => $info->address1,
     'City' => $info->city,
     'State/Province' => $info->province,
+    'Zip' => $info->zip,
+    '# of products' => $product_count,
+    '# of collections' => $collection_count,
   );
 
   $return = '';
