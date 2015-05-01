@@ -532,14 +532,16 @@ function shopify_redirect() {
     if ($product = shopify_variant_load_single($params['variant_id'])) {
       if ($parent = shopify_product_load_single($product->product_id, 0)) {
         // Send the user to the product page.
-        drupal_goto('products/' . $parent->id, array('query' => array('variant_id' => $params['variant_id'])));
+        $uri = entity_uri('shopify_product', $parent);
+        drupal_goto($uri['path'], array('query' => array('variant_id' => $params['variant_id'])));
       }
     }
   }
   elseif (isset($params['product_id'])) {
     if ($product = shopify_product_load_single($params['product_id'], 0)) {
       // Send the user to the product page.
-      drupal_goto('products/' . $product->id, array('query' => array('variant_id' => $params['variant_id'])));
+      $uri = entity_uri('shopify_product', $product);
+      drupal_goto($uri['path'], array('query' => array('variant_id' => $params['variant_id'])));
     }
   }
   elseif (isset($params['collection_id'])) {

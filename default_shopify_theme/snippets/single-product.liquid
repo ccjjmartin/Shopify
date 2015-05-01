@@ -9,5 +9,5 @@
        return(false);
   }
   document.write('Redirecting to the store...');
-  window.top.location.href = '{{ drupal.site.url }}/shopify/redirect?variant_id=' + getQueryVariable('variant') + '&product_id={{ product.id }}';
+  window.top.location.href = '{{ drupal.site.url }}shopify/redirect?variant_id=' + getQueryVariable('variant') + '&product_id={{ product.id }}';
 </script>
