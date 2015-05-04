@@ -853,6 +853,15 @@ class ShopifyProductViewsController extends EntityDefaultViewsController {
       ),
     );
 
+    $data['shopify_products']['price'] = array(
+      'title' => t('Starting At Price'),
+      'help' => t('The lowest price for a given variant & product combination'),
+      'field' => array(
+        'handler' => 'views_handler_field_shopify_price',
+        'click sortable' => TRUE,
+      ),
+    );
+
     return $data;
   }
 

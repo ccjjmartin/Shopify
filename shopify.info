@@ -18,3 +18,4 @@ files[] = views/views_handler_field_shopify_product_add_to_cart_form.inc
 files[] = views/views_handler_field_shopify_product_link.inc
 files[] = views/views_handler_field_shopify_product_edit_link.inc
 files[] = views/views_handler_field_shopify_product.inc
+files[] = views/views_handler_field_shopify_price.inc
