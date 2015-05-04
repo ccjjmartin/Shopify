@@ -87,29 +87,13 @@ $handler->display->display_options['filters']['variant_id']['id'] = 'variant_id'
 $handler->display->display_options['filters']['variant_id']['table'] = 'shopify_products';
 $handler->display->display_options['filters']['variant_id']['field'] = 'variant_id';
 $handler->display->display_options['filters']['variant_id']['value']['value'] = '0';
-/* Filter criterion: Shopify Product: Published Date */
+/* Filter criterion: Hide unpublished products */
 $handler->display->display_options['filters']['published_at']['id'] = 'published_at';
 $handler->display->display_options['filters']['published_at']['table'] = 'shopify_products';
 $handler->display->display_options['filters']['published_at']['field'] = 'published_at';
-$handler->display->display_options['filters']['published_at']['operator'] = '!=';
-$handler->display->display_options['filters']['published_at']['value']['value'] = '1/1/1970 -00:00';
-$handler->display->display_options['filters']['published_at']['expose']['operator_id'] = 'published_at_op';
-$handler->display->display_options['filters']['published_at']['expose']['label'] = 'Published Date';
-$handler->display->display_options['filters']['published_at']['expose']['operator'] = 'published_at_op';
-$handler->display->display_options['filters']['published_at']['expose']['identifier'] = 'published_at';
-$handler->display->display_options['filters']['published_at']['expose']['remember_roles'] = array(
-  2 => '2',
-  1 => 0,
-  3 => 0,
-);
-$handler->display->display_options['filters']['published_at']['group_info']['label'] = 'Published Date';
-$handler->display->display_options['filters']['published_at']['group_info']['identifier'] = 'published_at';
-$handler->display->display_options['filters']['published_at']['group_info']['remember'] = FALSE;
-$handler->display->display_options['filters']['published_at']['group_info']['group_items'] = array(
-  1 => array(),
-  2 => array(),
-  3 => array(),
-);
+$handler->display->display_options['filters']['published_at']['ui_name'] = 'Hide unpublished products';
+$handler->display->display_options['filters']['published_at']['operator'] = '>';
+$handler->display->display_options['filters']['published_at']['value']['value'] = '1970-01-01 00:00:00';
 
 /* Display: Products Page */
 $handler = $view->new_display('page', 'Products Page', 'page');
