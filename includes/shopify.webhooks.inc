@@ -25,10 +25,23 @@ function shopify_incoming_webhook() {
 }
 
 /**
+ * Implements hook_shopify_webhook().
+ */
+function shopify_shopify_webhook($hook, $payload) {
+  if (module_exists('rules')) {
+    rules_invoke_event('shopify_webhook_fired', $hook);
+  }
+}
+
+/**
  * Implements hook_shopify_webhook_WEBHOOK().
  */
-function shopify_shopify_webhook_products_create($payload) {
-  shopify_shopify_webhook_products_update($payload);
+function shopify_shopify_webhook_products_create($product) {
+  shopify_shopify_webhook_products_update($product);
+  if (module_exists('rules')) {
+    $product_entity = shopify_product_load_single($product['id']);
+    rules_invoke_event('shopify_webhook_product_created', $product_entity);
+  }
 }
 
 /**
@@ -84,11 +97,18 @@ function shopify_shopify_webhook_products_update($product) {
     $variant = shopify_product_update($product['id'], $v['id'], $v);
     $variant->save();
   }
+  if (module_exists('rules')) {
+    rules_invoke_event('shopify_webhook_product_updated', $product_entity);
+  }
 }
 
 /**
  * Implements hook_shopify_webhook_WEBHOOK().
  */
 function shopify_shopify_webhook_products_delete($product) {
+  $product_entity = shopify_product_load_single($product['id']);
   shopify_delete_by_product_id($product['id']);
+  if (module_exists('rules')) {
+    rules_invoke_event('shopify_webhook_product_deleted', $product_entity);
+  }
 }

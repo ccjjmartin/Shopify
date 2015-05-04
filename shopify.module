@@ -10,6 +10,7 @@ module_load_include('inc', 'shopify', 'includes/shopify.webhooks');
 module_load_include('inc', 'shopify', 'includes/shopify.search');
 module_load_include('inc', 'shopify', 'includes/shopify.metatag');
 module_load_include('inc', 'shopify', 'includes/shopify.path');
+module_load_include('inc', 'shopify', 'includes/shopify.rules');
 
 /**
  * Implements hook_taxonomy_term_view().
