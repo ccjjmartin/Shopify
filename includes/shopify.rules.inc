@@ -53,5 +53,38 @@ function shopify_rules_event_info() {
         ),
       ),
     ),
+    'shopify_webhook_collection_created' => array(
+      'label' => t('Collection created'),
+      'module' => 'shopify',
+      'group' => t('Shopify Webhook'),
+      'variables' => array(
+        'taxonomy_term' => array(
+          'type' => 'taxonomy_term',
+          'label' => t('Collection'),
+        ),
+      ),
+    ),
+    'shopify_webhook_collection_updated' => array(
+      'label' => t('Collection updated'),
+      'module' => 'shopify',
+      'group' => t('Shopify Webhook'),
+      'variables' => array(
+        'taxonomy_term' => array(
+          'type' => 'taxonomy_term',
+          'label' => t('Collection'),
+        ),
+      ),
+    ),
+    'shopify_webhook_collection_deleted' => array(
+      'label' => t('Collection deleted'),
+      'module' => 'shopify',
+      'group' => t('Shopify Webhook'),
+      'variables' => array(
+        'taxonomy_term' => array(
+          'type' => 'taxonomy_term',
+          'label' => t('Collection'),
+        ),
+      ),
+    ),
   );
 }

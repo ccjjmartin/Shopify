@@ -47,15 +47,23 @@ function shopify_shopify_webhook_products_create($product) {
 /**
  * Implements hook_shopify_webhook_WEBHOOK().
  */
-function shopify_shopify_webhook_collections_update($payload) {
-  shopify_collection_update($payload, $sync_products = TRUE);
+function shopify_shopify_webhook_collections_update($collection) {
+  shopify_collection_update($collection, $sync_products = TRUE);
+  if (module_exists('rules')) {
+    $term = shopify_collection_load($collection['id']);
+    rules_invoke_event('shopify_webhook_collection_updated', $term);
+  }
 }
 
 /**
  * Implements hook_shopify_webhook_WEBHOOK().
  */
-function shopify_shopify_webhook_collections_delete($payload) {
-  shopify_collection_delete($payload['id']);
+function shopify_shopify_webhook_collections_delete($collection) {
+  $term = shopify_collection_load($collection['id']);
+  shopify_collection_delete($collection['id']);
+  if (module_exists('rules')) {
+    rules_invoke_event('shopify_webhook_collection_deleted', $term);
+  }
 }
 
 /**
@@ -83,8 +91,12 @@ function shopify_shopify_webhook_shop_update($payload) {
 /**
  * Implements hook_shopify_webhook_WEBHOOK().
  */
-function shopify_shopify_webhook_collections_create($payload) {
-  shopify_collection_create($payload, $sync_products = TRUE);
+function shopify_shopify_webhook_collections_create($collection) {
+  shopify_collection_create($collection, $sync_products = TRUE);
+  if (module_exists('rules')) {
+    $term = shopify_collection_load($collection['id']);
+    rules_invoke_event('shopify_webhook_collection_created', $term);
+  }
 }
 
 /**
