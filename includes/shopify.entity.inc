@@ -256,6 +256,9 @@ class ShopifyProduct extends Entity {
    *   Unix timestamp.
    */
   private function formatTimestamp($datetime) {
+    if (empty($datetime)) {
+      return 0;
+    }
     if (!is_numeric($datetime)) {
       $date = new DateTime($datetime);
       return $date->format('U');
