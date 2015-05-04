@@ -182,19 +182,19 @@ class ShopifyProduct extends Entity {
 
   /**
    * The date and time when the product was created.
-   * @var string
+   * @var int
    */
   public $created_at;
 
   /**
    * The date and time when the product was published.
-   * @var string
+   * @var int
    */
   public $published_at;
 
   /**
    * The date and time when the product was last modified.
-   * @var string
+   * @var int
    */
   public $updated_at;
 
@@ -238,6 +238,34 @@ class ShopifyProduct extends Entity {
   }
 
   /**
+   * Formats all date times into Unix timestamps.
+   */
+  private function formatTimestamps() {
+    foreach (array('published_at', 'updated_at', 'created_at') as $field) {
+      $this->{$field} = $this->formatTimestamp($this->{$field});
+    }
+  }
+
+  /**
+   * Format a date time as Unix timestamp.
+   *
+   * @param string $datetime
+   *   Datetime string.
+   *
+   * @return int
+   *   Unix timestamp.
+   */
+  private function formatTimestamp($datetime) {
+    if (empty($datetime)) {
+      return 0;
+    }
+    if (!is_numeric($datetime)) {
+      $date = new DateTime($datetime);
+      return $date->format('U');
+    }
+  }
+
+  /**
    * Set up the object instance on construction or unserializiation.
    */
   public function setUp() {
@@ -265,6 +293,7 @@ class ShopifyProduct extends Entity {
     if (is_array($this->option_values)) {
       $this->option_values = serialize($this->option_values);
     }
+    $this->formatTimestamps();
     return parent::save();
   }
 
