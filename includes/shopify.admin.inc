@@ -645,9 +645,18 @@ function shopify_webhooks_admin($form, &$form_state) {
   }
 
   foreach ($webhooks as $hook) {
-    $form['registered'][$hook['id']] = array(
+    $matches = array();
+    preg_match('/:\/\/(.+)\/shopify\/webhook/', $hook['address'], $matches);
+    if (!isset($form['registered'][$hook['address']])) {
+      $form['registered'][$hook['address']] = array(
+        '#type' => 'fieldset',
+        '#title' => check_plain($matches[1]),
+        '#collapsible' => TRUE,
+      );
+    }
+    $form['registered'][$hook['address']][$hook['id']] = array(
       '#type' => 'checkbox',
-      '#title' => $hook['topic'] . ' via: ' . $hook['address'],
+      '#title' => $hook['topic'],
       '#description' => t('React to this event using: @hook', array('@hook' => 'HOOK_shopify_webook_' . str_replace('/', '_', $hook['topic']))),
     );
   }
@@ -774,9 +783,12 @@ function shopify_webhooks_admin($form, &$form_state) {
  */
 function shopify_remove_webhooks_submit($form, &$form_state) {
   if ($form_state['values']['op'] == 'Remove') {
-    foreach ($form_state['values']['registered'] as $id => $v) {
-      if ($v == 1) {
-        shopify_api_delete_webhook($id);
+    unset($form_state['values']['registered']['remove_submit']);
+    foreach ((array) $form_state['values']['registered'] as $host => $values) {
+      foreach ((array) $values as $id => $remove) {
+        if ($remove) {
+          shopify_api_delete_webhook($id);
+        }
       }
     }
   }
@@ -811,9 +823,9 @@ function shopify_register_webhooks_submit($form, &$form_state) {
           $hook = array(
             'webhook' => array(
               'topic' => "$group/$topic",
-              'address' => $hostname . '/shopify/webhook/' . $group . '_' . $topic,
+              'address' => $hostname . '/shopify/webhook',
               'format' => "json"
-            )
+            ),
           );
           try {
             shopify_api_create_webhook($hook);

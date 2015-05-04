@@ -6,13 +6,11 @@
 
 /**
  * Shopify webhook menu callback.
- *
- * @param string $hook
- *   Hook name.
  */
-function shopify_incoming_webhook($hook) {
+function shopify_incoming_webhook() {
   $json = file_get_contents('php://input');
   $payload = json_decode($json, TRUE);
+  $hook = str_replace('/', '_', $_SERVER['HTTP_X_SHOPIFY_TOPIC']);
 
   // Log webhooks if the debug option is set.
   if (variable_get('shopify_webhooks_debug', FALSE)) {

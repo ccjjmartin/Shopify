@@ -294,9 +294,8 @@ function shopify_menu() {
     'type' => MENU_CALLBACK,
   );
 
-  $items['shopify/webhook/%'] = array(
+  $items['shopify/webhook'] = array(
     'page callback' => 'shopify_incoming_webhook',
-    'page arguments' => array(2),
     'access callback' => 'shopify_webhook_access',
     'type' => MENU_CALLBACK,
   );
