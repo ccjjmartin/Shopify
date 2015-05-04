@@ -796,7 +796,6 @@ class ShopifyProductViewsController extends EntityDefaultViewsController {
       ),
     );
 
-
     $data['shopify_products']['product_id'] = array(
       'title' => t('Product ID'),
       'help' => t('The Shopift product id associated with this product'),
