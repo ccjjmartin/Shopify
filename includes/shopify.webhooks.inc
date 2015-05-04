@@ -14,7 +14,7 @@ function shopify_incoming_webhook() {
 
   // Log webhooks if the debug option is set.
   if (variable_get('shopify_webhooks_debug', FALSE)) {
-    watchdog('shopify_webhook', $hook . ':' . var_export($payload, TRUE));
+    watchdog('shopify_webhook', $hook . ':' . check_plain(var_export($payload, TRUE)))s;
   }
 
   // Allow modules to hook into webhooks firing.
