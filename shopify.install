@@ -142,18 +142,15 @@ function shopify_schema() {
       ),
       'created_at' => array(
         'description' => 'Created at',
-        'type' => 'varchar',
-        'length' => 32,
+        'type' => 'int',
       ),
       'published_at' => array(
         'description' => 'Published at',
-        'type' => 'varchar',
-        'length' => 32,
+        'type' => 'int',
       ),
       'updated_at' => array(
         'description' => 'Updated at',
-        'type' => 'varchar',
-        'length' => 32,
+        'type' => 'int',
       ),
     ),
     'primary key' => array('id'),
