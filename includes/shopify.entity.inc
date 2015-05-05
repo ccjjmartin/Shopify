@@ -263,6 +263,8 @@ class ShopifyProduct extends Entity {
       $date = new DateTime($datetime);
       return $date->format('U');
     }
+    // Already a timestamp.
+    return $datetime;
   }
 
   /**
