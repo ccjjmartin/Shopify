@@ -289,6 +289,14 @@ function shopify_menu() {
     'type' => MENU_CALLBACK,
   );
 
+  $items['shopify/theme/download/%/%/%'] = array(
+    'page callback' => 'shopify_theme_download',
+    'page arguments' => array(5),
+    'access callback' => 'shopify_theme_download_access',
+    'access arguments' => array(3, 4, 5),
+    'type' => MENU_CALLBACK,
+  );
+
   $items['shopify/added-to-cart'] = array(
     'page callback' => 'shopify_added_to_cart',
     'access callback' => TRUE,
@@ -302,6 +310,54 @@ function shopify_menu() {
   );
 
   return $items;
+}
+
+/**
+ * Menu callback for downloading the Shopify theme .zip file.
+ *
+ * @param string $filename
+ *   Name of the file.
+ */
+function shopify_theme_download($filename) {
+  $filepath = file_directory_temp() . '/' . $filename;
+  // Reset any previous headers.
+  header("Pragma: public");
+  header("Expires: 0");
+  header("Cache-Control: must-revalidate, post-check=0, pre-check=0");
+  header("Cache-Control: public");
+  header("Content-Description: File Transfer");
+  header("Content-type: application/octet-stream");
+  header("Content-Disposition: attachment; filename=\"$filename\"");
+  header("Content-Transfer-Encoding: binary");
+  header("Content-Length: " . filesize($filepath));
+  @readfile($filepath);
+  ob_end_flush();
+}
+
+/**
+ * Menu access callback for downloading the Shopify theme .zip file.
+ *
+ * @param int $timestamp
+ *   Unix timestamp.
+ * @param string $sig
+ *   Secure signature that ensures the file can only be downloaded by Shopify.
+ * @param string $filename
+ *   Name of the file.
+ *
+ * @return boolean
+ *   Returns TRUE if the user can access the callback.
+ */
+function shopify_theme_download_access($timestamp, $sig, $filename) {
+  $compare = hash_hmac('sha256', $timestamp . 'default_shopify_theme.zip', variable_get('shopify_api_secret'));
+  if ($compare !== $sig) {
+    // Someone doesn't have the right sig here.
+    return FALSE;
+  }
+  if (REQUEST_TIME > $timestamp + 500) {
+    // The link has expired.
+    return FALSE;
+  }
+  return TRUE;
 }
 
 /**

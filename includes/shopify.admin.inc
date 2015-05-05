@@ -18,9 +18,16 @@ function shopify_admin_theme_download($form, $form_state) {
   );
   $form['download']['actions'] = array(
     '#type' => 'actions',
-    'submit' => array(
+    'download' => array(
       '#type' => 'submit',
-      '#value' => t('Download'),
+      '#value' => t('Download Only'),
+      '#name' => 'download',
+    ),
+    'upload' => array(
+      '#type' => 'submit',
+      '#value' => t('Upload and Publish Automatically'),
+      '#description' => t('Will be automatically uploaded to your Shopify account and set as the active theme.'),
+      '#name' => 'upload',
     ),
   );
   return $form;
@@ -58,35 +65,33 @@ function shopify_admin_theme_download_submit($form, $form_state) {
     drupal_set_message(t('Could not ZIP the default_shopify_theme folder: @error', array('@error' => $e->getMessage())), 'error');
   }
 
-  // Download the file to the user's browser.
-  try {
-    shopify_zip_download(file_directory_temp() . '/default_shopify_theme.zip', 'default_shopify_theme.zip');
-  } catch (Exception $e) {
-    drupal_set_message(t('Could not download the ZIP folder: @error', array('@error' => $e->getMessage())), 'error');
+  if ($form_state['triggering_element']["#name"] == 'download') {
+    // Download the file to the user's browser.
+    try {
+      shopify_theme_download('default_shopify_theme.zip');
+    } catch (Exception $e) {
+      drupal_set_message(t('Could not download the ZIP folder: @error', array('@error' => $e->getMessage())), 'error');
+    }
   }
-}
-
-/**
- * Download a zip file to the user's browser.
- *
- * @param string $filepath
- *   Full file path on the server.
- * @param string $filename
- *   Name of the file when downloaded.
- */
-function shopify_zip_download($filepath, $filename) {
-  // Reset any previous headers.
-  header("Pragma: public");
-  header("Expires: 0");
-  header("Cache-Control: must-revalidate, post-check=0, pre-check=0");
-  header("Cache-Control: public");
-  header("Content-Description: File Transfer");
-  header("Content-type: application/octet-stream");
-  header("Content-Disposition: attachment; filename=\"$filename\"");
-  header("Content-Transfer-Encoding: binary");
-  header("Content-Length: " . filesize($filepath));
-  @readfile($filepath);
-  ob_end_flush();
+  elseif ($form_state['triggering_element']['#name'] == 'upload') {
+    // Try to upload this zip file for the user.
+    try {
+      // Create a secure URL.
+      $sig = hash_hmac('sha256', REQUEST_TIME . 'default_shopify_theme.zip', variable_get('shopify_api_secret'));
+      shopify_api_call('POST', 'themes', array(
+        'theme' => array(
+          'name' => 'Drupal Shopify Theme',
+          'src' => url('shopify/theme/download/' . REQUEST_TIME . '/' . $sig . '/default_shopify_theme.zip', array('absolute' => TRUE)),
+          'role' => 'main',
+        ),
+      ));
+      drupal_set_message(t('Drupal Shopify Theme was uploaded to your store. !link.', array(
+        '!link' => l('View now', 'https://' . shopify_store_info()->myshopify_domain . '/admin/themes', array('attributes' => array('target' => '_blank'))),
+      )));
+    } catch (Exception $e) {
+      drupal_set_message(t('Could not upload the ZIP folder: @error', array('@error' => $e->getMessage())), 'error');
+    }
+  }
 }
 
 /**
