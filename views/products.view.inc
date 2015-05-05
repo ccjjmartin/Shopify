@@ -1,6 +1,6 @@
 <?php
 $view = new view();
-$view->name = 'products';
+$view->name = 'shopify_products';
 $view->description = 'A View of Shopify Products';
 $view->tag = 'shopify';
 $view->base_table = 'shopify_products';
@@ -96,13 +96,13 @@ $handler->display->display_options['filters']['published_at']['operator'] = '>';
 $handler->display->display_options['filters']['published_at']['value']['value'] = '1970-01-01 00:00:00';
 
 /* Display: Products Page */
-$handler = $view->new_display('page', 'Products Page', 'page');
+$handler = $view->new_display('page', 'Products Page', 'page_products');
 $handler->display->display_options['defaults']['title'] = FALSE;
 $handler->display->display_options['title'] = 'Products';
 $handler->display->display_options['path'] = 'products';
 
 /* Display: Tags Page */
-$handler = $view->new_display('page', 'Tags Page', 'page_1');
+$handler = $view->new_display('page', 'Tags Page', 'page_tags');
 $handler->display->display_options['defaults']['title'] = FALSE;
 $handler->display->display_options['title'] = 'Tags';
 $handler->display->display_options['defaults']['relationships'] = FALSE;
@@ -191,7 +191,7 @@ $handler->display->display_options['arguments']['shopify_product_tags_tid']['bre
 $handler->display->display_options['path'] = 'products/tags/%';
 
 /* Display: Collections Page */
-$handler = $view->new_display('page', 'Collections Page', 'page_2');
+$handler = $view->new_display('page', 'Collections Page', 'page_collections');
 $handler->display->display_options['defaults']['title'] = FALSE;
 $handler->display->display_options['title'] = 'Collections';
 $handler->display->display_options['defaults']['relationships'] = FALSE;
@@ -220,7 +220,7 @@ $handler->display->display_options['arguments']['shopify_product_collections_tid
 $handler->display->display_options['path'] = 'products/collections/%';
 
 /* Display: Collections Header Attachment */
-$handler = $view->new_display('attachment', 'Collections Header Attachment', 'attachment_1');
+$handler = $view->new_display('attachment', 'Collections Header Attachment', 'attachment_collections');
 $handler->display->display_options['defaults']['title'] = FALSE;
 $handler->display->display_options['pager']['type'] = 'some';
 $handler->display->display_options['pager']['options']['items_per_page'] = '1';
