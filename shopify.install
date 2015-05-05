@@ -5,6 +5,52 @@
  */
 
 /**
+ * Implements hook_requirements()
+ */
+function shopify_requirements($phase) {
+  $t = get_t();
+  if ($phase == 'install') {
+    module_load_install('shopify_api');
+    $api_requirements = shopify_api_requirements('runtime');
+    $requirements = array_merge($api_requirements);
+    // Shopify library not installed
+    if ($requirements['shopify']['severity'] != REQUIREMENT_OK) {
+      $requirements ['shopify_ecommerce'] = array(
+        'title' => $t('Shopify eCommerce'),
+        'description' => $t('Unable to install Shopify eCommerce. Shopify API library not installed. Check the help section at <a href="/admin/config/services/shopify">/admin/config/services/shopify</a>.'),
+        'severity' => REQUIREMENT_ERROR
+      );
+      return $requirements;
+    }
+
+    // No credentials provided for Shopify API
+    $client = shopify_api_client();
+    if (!$client instanceof ShopifyClient) {
+      $requirements ['shopify_ecommerce'] = array(
+        'title' => $t('Shopify eCommerce'),
+        'description' => $t('Unable to install Shopify eCommerce. Do you have a <a href="https://www.shopify.com/?ref=bonify">Shopify Account</a>? If so, make sure you\'ve entered your API credentials at <a href="/admin/config/services/shopify">/admin/config/services/shopify</a>'),
+        'severity' => REQUIREMENT_ERROR
+      );
+      return $requirements;
+    }
+    try {
+      $client = shopify_api_client();
+      if ($client) {
+        $client->call('s', '/admin/shop.json');
+      }
+    }
+    catch (Exception $e) {
+      $requirements ['shopify_ecommerce'] = array(
+        'title' => $t('Shopify eCommerce'),
+        'description' => $t('Cannot connect your credentials to the Shopify API. Do you have a <a href="https://www.shopify.com/?ref=bonify">Shopify Account</a>? <a href="/admin/config/services/shopify">Are your API settings correct</a>?'),
+        'severity' => REQUIREMENT_ERROR
+      );
+      return $requirements;
+    }
+  }
+}
+
+/**
  * Implements hook_schema().
  */
 function shopify_schema() {
