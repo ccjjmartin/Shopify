@@ -165,143 +165,89 @@ function shopify_install() {
 
   shopify_products_reset_sync_datestamp();
 
-  field_create_field(array(
+  //  Create Shopify Tags vocabulary
+  $vocabulary = new stdClass;
+  $vocabulary->name = 'Shopify Tags';
+  $vocabulary->machine_name = 'shopify_tags';
+  taxonomy_vocabulary_save($vocabulary);
+
+  // Create Shopify Collections vocabulary
+  $vocabulary = new stdClass;
+  $vocabulary->name = 'Shopify Collections';
+  $vocabulary->machine_name = 'shopify_collections';
+  taxonomy_vocabulary_save($vocabulary);
+
+  // Create product image field
+  field_create_field(
+    array(
     'field_name' => 'shopify_product_images',
     'type' => 'image',
     'cardinality' => -1,
     'settings' => array(),
   ));
 
+
+
+  // Create product image field on product entity
   $instance = array(
     'field_name' => 'shopify_product_images',
     'entity_type' => 'shopify_product',
     'bundle' => 'shopify_product',
-    'label' => 'Shopify Product Image',
+    'label' => 'Shopify Product Images',
     'required' => FALSE,
-    'default_value_function' => '',
     'widget' => array(
       'type' => 'image_image',
       'settings' => array('image_style' => 'thumbnail', 'image_link' => ''),
       'weight' => 0,
     ),
+    'display' => array(
+      'default' =>
+        array(
+          'label' => 'hidden',
+          'type' => 'image',
+          'weight' => '0',
+          'settings' =>
+            array(
+              'image_style' => 'shopify_product_thumbnail',
+              'image_link' => '',
+            ),
+          'module' => 'image',
+        ),
+    )
   );
 
   field_create_instance($instance);
 
-  $vocabulary = new stdClass;
-  $vocabulary->name = 'Shopify Tags';
-  $vocabulary->machine_name = 'shopify_tags';
-  taxonomy_vocabulary_save($vocabulary);
+  // Create Shopify Tags term reference
+  field_create_field(
+    array(
+      'field_name' => 'shopify_product_tags',
+      'type' => 'taxonomy_term_reference',
+      'cardinality' => -1,
+      'settings' => array(
+        'allowed_values' => array(
+          array(
+            'vocabulary' => 'shopify_tags',
+            'parent' => 0
+          ),
+        )
+      ),
+    )
+  );
 
-  $vocab = taxonomy_vocabulary_machine_name_load('shopify_tags');
 
-  field_create_field(array(
-    'field_name' => 'shopify_product_tags',
-    'type' => 'taxonomy_term_reference',
-    'cardinality' => -1,
-    'settings' => array(
-      'allowed_values' => array(
-        array(
-          'vocabulary' => 'shopify_tags',
-          'parent' => 0
-        ),
-      )
-    ),
-  ));
-
+  // Create product tags term reference on product entity
   $instance = array(
     'field_name' => 'shopify_product_tags',
     'entity_type' => 'shopify_product',
     'bundle' => 'shopify_product',
     'label' => 'Shopify Product Tags',
     'required' => FALSE,
-    'default_value_function' => '',
     'widget' => array(
       'type' => 'taxonomy_autocomplete',
       'weight' => 1,
     ),
-  );
-
-  field_create_instance($instance);
-
-  $vocabulary = new stdClass;
-  $vocabulary->name = 'Shopify Collections';
-  $vocabulary->machine_name = 'shopify_collections';
-  taxonomy_vocabulary_save($vocabulary);
-
-  // Create field and taxonomy for collections.
-  field_create_field(array(
-    'field_name' => 'shopify_product_collections',
-    'type' => 'taxonomy_term_reference',
-    'cardinality' => -1,
-    'settings' => array(
-      'allowed_values' => array(
-        array(
-          'vocabulary' => 'shopify_collections',
-          'parent' => 0
-        ),
-      ),
-    ),
-  ));
-
-  $instance = array(
-    'field_name' => 'shopify_product_collections',
-    'entity_type' => 'shopify_product',
-    'bundle' => 'shopify_product',
-    'label' => 'Shopify Collections',
-    'required' => FALSE,
-    'default_value_function' => '',
-    'widget' => array(
-      'type' => 'taxonomy_autocomplete',
-      'weight' => 2,
-    ),
-  );
-
-  field_create_instance($instance);
-
-  // Create collection image field.
-  field_create_field(array(
-    'field_name' => 'shopify_collection_image',
-    'type' => 'image',
-    'cardinality' => 1,
-    'settings' => array(),
-  ));
-
-  $instance = array(
-    'field_name' => 'shopify_collection_image',
-    'entity_type' => 'taxonomy_term',
-    'bundle' => 'shopify_collections',
-    'label' => 'Shopify Collection Image',
-    'required' => FALSE,
-    'default_value_function' => '',
-    'widget' => array(
-      'type' => 'image_image',
-      'settings' => array('image_style' => 'thumbnail', 'image_link' => ''),
-    ),
-  );
-
-  field_create_instance($instance);
-
-  $instance = field_info_instance('shopify_product', 'shopify_product_images', 'shopify_product');
-  $instance['display'] = array(
-    'default' =>
-      array(
-        'label' => 'hidden',
-        'type' => 'image',
-        'weight' => '0',
-        'settings' =>
-          array(
-            'image_style' => 'shopify_product_thumbnail',
-            'image_link' => '',
-          ),
-        'module' => 'image',
-      ),
-  );
-  field_update_instance($instance);
-
-  $instance = field_info_instance('shopify_product', 'shopify_product_tags', 'shopify_product');
-  $instance['display'] = array(
-    0 =>
+    'display' => array(
       array(
         'default' =>
           array(
@@ -328,17 +274,90 @@ function shopify_install() {
           array(),
         'module' => 'taxonomy',
       ),
+    )
   );
 
-  field_update_instance($instance);
+  field_create_instance($instance);
+
+  // Create Shopify Collections term reference
+  field_create_field(
+    array(
+      'field_name' => 'shopify_product_collections',
+      'type' => 'taxonomy_term_reference',
+      'cardinality' => -1,
+      'settings' => array(
+        'allowed_values' => array(
+          array(
+            'vocabulary' => 'shopify_collections',
+            'parent' => 0
+          ),
+        ),
+      ),
+    )
+  );
+
+  // Create product collections term reference on product entity
+  $instance = array(
+    'field_name' => 'shopify_product_collections',
+    'entity_type' => 'shopify_product',
+    'bundle' => 'shopify_product',
+    'label' => 'Shopify Collections',
+    'required' => FALSE,
+    'widget' => array(
+      'type' => 'taxonomy_autocomplete',
+      'weight' => 2,
+    ),
+    'display' =>
+      array (
+        'default' =>
+          array (
+            'label' => 'hidden',
+            'type' => 'taxonomy_term_reference_link',
+            'weight' => '5',
+            'settings' =>
+              array (
+              ),
+            'module' => 'taxonomy',
+          ),
+      ),
+  );
+
+  field_create_instance($instance);
+
+  // Create Shopify Collections Image field
+  field_create_field(
+    array(
+      'field_name' => 'shopify_collection_image',
+      'type' => 'image',
+      'cardinality' => 1,
+      'settings' => array(),
+    )
+  );
+
+  // Create Shopify Collections Image on collections term entity
+  $instance = array(
+    'field_name' => 'shopify_collection_image',
+    'entity_type' => 'taxonomy_term',
+    'bundle' => 'shopify_collections',
+    'label' => 'Shopify Collection Image',
+    'required' => FALSE,
+    'widget' => array(
+      'type' => 'image_image',
+      'settings' => array('image_style' => 'thumbnail', 'image_link' => ''),
+    ),
+  );
+
+  field_create_instance($instance);
 
   // Create field to track the collection ID from Shopify.
-  field_create_field(array(
-    'field_name' => 'shopify_collection_id',
-    'type' => 'number_integer',
-    'cardinality' => 1,
-    'settings' => array(),
-  ));
+  field_create_field(
+    array(
+      'field_name' => 'shopify_collection_id',
+      'type' => 'number_integer',
+      'cardinality' => 1,
+      'settings' => array(),
+    )
+  );
 
   $instance = array(
     'field_name' => 'shopify_collection_id',
@@ -346,253 +365,243 @@ function shopify_install() {
     'bundle' => 'shopify_collections',
     'label' => 'Shopify Collection ID',
     'required' => TRUE,
-    'default_value_function' => '',
   );
 
   field_create_instance($instance);
 
-  $instance = field_info_instance('shopify_product', 'shopify_product_images', 'shopify_product');
-  $instance['display'] = array(
-    'default' =>
-      array(
-        'label' => 'hidden',
-        'type' => 'image',
-        'weight' => '0',
-        'settings' =>
-          array(
-            'image_style' => 'shopify_product_thumbnail',
-            'image_link' => '',
-          ),
-        'module' => 'image',
-      ),
-  );
-  field_update_instance($instance);
-
-  $product_settings = array(
+  $product_settings = array (
     'view_modes' =>
-      array(
+      array (
         'full' =>
-          array(
-            'custom_settings' => FALSE,
+          array (
+            'custom_settings' => false,
           ),
         'teaser' =>
-          array(
-            'custom_settings' => FALSE,
+          array (
+            'custom_settings' => false,
           ),
         'token' =>
-          array(
-            'custom_settings' => FALSE,
+          array (
+            'custom_settings' => false,
+          ),
+        'search_index' =>
+          array (
+            'custom_settings' => false,
+          ),
+        'search_result' =>
+          array (
+            'custom_settings' => false,
           ),
       ),
     'extra_fields' =>
-      array(
+      array (
         'form' =>
-          array(
+          array (
             'metatags' =>
-              array(
+              array (
                 'weight' => '3',
               ),
           ),
         'display' =>
-          array(
+          array (
             'product_id' =>
-              array(
+              array (
                 'default' =>
-                  array(
-                    'weight' => '26',
-                    'visible' => FALSE,
+                  array (
+                    'weight' => '27',
+                    'visible' => false,
                   ),
               ),
             'variant_id' =>
-              array(
+              array (
                 'default' =>
-                  array(
-                    'weight' => '25',
-                    'visible' => FALSE,
+                  array (
+                    'weight' => '26',
+                    'visible' => false,
                   ),
               ),
             'body_html' =>
-              array(
+              array (
                 'default' =>
-                  array(
-                    'weight' => '2',
-                    'visible' => TRUE,
+                  array (
+                    'weight' => '1',
+                    'visible' => true,
                   ),
               ),
             'price' =>
-              array(
+              array (
                 'default' =>
-                  array(
-                    'weight' => '4',
-                    'visible' => FALSE,
+                  array (
+                    'weight' => '6',
+                    'visible' => false,
                   ),
               ),
             'updated_at' =>
-              array(
+              array (
                 'default' =>
-                  array(
-                    'weight' => '17',
-                    'visible' => FALSE,
+                  array (
+                    'weight' => '18',
+                    'visible' => false,
                   ),
               ),
             'created_at' =>
-              array(
+              array (
                 'default' =>
-                  array(
-                    'weight' => '21',
-                    'visible' => FALSE,
+                  array (
+                    'weight' => '22',
+                    'visible' => false,
                   ),
               ),
             'published_at' =>
-              array(
+              array (
                 'default' =>
-                  array(
-                    'weight' => '20',
-                    'visible' => FALSE,
+                  array (
+                    'weight' => '21',
+                    'visible' => false,
                   ),
               ),
             'title' =>
-              array(
+              array (
                 'default' =>
-                  array(
-                    'weight' => '0',
-                    'visible' => TRUE,
+                  array (
+                    'weight' => '5',
+                    'visible' => false,
                   ),
               ),
             'handle' =>
-              array(
+              array (
                 'default' =>
-                  array(
-                    'weight' => '8',
-                    'visible' => FALSE,
+                  array (
+                    'weight' => '9',
+                    'visible' => false,
                   ),
               ),
             'product_type' =>
-              array(
+              array (
                 'default' =>
-                  array(
-                    'weight' => '6',
-                    'visible' => FALSE,
+                  array (
+                    'weight' => '7',
+                    'visible' => false,
                   ),
               ),
             'published_scope' =>
-              array(
+              array (
                 'default' =>
-                  array(
-                    'weight' => '22',
-                    'visible' => FALSE,
+                  array (
+                    'weight' => '23',
+                    'visible' => false,
                   ),
               ),
             'vendor' =>
-              array(
+              array (
                 'default' =>
-                  array(
-                    'weight' => '23',
-                    'visible' => FALSE,
+                  array (
+                    'weight' => '24',
+                    'visible' => false,
                   ),
               ),
             'barcode' =>
-              array(
+              array (
                 'default' =>
-                  array(
-                    'weight' => '24',
-                    'visible' => FALSE,
+                  array (
+                    'weight' => '25',
+                    'visible' => false,
                   ),
               ),
             'compare_at_price' =>
-              array(
+              array (
                 'default' =>
-                  array(
-                    'weight' => '19',
-                    'visible' => FALSE,
+                  array (
+                    'weight' => '20',
+                    'visible' => false,
                   ),
               ),
             'fulfillment_service' =>
-              array(
+              array (
                 'default' =>
-                  array(
-                    'weight' => '18',
-                    'visible' => FALSE,
+                  array (
+                    'weight' => '19',
+                    'visible' => false,
                   ),
               ),
             'grams' =>
-              array(
+              array (
                 'default' =>
-                  array(
-                    'weight' => '11',
-                    'visible' => FALSE,
+                  array (
+                    'weight' => '12',
+                    'visible' => false,
                   ),
               ),
             'inventory_management' =>
-              array(
+              array (
                 'default' =>
-                  array(
-                    'weight' => '10',
-                    'visible' => FALSE,
+                  array (
+                    'weight' => '11',
+                    'visible' => false,
                   ),
               ),
             'inventory_policy' =>
-              array(
+              array (
                 'default' =>
-                  array(
-                    'weight' => '9',
-                    'visible' => FALSE,
+                  array (
+                    'weight' => '10',
+                    'visible' => false,
                   ),
               ),
             'inventory_quantity' =>
-              array(
+              array (
                 'default' =>
-                  array(
-                    'weight' => '12',
-                    'visible' => FALSE,
+                  array (
+                    'weight' => '13',
+                    'visible' => false,
                   ),
               ),
             'requires_shipping' =>
-              array(
+              array (
                 'default' =>
-                  array(
-                    'weight' => '13',
-                    'visible' => FALSE,
+                  array (
+                    'weight' => '14',
+                    'visible' => false,
                   ),
               ),
             'sku' =>
-              array(
+              array (
                 'default' =>
-                  array(
-                    'weight' => '16',
-                    'visible' => FALSE,
+                  array (
+                    'weight' => '17',
+                    'visible' => false,
                   ),
               ),
             'taxable' =>
-              array(
+              array (
                 'default' =>
-                  array(
-                    'weight' => '15',
-                    'visible' => FALSE,
+                  array (
+                    'weight' => '16',
+                    'visible' => false,
                   ),
               ),
             'weight' =>
-              array(
+              array (
                 'default' =>
-                  array(
-                    'weight' => '14',
-                    'visible' => FALSE,
+                  array (
+                    'weight' => '15',
+                    'visible' => false,
                   ),
               ),
             'weight_unit' =>
-              array(
+              array (
                 'default' =>
-                  array(
-                    'weight' => '7',
-                    'visible' => FALSE,
+                  array (
+                    'weight' => '8',
+                    'visible' => false,
                   ),
               ),
             'add_to_cart' =>
-              array(
+              array (
                 'default' =>
-                  array(
-                    'weight' => '3',
-                    'visible' => TRUE,
+                  array (
+                    'weight' => '2',
+                    'visible' => true,
                   ),
               ),
           ),
