@@ -12,9 +12,9 @@ function shopify_admin_theme_download($form, $form_state) {
   $form['download'] = array(
     '#type' => 'fieldset',
     '#title' => t('Shopify Theme'),
-    '#description' => t('Download and upload this Shopify theme to your !link.', array(
+    '#description' => t('Download and upload this Shopify theme to your !link or upload and publish automatically.', array(
         '!link' => l(t('Shopify store'), 'http://' . shopify_store_info()->myshopify_domain . '/admin/themes', array('attributes' => array('target' => '_blank'))),
-      )) . '<br />' . t('This theme will disable most Shopify store features except for the shopping cart and will redirect the user to the store on the Drupal site.'),
+      )) . '<br />' . t('This theme will disable most Shopify store features except for the shopping cart and will redirect the user to the store on the Drupal site. We <strong>highly recommend</strong> using this theme generator as a starting point for your Shopify theme.'),
   );
   $form['download']['actions'] = array(
     '#type' => 'actions',
@@ -30,13 +30,37 @@ function shopify_admin_theme_download($form, $form_state) {
       '#name' => 'upload',
     ),
   );
+
+  $protocol = stripos($_SERVER['SERVER_PROTOCOL'], 'https') === TRUE ? 'https://' : 'http://';
+  $fqdn = $protocol . "$_SERVER[HTTP_HOST]";
+  $form['download']['hostname'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Hostname'),
+    '#default_value' => $fqdn,
+    '#size' => 60,
+    '#required' => TRUE,
+    '#description' => t('What hostname should the Shopify theme link back to?'),
+  );
+
+  $form['download']['help'] = array(
+    '#markup' => t('<strong>Upload and Publish Automatically requires this website be publically acessible from the internet.</strong>'),
+  );
+
   return $form;
+}
+
+function shopify_admin_theme_download_validate($form, &$form_state) {
+  $hostname = &$form_state['values']['hostname'];
+  if (substr($hostname, -1) != '/') {
+    $hostname .= '/';
+  }
 }
 
 /**
  * Submit callback for download the Shopify theme folder.
  */
 function shopify_admin_theme_download_submit($form, $form_state) {
+  $fqdn = $form_state['values']['hostname'];
   // Copy the default theme to a temp folder.
   try {
     shopify_recurse_copy(drupal_get_path('module', 'shopify') . '/default_shopify_theme', file_directory_temp() . '/default_shopify_theme');
@@ -46,14 +70,14 @@ function shopify_admin_theme_download_submit($form, $form_state) {
 
   // Modify the {{ replace }} contents within theme files.
   try {
-    shopify_find_and_replace(file_directory_temp() . '/default_shopify_theme/*', '{{ drupal.site.url }}', url('', array('absolute' => TRUE)));
+    shopify_find_and_replace(file_directory_temp() . '/default_shopify_theme/*', '{{ drupal.site.url }}', url($fqdn, array('absolute' => TRUE)));
   } catch (Exception $e) {
     drupal_set_message(t('Could not find and replace placeholder text: @error', array('@error' => $e->getMessage())), 'error');
   }
 
   // Modify the {{ replace }} contents within theme files.
   try {
-    shopify_find_and_replace(file_directory_temp() . '/default_shopify_theme/*', '{{ drupal.store.url }}', url(shopify_store_path(), array('absolute' => TRUE)));
+    shopify_find_and_replace(file_directory_temp() . '/default_shopify_theme/*', '{{ drupal.store.url }}', url($fqdn . shopify_store_path(), array('absolute' => TRUE)));
   } catch (Exception $e) {
     drupal_set_message(t('Could not find and replace placeholder text: @error', array('@error' => $e->getMessage())), 'error');
   }
