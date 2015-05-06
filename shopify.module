@@ -1649,6 +1649,38 @@ function shopify_form_shopify_product_form_alter(&$form, &$form_state, $hook) {
 }
 
 /**
+ * Implements hook_form_FORM_ID_alter().
+ *
+ * Disable certain taxonomy fields for Shopify terms.
+ */
+function shopify_form_taxonomy_form_term_alter(&$form, &$form_state) {
+  switch ($form['#bundle']) {
+    case 'shopify_collections':
+      $disabled = array(
+        'shopify_collection_id',
+        'shopify_collection_image',
+        'shopify_collection_published_at',
+        'name',
+        'description',
+        'relations',
+      );
+      break;
+    case'shopify_tags':
+      $disabled = array(
+        'name',
+        'description',
+        'relations',
+      );
+      break;
+  }
+  if (isset($disabled) && $disabled) {
+    foreach ($disabled as $key) {
+      $form[$key]['#disabled'] = TRUE;
+    }
+  }
+}
+
+/**
  * Implements hook_ctools_plugin_api().
  */
 function shopify_ctools_plugin_api($owner, $api) {
