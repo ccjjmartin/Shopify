@@ -40,6 +40,12 @@ $handler->display->display_options['filters']['machine_name']['field'] = 'machin
 $handler->display->display_options['filters']['machine_name']['value'] = array(
   'shopify_collections' => 'shopify_collections',
 );
+/* Filter criterion: Taxonomy term: Shopify Collection Published Date (shopify_collection_published_at) */
+$handler->display->display_options['filters']['shopify_collection_published_at_value']['id'] = 'shopify_collection_published_at_value';
+$handler->display->display_options['filters']['shopify_collection_published_at_value']['table'] = 'field_data_shopify_collection_published_at';
+$handler->display->display_options['filters']['shopify_collection_published_at_value']['field'] = 'shopify_collection_published_at_value';
+$handler->display->display_options['filters']['shopify_collection_published_at_value']['operator'] = '>';
+$handler->display->display_options['filters']['shopify_collection_published_at_value']['value']['value'] = '0';
 
 /* Display: Block */
 $handler = $view->new_display('block', 'Block', 'block');

@@ -42,8 +42,7 @@ function shopify_requirements($phase) {
       if ($client) {
         $client->call('GET', '/admin/shop.json');
       }
-    }
-    catch (Exception $e) {
+    } catch (Exception $e) {
       $requirements['shopify_ecommerce'] = array(
         'title' => $t('Shopify eCommerce'),
         'description' => $t('Cannot connect your credentials to the Shopify API. Do you have a <a href="@shopify_website">Shopify Account</a>? <a href="@shopif_api">Are your API settings correct</a>?', array(
@@ -266,6 +265,27 @@ function shopify_install() {
           'module' => 'image',
         ),
     )
+  );
+
+  field_create_instance($instance);
+
+  // Create collections published field.
+  field_create_field(
+    array(
+      'field_name' => 'shopify_collection_published_at',
+      'type' => 'datestamp',
+      'cardinality' => 1,
+      'settings' => array(),
+    ));
+
+
+  // Create collections published instance.
+  $instance = array(
+    'field_name' => 'shopify_collection_published_at',
+    'entity_type' => 'taxonomy_term',
+    'bundle' => 'shopify_collections',
+    'label' => 'Shopify Collection Published Date',
+    'required' => FALSE,
   );
 
   field_create_instance($instance);
@@ -673,6 +693,7 @@ function shopify_uninstall() {
   field_delete_field('shopify_product_tags');
   field_delete_field('shopify_product_collections');
   field_delete_field('shopify_collection_id');
+  field_delete_field('shopify_collection_published_at');
   $vocabulary = taxonomy_vocabulary_machine_name_load('shopify_tags');
   taxonomy_vocabulary_delete($vocabulary->vid);
   $vocabulary = taxonomy_vocabulary_machine_name_load('shopify_collections');

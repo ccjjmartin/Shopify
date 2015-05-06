@@ -5,6 +5,7 @@ core = 7.x
 dependencies[] = entity (>=1.6)
 dependencies[] = shopify_api
 dependencies[] = image
+dependencies[] = date
 dependencies[] = views
 dependencies[] = taxonomy
 dependencies[] = number

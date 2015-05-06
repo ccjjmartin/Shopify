@@ -686,6 +686,8 @@ function shopify_collection_update($collection, $sync_products = FALSE) {
   if ($term) {
     $term->name = $collection['title'];
     $term->description = $collection['body_html'];
+    $date = strtotime($collection['published_at']);
+    $term->shopify_collection_published_at = array('und' => array(array('value' => $date ? $date : 0)));
   }
   if (taxonomy_term_save($term) && isset($collection['image']['src'])) {
     // Save the image for this term.
@@ -705,11 +707,13 @@ function shopify_collection_update($collection, $sync_products = FALSE) {
  */
 function shopify_collection_create($collection, $sync_products = FALSE) {
   $vocab = shopify_collection_vocabulary();
+  $date = strtotime($collection['published_at']);
   $term = entity_create('taxonomy_term', array(
     'vid' => $vocab->vid,
     'name' => $collection['title'],
     'description' => $collection['body_html'],
     'shopify_collection_id' => array('und' => array(array('value' => $collection['id']))),
+    'shopify_collection_published_at' => array('und' => array(array('value' => $date ? $date : 0))),
   ));
   if (taxonomy_term_save($term) && isset($collection['image']['src'])) {
     // Save the image for this term.
@@ -760,6 +764,15 @@ function shopify_collection_sync_products($collection) {
     foreach ($collections as $collect) {
       if ($collect && ($collect->tid == $term->tid)) {
         // Product already in collection.
+        // Check if this collection is active.
+        if ($collect->shopify_collection_published_at['und'][0]['value'] == 0) {
+          // Remove this collection from the product.
+          $collections = array_filter($collections, function ($c) use ($collect) {
+            return $c->tid !== $collect->tid;
+          });
+          $product->wrapper()->shopify_product_collections->set($collections);
+          $product->wrapper()->save();
+        }
         continue 2;
       }
     }
