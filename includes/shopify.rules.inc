@@ -86,5 +86,419 @@ function shopify_rules_event_info() {
         ),
       ),
     ),
+    'shopify_webhook_order_paid' => array(
+      'label' => t('Order paid'),
+      'module' => 'shopify',
+      'group' => t('Shopify Webhook'),
+      'variables' => shopify_rules_webhook_order_paid_variables(),
+    ),
+  );
+}
+
+/**
+ * Gets variables for the order_paid webhook rule.
+ */
+function shopify_rules_webhook_order_paid_variables() {
+  return array(
+    'buyer_accepts_marketing' => array(
+      'type' => 'boolean',
+      'label' => t('Buyer accepts marketing'),
+    ),
+    'cancel_reason' => array(
+      'type' => 'string',
+      'label' => t('Cancel reason'),
+    ),
+    'cancelled_at' => array(
+      'type' => 'date',
+      'label' => t('Cancelled at'),
+    ),
+    'cart_token' => array(
+      'type' => 'string',
+      'label' => t('Cart token'),
+    ),
+    'checkout_token' => array(
+      'type' => 'string',
+      'label' => t('Checkout token'),
+    ),
+    'closed_at' => array(
+      'type' => 'date',
+      'label' => t('Closed at'),
+    ),
+    'confirmed' => array(
+      'type' => 'boolean',
+      'label' => t('Confirmed'),
+    ),
+    'created_at' => array(
+      'type' => 'date',
+      'label' => t('Created at'),
+    ),
+    'currency' => array(
+      'type' => 'string',
+      'label' => t('Currency'),
+    ),
+    'email' => array(
+      'type' => 'string',
+      'label' => t('Email'),
+    ),
+    'financial_status' => array(
+      'type' => 'string',
+      'label' => t('Financial status'),
+    ),
+    'id' => array(
+      'type' => 'integer',
+      'label' => t('ID'),
+    ),
+    'landing_site' => array(
+      'type' => 'string',
+      'label' => t('Landing site'),
+    ),
+    'name' => array(
+      'type' => 'string',
+      'label' => t('Name'),
+    ),
+    'note' => array(
+      'type' => 'text',
+      'label' => t('Note'),
+    ),
+    'number' => array(
+      'type' => 'integer',
+      'label' => t('Number'),
+    ),
+    'processed_at' => array(
+      'type' => 'date',
+      'label' => t('Processed at'),
+    ),
+    'referring_site' => array(
+      'type' => 'string',
+      'label' => t('Referring site'),
+    ),
+    'subtotal_price' => array(
+      'type' => 'decimal',
+      'label' => t('Subtotal price'),
+    ),
+    'taxes_included' => array(
+      'type' => 'boolean',
+      'label' => t('Taxes included'),
+    ),
+    'test' => array(
+      'type' => 'boolean',
+      'label' => t('Test'),
+    ),
+    'token' => array(
+      'type' => 'string',
+      'label' => t('Token'),
+    ),
+    'total_discounts' => array(
+      'type' => 'decimal',
+      'label' => t('Total discounts'),
+    ),
+    'total_line_items_price' => array(
+      'type' => 'decimal',
+      'label' => t('Total line items price'),
+    ),
+    'total_price' => array(
+      'type' => 'decimal',
+      'label' => t('Total price'),
+    ),
+    'total_tax' => array(
+      'type' => 'decimal',
+      'label' => t('Total tax'),
+    ),
+    'total_weight' => array(
+      'type' => 'integer',
+      'label' => t('Total weight'),
+    ),
+    'updated_at' => array(
+      'type' => 'date',
+      'label' => t('Updated at'),
+    ),
+    'browser_ip' => array(
+      'type' => 'string',
+      'label' => t('Browser IP'),
+    ),
+    'order_number' => array(
+      'type' => 'integer',
+      'label' => t('Order number'),
+    ),
+    'source' => array(
+      'type' => 'string',
+      'label' => t('Source'),
+    ),
+    'fulfillment_status' => array(
+      'type' => 'string',
+      'label' => t('Fulfillment status'),
+    ),
+    'tags' => array(
+      'type' => 'string',
+      'label' => t('Tags'),
+    ),
+    'customer' => array(
+      'type' => 'struct',
+      'label' => t('Customer'),
+      'property info' => shopify_rules_customer_property_info(),
+    ),
+    'billing_address' => array(
+      'type' => 'struct',
+      'label' => t('Billing address'),
+      'property info' => shopify_rules_address_property_info(),
+    ),
+    'shipping_address' => array(
+      'type' => 'struct',
+      'label' => t('Shipping address'),
+      'property info' => shopify_rules_address_property_info(),
+    ),
+    'shipping_lines' => array(
+      'type' => 'list<struct>',
+      'label' => t('Shipping lines'),
+      'property info' => shopify_rules_shipping_line_property_info(),
+    ),
+    'tax_lines' => array(
+      'type' => 'list<struct>',
+      'label' => t('Tax lines'),
+      'property info' => shopify_rules_tax_line_property_info(),
+    ),
+    'line_items' => array(
+      'type' => 'list<struct>',
+      'label' => t('Line Items'),
+      'property info' => shopify_rules_line_item_property_info(),
+    ),
+  );
+}
+
+/**
+ * Property info for customer data.
+ */
+function shopify_rules_customer_property_info() {
+  return array(
+    'first_name' => array(
+      'type' => 'string',
+      'label' => t('First name'),
+    ),
+    'last_name' => array(
+      'type' => 'string',
+      'label' => t('Last name'),
+    ),
+    'accepts_marketing' => array(
+      'type' => 'boolean',
+      'label' => t('Accepts marketing'),
+    ),
+    'created_at' => array(
+      'type' => 'date',
+      'label' => t('Created at'),
+    ),
+    'email' => array(
+      'type' => 'string',
+      'label' => t('Email'),
+    ),
+    'id' => array(
+      'type' => 'integer',
+      'label' => t('ID'),
+    ),
+    'orders_count' => array(
+      'type' => 'integer',
+      'label' => t('Orders count'),
+    ),
+    'state' => array(
+      'type' => 'string',
+      'label' => t('State'),
+    ),
+    'total_spent' => array(
+      'type' => 'decimal',
+      'label' => t('Total spent'),
+    ),
+    'updated_at' => array(
+      'type' => 'date',
+      'label' => t('Updated at'),
+    ),
+    'verified_email' => array(
+      'type' => 'boolean',
+      'label' => t('Verified email'),
+    ),
+    'tags' => array(
+      'type' => 'string',
+      'label' => t('Tags'),
+    ),
+    'default_address' => array(
+      'type' => 'struct',
+      'label' => t('Address'),
+      'property info' => shopify_rules_address_property_info(),
+    ),
+  );
+}
+
+/**
+ * Property info for order shipping lines.
+ */
+function shopify_rules_shipping_line_property_info() {
+  return array(
+    'code' => array(
+      'type' => 'string',
+      'label' => t('Code'),
+    ),
+    'price' => array(
+      'type' => 'decimal',
+      'label' => t('Price'),
+    ),
+    'source' => array(
+      'type' => 'string',
+      'label' => t('Source'),
+    ),
+    'title' => array(
+      'type' => 'string',
+      'label' => t('Title'),
+    ),
+    'tax_lines' => array(
+      'type' => 'list<struct>',
+      'label' => t('Tax lines'),
+      'property info' => shopify_rules_tax_line_property_info(),
+    ),
+  );
+}
+
+/**
+ * Property info for order line items.
+ */
+function shopify_rules_line_item_property_info() {
+  return array(
+    'product_id' => array(
+      'type' => 'integer',
+      'label' => t('Product ID'),
+    ),
+    'variant_id' => array(
+      'type' => 'integer',
+      'label' => t('Variant ID'),
+    ),
+    'quantity' => array(
+      'type' => 'integer',
+      'label' => t('Quantity'),
+    ),
+    'gift_card' => array(
+      'type' => 'boolean',
+      'label' => t('Gift Card'),
+    ),
+    'price' => array(
+      'type' => 'decimal',
+      'label' => t('Price'),
+    ),
+    'requires_shipping' => array(
+      'type' => 'boolean',
+      'label' => t('Requires Shipping'),
+    ),
+    'sku' => array(
+      'type' => 'string',
+      'label' => t('SKU'),
+    ),
+    'taxable' => array(
+      'type' => 'boolean',
+      'label' => t('Taxable'),
+    ),
+    'title' => array(
+      'type' => 'string',
+      'label' => t('Title'),
+    ),
+    'vendor' => array(
+      'type' => 'string',
+      'label' => t('Vendor'),
+    ),
+    'product_exists' => array(
+      'type' => 'boolean',
+      'label' => t('Product exists'),
+    ),
+    'fulfillable_quantity' => array(
+      'type' => 'integer',
+      'label' => t('Fulfillable quantity'),
+    ),
+    'total_discount' => array(
+      'type' => 'decimal',
+      'label' => t('Total discount'),
+    ),
+    'id' => array(
+      'type' => 'integer',
+      'label' => t('Order ID'),
+    ),
+    'fulfillment_service' => array(
+      'type' => 'string',
+      'label' => t('Fulfillment service'),
+    ),
+    'fulfillment_status' => array(
+      'type' => 'string',
+      'label' => t('Fulfillment status'),
+    ),
+    'grams' => array(
+      'type' => 'integer',
+      'label' => t('Grams'),
+    ),
+  );
+}
+
+/**
+ * Property info for order tax lines.
+ */
+function shopify_rules_tax_line_property_info() {
+  return array(
+    'price' => array(
+      'type' => 'decimal',
+      'label' => t('Price'),
+    ),
+    'rate' => array(
+      'type' => 'decimal',
+      'label' => t('Rate'),
+    ),
+    'title' => array(
+      'type' => 'string',
+      'label' => t('Title'),
+    ),
+  );
+}
+
+/**
+ * Property info for order addresses.
+ */
+function shopify_rules_address_property_info() {
+  return array(
+    'address1' => array(
+      'type' => 'string',
+      'label' => t('Address 1'),
+    ),
+    'address2' => array(
+      'type' => 'string',
+      'label' => t('Address 2'),
+    ),
+    'city' => array(
+      'type' => 'string',
+      'label' => t('City')
+    ),
+    'company' => array(
+      'type' => 'string',
+      'label' => t('Company'),
+    ),
+    'country' => array(
+      'type' => 'string',
+      'label' => t('Country'),
+    ),
+    'phone' => array(
+      'type' => 'string',
+      'label' => t('Phone'),
+    ),
+    'province' => array(
+      'type' => 'string',
+      'label' => t('Province'),
+    ),
+    'zip' => array(
+      'type' => 'string',
+      'label' => t('Zip'),
+    ),
+    'name' => array(
+      'type' => 'string',
+      'label' => t('Name'),
+    ),
+    'province_code' => array(
+      'type' => 'string',
+      'label' => t('Province code'),
+    ),
+    'country_code' => array(
+      'type' => 'string',
+      'label' => t('Country code'),
+    ),
   );
 }
