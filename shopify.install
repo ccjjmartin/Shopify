@@ -36,7 +36,7 @@ function shopify_requirements($phase) {
     try {
       $client = shopify_api_client();
       if ($client) {
-        $client->call('s', '/admin/shop.json');
+        $client->call('GET', '/admin/shop.json');
       }
     }
     catch (Exception $e) {
