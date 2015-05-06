@@ -217,6 +217,11 @@ function shopify_install() {
 
   shopify_products_reset_sync_datestamp();
 
+  // Set the shop info on install.
+  $client = shopify_api_client();
+  $info = $client->call('get', '/admin/shop.json');
+  variable_set('shopify_store_info', $info);
+
   //  Create Shopify Tags vocabulary
   $vocabulary = new stdClass;
   $vocabulary->name = 'Shopify Tags';
