@@ -1664,13 +1664,28 @@ function shopify_form_taxonomy_form_term_alter(&$form, &$form_state) {
         'description',
         'relations',
       );
+
+      $wrapper = entity_metadata_wrapper('taxonomy_term', $form['#entity']);
+      $url = 'https://' . shopify_store_info()->myshopify_domain . '/admin/collections/' . $wrapper->shopify_collection_id->value();
+
+      $form['help'] = array(
+        '#markup' => t('Term data synced with Shopify is not editable. <a href="@shopify_collections" target="_blank">Edit that information on Shopify instead.</a>', array('@shopify_collections' => url( $url))),
+        '#weight' => -99,
+      );
+
       break;
     case'shopify_tags':
       $disabled = array(
         'name',
-        'description',
         'relations',
       );
+
+      $url = 'https://' . shopify_store_info()->myshopify_domain . '/admin/products/';
+      $form['help'] = array(
+        '#markup' => t('Term data synced with Shopify products is not editable. <a href="@shopify_products" target="_blank">Edit that information on the Shopify products instead.</a>', array('@shopify_products' => url( $url))),
+        '#weight' => -99,
+      );
+
       break;
   }
   if (isset($disabled) && $disabled) {
