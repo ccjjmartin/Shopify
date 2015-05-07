@@ -21,6 +21,9 @@
  */
 function shopify_api_call($method, $path, array $options = array()) {
   $client = shopify_api_client();
+  if (!$client instanceof ShopifyClient) {
+    throw new Exception('Unable to create ShopifyClient. Check your Shopify API credentials at /admin/config/services/shopify');
+  }
   return $client->call($method, '/admin/' . $path . '.json', $options);
 }
 
