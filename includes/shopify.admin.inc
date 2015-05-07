@@ -44,6 +44,9 @@ function shopify_admin_theme_download($form, $form_state) {
   return $form;
 }
 
+/**
+ * Validation handler for theme download form.
+ */
 function shopify_admin_theme_download_validate($form, &$form_state) {
   $hostname = &$form_state['values']['hostname'];
   if (substr($hostname, -1) != '/') {
@@ -206,10 +209,15 @@ function shopify_recurse_copy($src, $dst) {
  */
 function shopify_admin_page() {
   try {
-    $info = shopify_api_get_shop_info($refresh = TRUE);
+    $info = shopify_api_get_shop_info(TRUE);
   } catch (Exception $e) {
-    drupal_set_message(t('Unable to connect to your Shopify store.'), 'error');
-    return t('Hmm.. we\'re unable to connect to your Shopify Store. <ul><li>Do you have a <a href="https://www.shopify.com/?ref=bonify">Shopify account</a>?</li><li>If you have an account you\'ll need to create your API key if you haven\'t already. See <a href="https://docs.shopify.com/support/configuration/apps/where-do-i-find-my-api-key">https://docs.shopify.com/support/configuration/apps/where-do-i-find-my-api-key</a> for more information.</li><li>Have you checked your <a href="/admin/config/services/shopify">API settings to make sure they match?</a></li><li><a href="/admin/reports/status">Can your server make outgoing HTTP requests?</li></ul>');
+    drupal_set_message($e->getMessage(), 'error');
+    return t('<ul><li>Do you have a <a target="_blank" href="@signup">Shopify account</a>?</li><li>If you have an account you\'ll need to create your API key if you haven\'t already. See <a target="_blank" href="@api_key">https://docs.shopify.com/support/configuration/apps/where-do-i-find-my-api-key</a> for more information.</li><li>Have you checked your <a href="@api_config">API settings to make sure they match?</a></li><li><a href="@status_page">Can your server make outgoing HTTP requests?</li></ul>', array(
+      '@signup' => url('https://www.shopify.com/?ref=bonify'),
+      '@api_key' => url('https://docs.shopify.com/support/configuration/apps/where-do-i-find-my-api-key'),
+      '@api_config' => url('admin/config/services/shopify'),
+      '@status_page' => url('/admin/reports/status'),
+    ));
   }
 
   // Get count of products in the site.
@@ -259,11 +267,10 @@ function shopify_admin_page() {
 function shopify_admin_sync_form($form, &$form_state) {
 
   try {
-    shopify_api_get_shop_info();
+    shopify_api_get_shop_info(TRUE);
   } catch (Exception $e) {
-    drupal_set_message(t('Unable to connect to your Shopify store.'), 'error');
-    $form['oops'] = array('#markup' => t('<a href="/admin/shopify">Unable to connect to your store.</a>'));
-    return $form;
+    drupal_set_message($e->getMessage(), 'error');
+    return array();
   }
 
   $last_updated = variable_get('shopify_last_product_sync');
@@ -617,9 +624,9 @@ function shopify_sync_products_batch_finished($success, $results, $operations) {
 function shopify_webhooks_admin($form, &$form_state) {
   try {
     $webhooks = shopify_api_get_webhooks();
-  } catch (ShopifyApiException $e) {
-    $response = $e->getResponse();
-    drupal_set_message(t('Shopify says there was a problem: @message', array('@message' => $response['errors'])), 'warning');
+  } catch (Exception $e) {
+    $message = $e->getMessage();
+    drupal_set_message($message, 'error');
     return '';
   }
   $form['#tree'] = TRUE;
