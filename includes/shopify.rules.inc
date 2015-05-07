@@ -37,7 +37,7 @@ function shopify_rules_action_info() {
  * Callback for Shopify rules action.
  */
 function shopify_api_call_action($method, $path, $data) {
-  $data = json_encode($data);
+  $data = json_decode($data);
   shopify_api_call($method, $path, $data);
 }
 
