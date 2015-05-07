@@ -16,6 +16,7 @@ package = Shopify
 
 files[] = includes/shopify.entity.inc
 files[] = views/views_handler_field_shopify_product_add_to_cart_form.inc
+files[] = views/views_handler_field_shopify_product_variants.inc
 files[] = views/views_handler_field_shopify_product_link.inc
 files[] = views/views_handler_field_shopify_product_edit_link.inc
 files[] = views/views_handler_field_shopify_product.inc
