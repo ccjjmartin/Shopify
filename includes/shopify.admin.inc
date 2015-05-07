@@ -669,7 +669,7 @@ function shopify_webhooks_admin($form, &$form_state) {
   $form['#tree'] = TRUE;
 
   $form['help'] = array(
-    '#markup' => t('<p>It is <strong>highly recommended</strong> that you at least have webhooks registered for product events to keep your store automatically in sync with Shopify. Make sure you\'ve registered all development, staging and production environment URLs.</p>'),
+    '#markup' => t('<p>It is <strong>highly recommended</strong> that you at least have webhooks registered for product and collection events to keep your store automatically in sync with Shopify. Make sure you\'ve registered all development, staging and production environment URLs.</p>'),
   );
 
   $message = '<p>Pro Tip: If you\'re developing locally and need to test webhooks ';
@@ -688,7 +688,7 @@ function shopify_webhooks_admin($form, &$form_state) {
   );
 
   $form['tips']['UI'] = array(
-    '#markup' => t('<p>Webhooks created via the Shopify website will not appear here, but event hooks will still work.</p>'),
+    '#markup' => t('<p>Webhooks created via the Shopify website will not appear here AND events will not trigger these hooks.</p>'),
   );
 
   $form['tips']['standard_hooks'] = array(
@@ -757,7 +757,7 @@ function shopify_webhooks_admin($form, &$form_state) {
     ),
     'collections' => array(
       'create' => t('Collection Created - Highly Recommended'),
-      'update' => t('Collection Updated - Highly Recommended'),
+      'update' => t('Collection Updated - Highly Recommended. Bug on Shopify side, see <a target="_blank" href="@issue">Issue</a>', array('@issue' => url('https://www.drupal.org/node/2481105'))),
       'delete' => t('Collection Deleted - Highly Recommended'),
     ),
     'customers' => array(
