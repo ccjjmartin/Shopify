@@ -12,6 +12,7 @@ function shopify_rules_action_info() {
     'shopify_api_call_action' => array(
       'label' => t('Shopify API call'),
       'group' => t('Shopify'),
+      'access callback' => 'shopify_rules_api_call_action_access',
       'parameter' => array(
         'method' => array(
           'type' => 'text',
@@ -34,11 +35,18 @@ function shopify_rules_action_info() {
 }
 
 /**
+ * Access callback for the Shopify API rules action.
+ */
+function shopify_rules_api_call_action_access($type, $name) {
+  // Only allow Shopify admins to use this action.
+  return user_access('administer shopify');
+}
+
+/**
  * Callback for Shopify rules action.
  */
 function shopify_api_call_action($method, $path, $data) {
-  $data = json_decode($data);
-  shopify_api_call($method, $path, $data);
+  return shopify_api_call($method, $path, drupal_json_decode($data));
 }
 
 /**
