@@ -312,6 +312,7 @@ class ShopifyProduct extends Entity {
     if ($this->variant_id == 0 && isset($this->images[0]['src'])) {
       foreach ($this->images as $product_image) {
         $file = system_retrieve_file($product_image['src'], $directory, TRUE, FILE_EXISTS_REPLACE);
+        image_path_flush($file->uri);
         $files[] = (array) $file;
       }
       $this->wrapper()->shopify_product_images->set($files);
