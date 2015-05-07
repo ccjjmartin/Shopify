@@ -12,9 +12,8 @@ function shopify_admin_theme_download($form, $form_state) {
   $form['download'] = array(
     '#type' => 'fieldset',
     '#title' => t('Shopify Theme'),
-    '#description' => t('Download and upload this Shopify theme to your !link or upload and publish automatically.', array(
-        '!link' => l(t('Shopify store'), 'http://' . shopify_store_info()->myshopify_domain . '/admin/themes', array('attributes' => array('target' => '_blank'))),
-      )) . '<br />' . t('This theme will disable most Shopify store features except for the shopping cart and will redirect the user to the store on the Drupal site. We <strong>highly recommend</strong> using this theme generator as a starting point for your Shopify theme.'),
+    '#description' => t('Download this starter Shopify theme then upload it manually to your <a href="@shopify_store_link">Shopify store</a>, or use the "Upload and Publish Automatically" feature. <span style="color: red">Automatic upload requires this website be publicly accessible from the internet.</span><br /><br />This theme will disable most Shopify store features except for the shopping cart and customer login area, and will redirect the user to your store on your Drupal site if they attempt to access areas covered by this module like products, tags, or collections.<br /><br />We <strong>highly recommend</strong> using this theme generator as a starting point for your Shopify theme. Once uploaded you may use the Shopify theme GUI to match your site\'s colors, fonts, etc.', array('@shopify_store_link' => url('http://' . shopify_store_info()->myshopify_domain . '/admin/themes', array('attributes' => array('target' => '_blank'))),
+      )),
   );
   $form['download']['actions'] = array(
     '#type' => 'actions',
@@ -40,10 +39,6 @@ function shopify_admin_theme_download($form, $form_state) {
     '#size' => 60,
     '#required' => TRUE,
     '#description' => t('What hostname should the Shopify theme link back to?'),
-  );
-
-  $form['download']['help'] = array(
-    '#markup' => t('<strong>Upload and Publish Automatically requires this website be publically acessible from the internet.</strong>'),
   );
 
   return $form;
