@@ -105,7 +105,7 @@ function shopify_rules_webhook_order_paid_variables() {
       'label' => t('Buyer accepts marketing'),
     ),
     'cancel_reason' => array(
-      'type' => 'string',
+      'type' => 'text',
       'label' => t('Cancel reason'),
     ),
     'cancelled_at' => array(
@@ -113,11 +113,11 @@ function shopify_rules_webhook_order_paid_variables() {
       'label' => t('Cancelled at'),
     ),
     'cart_token' => array(
-      'type' => 'string',
+      'type' => 'text',
       'label' => t('Cart token'),
     ),
     'checkout_token' => array(
-      'type' => 'string',
+      'type' => 'text',
       'label' => t('Checkout token'),
     ),
     'closed_at' => array(
@@ -133,15 +133,15 @@ function shopify_rules_webhook_order_paid_variables() {
       'label' => t('Created at'),
     ),
     'currency' => array(
-      'type' => 'string',
+      'type' => 'text',
       'label' => t('Currency'),
     ),
     'email' => array(
-      'type' => 'string',
+      'type' => 'text',
       'label' => t('Email'),
     ),
     'financial_status' => array(
-      'type' => 'string',
+      'type' => 'text',
       'label' => t('Financial status'),
     ),
     'id' => array(
@@ -149,11 +149,11 @@ function shopify_rules_webhook_order_paid_variables() {
       'label' => t('ID'),
     ),
     'landing_site' => array(
-      'type' => 'string',
+      'type' => 'text',
       'label' => t('Landing site'),
     ),
     'name' => array(
-      'type' => 'string',
+      'type' => 'text',
       'label' => t('Name'),
     ),
     'note' => array(
@@ -169,7 +169,7 @@ function shopify_rules_webhook_order_paid_variables() {
       'label' => t('Processed at'),
     ),
     'referring_site' => array(
-      'type' => 'string',
+      'type' => 'text',
       'label' => t('Referring site'),
     ),
     'subtotal_price' => array(
@@ -185,7 +185,7 @@ function shopify_rules_webhook_order_paid_variables() {
       'label' => t('Test'),
     ),
     'token' => array(
-      'type' => 'string',
+      'type' => 'text',
       'label' => t('Token'),
     ),
     'total_discounts' => array(
@@ -213,7 +213,7 @@ function shopify_rules_webhook_order_paid_variables() {
       'label' => t('Updated at'),
     ),
     'browser_ip' => array(
-      'type' => 'string',
+      'type' => 'text',
       'label' => t('Browser IP'),
     ),
     'order_number' => array(
@@ -221,15 +221,15 @@ function shopify_rules_webhook_order_paid_variables() {
       'label' => t('Order number'),
     ),
     'source' => array(
-      'type' => 'string',
+      'type' => 'text',
       'label' => t('Source'),
     ),
     'fulfillment_status' => array(
-      'type' => 'string',
+      'type' => 'text',
       'label' => t('Fulfillment status'),
     ),
     'tags' => array(
-      'type' => 'string',
+      'type' => 'text',
       'label' => t('Tags'),
     ),
     'customer' => array(
@@ -271,11 +271,11 @@ function shopify_rules_webhook_order_paid_variables() {
 function shopify_rules_customer_property_info() {
   return array(
     'first_name' => array(
-      'type' => 'string',
+      'type' => 'text',
       'label' => t('First name'),
     ),
     'last_name' => array(
-      'type' => 'string',
+      'type' => 'text',
       'label' => t('Last name'),
     ),
     'accepts_marketing' => array(
@@ -287,7 +287,7 @@ function shopify_rules_customer_property_info() {
       'label' => t('Created at'),
     ),
     'email' => array(
-      'type' => 'string',
+      'type' => 'text',
       'label' => t('Email'),
     ),
     'id' => array(
@@ -299,7 +299,7 @@ function shopify_rules_customer_property_info() {
       'label' => t('Orders count'),
     ),
     'state' => array(
-      'type' => 'string',
+      'type' => 'text',
       'label' => t('State'),
     ),
     'total_spent' => array(
@@ -315,7 +315,7 @@ function shopify_rules_customer_property_info() {
       'label' => t('Verified email'),
     ),
     'tags' => array(
-      'type' => 'string',
+      'type' => 'text',
       'label' => t('Tags'),
     ),
     'default_address' => array(
@@ -332,7 +332,7 @@ function shopify_rules_customer_property_info() {
 function shopify_rules_shipping_line_property_info() {
   return array(
     'code' => array(
-      'type' => 'string',
+      'type' => 'text',
       'label' => t('Code'),
     ),
     'price' => array(
@@ -340,11 +340,11 @@ function shopify_rules_shipping_line_property_info() {
       'label' => t('Price'),
     ),
     'source' => array(
-      'type' => 'string',
+      'type' => 'text',
       'label' => t('Source'),
     ),
     'title' => array(
-      'type' => 'string',
+      'type' => 'text',
       'label' => t('Title'),
     ),
     'tax_lines' => array(
@@ -385,7 +385,7 @@ function shopify_rules_line_item_property_info() {
       'label' => t('Requires Shipping'),
     ),
     'sku' => array(
-      'type' => 'string',
+      'type' => 'text',
       'label' => t('SKU'),
     ),
     'taxable' => array(
@@ -393,11 +393,11 @@ function shopify_rules_line_item_property_info() {
       'label' => t('Taxable'),
     ),
     'title' => array(
-      'type' => 'string',
+      'type' => 'text',
       'label' => t('Title'),
     ),
     'vendor' => array(
-      'type' => 'string',
+      'type' => 'text',
       'label' => t('Vendor'),
     ),
     'product_exists' => array(
@@ -417,11 +417,11 @@ function shopify_rules_line_item_property_info() {
       'label' => t('Order ID'),
     ),
     'fulfillment_service' => array(
-      'type' => 'string',
+      'type' => 'text',
       'label' => t('Fulfillment service'),
     ),
     'fulfillment_status' => array(
-      'type' => 'string',
+      'type' => 'text',
       'label' => t('Fulfillment status'),
     ),
     'grams' => array(
@@ -445,7 +445,7 @@ function shopify_rules_tax_line_property_info() {
       'label' => t('Rate'),
     ),
     'title' => array(
-      'type' => 'string',
+      'type' => 'text',
       'label' => t('Title'),
     ),
   );
@@ -457,48 +457,96 @@ function shopify_rules_tax_line_property_info() {
 function shopify_rules_address_property_info() {
   return array(
     'address1' => array(
-      'type' => 'string',
+      'type' => 'text',
       'label' => t('Address 1'),
     ),
     'address2' => array(
-      'type' => 'string',
+      'type' => 'text',
       'label' => t('Address 2'),
     ),
     'city' => array(
-      'type' => 'string',
+      'type' => 'text',
       'label' => t('City')
     ),
     'company' => array(
-      'type' => 'string',
+      'type' => 'text',
       'label' => t('Company'),
     ),
     'country' => array(
-      'type' => 'string',
+      'type' => 'text',
       'label' => t('Country'),
     ),
     'phone' => array(
-      'type' => 'string',
+      'type' => 'text',
       'label' => t('Phone'),
     ),
     'province' => array(
-      'type' => 'string',
+      'type' => 'text',
       'label' => t('Province'),
     ),
     'zip' => array(
-      'type' => 'string',
+      'type' => 'text',
       'label' => t('Zip'),
     ),
     'name' => array(
-      'type' => 'string',
+      'type' => 'text',
       'label' => t('Name'),
     ),
     'province_code' => array(
-      'type' => 'string',
+      'type' => 'text',
       'label' => t('Province code'),
     ),
     'country_code' => array(
-      'type' => 'string',
+      'type' => 'text',
       'label' => t('Country code'),
     ),
   );
+}
+
+/**
+ * Parses order args to reformat dates.
+ */
+function shopify_rules_parse_order_args($order) {
+  // Need to format various variables as dates.
+  $vars = shopify_rules_webhook_order_paid_variables();
+  shopify_rules_parse_order_dates($order, $vars);
+  shopify_rules_parse_order_empty_variables($order, $vars);
+  return $order;
+}
+
+/**
+ * Create and fill-in empty order vars.
+ */
+function shopify_rules_parse_order_empty_variables(&$order, $vars) {
+  foreach ($vars as $key => $info) {
+    if (!isset($order[$key])) {
+      $order[$key] = FALSE;
+    }
+    if (isset($info['property info'])) {
+      shopify_rules_parse_order_empty_variables($order[$key], $info['property info']);
+    }
+  }
+}
+
+/**
+ * Recursively go through the order object and set dates to be timestamps.
+ */
+function shopify_rules_parse_order_dates(&$data, $vars) {
+  foreach ($data as $key => &$value) {
+    if (is_numeric($key)) {
+      // This is an array of arrays.
+      shopify_rules_parse_order_dates($value, $vars);
+      continue;
+    }
+    if (is_array($value) && $value) {
+      // Parse the sub array.
+      shopify_rules_parse_order_dates($value, $vars[$key]['property info']);
+      continue;
+    }
+    if (isset($vars[$key]) && $vars[$key]['type'] == 'date') {
+      // Reformat this as a date.
+      $date = strtotime($data[$key]);
+      $value = $date ? $date : 0;
+    }
+  }
 }

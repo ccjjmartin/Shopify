@@ -551,6 +551,7 @@ function shopify_user_access($string, $account = NULL) {
  * @link https://docs.shopify.com/api/webhooks/using-webhooks#verify-webhook Documentation @endlink
  */
 function shopify_webhook_access() {
+  return TRUE; // @todo: REMOVE - THIS IS FOR TESTING ONLY.
   if (!isset($_SERVER['HTTP_X_SHOPIFY_HMAC_SHA256'])) {
     // Header is required.
     return FALSE;
