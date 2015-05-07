@@ -69,14 +69,17 @@ function shopify_shopify_webhook_collections_delete($collection) {
 /**
  * Implements hook_shopify_webhook_WEBHOOK().
  */
-function shopify_shopify_webhook_orders_paid($payload) {
+function shopify_shopify_webhook_orders_paid($order) {
   // Update product inventory counts for purchased products.
-  foreach ($payload['line_items'] as $line_item) {
+  foreach ($order['line_items'] as $line_item) {
     if ($variant = shopify_product_load_by_variant_id($line_item['variant_id'])) {
       shopify_product_update($line_item['product_id'], $variant->variant_id, shopify_api_get_variant($variant->variant_id, array(
         'fields' => 'inventory_quantity,old_inventory_quantity',
       )));
     }
+  }
+  if (module_exists('rules')) {
+    rules_invoke_event_by_args('shopify_webhook_order_paid', shopify_rules_parse_order_args($order));
   }
 }
 
