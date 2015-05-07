@@ -370,7 +370,44 @@ function shopify_admin_sync_form($form, &$form_state) {
     '#submit' => array('shopify_admin_cron_sync_form_submit'),
   );
 
+  if (shopify_get_orphaned_tags()) {
+    $form['delete_orphaned_tags'] = array(
+      '#markup' => l(t('Delete orphaned tags'), 'admin/shopify/sync/delete-orphaned-tags'),
+    );
+  }
+
   return $form;
+}
+
+/**
+ * Deleting orphaned tags confirmation form.
+ */
+function shopify_admin_delete_orphaned_tags_form($form, $form_state) {
+  $terms = shopify_get_orphaned_tags();
+  $list = array();
+  foreach ($terms as $term) {
+    $list[] = $term->name;
+  }
+  $form['deleting_terms'] = array(
+    '#theme' => 'item_list',
+    '#items' => $list,
+  );
+  return confirm_form($form, t('Delete orphaned product tag taxonomy terms?'), 'admin/shopify/sync', t('<strong>WARNING:</strong> You are about to delete @count.<br/>', array(
+    '@count' => format_plural(count($terms), '@count term', '@count terms'),
+  )));
+}
+
+/**
+ * Submit handler for deleting orphaned tags.
+ */
+function shopify_admin_delete_orphaned_tags_form_submit($form, &$form_state) {
+  // At this point we can safely delete the terms.
+  $terms = shopify_get_orphaned_tags();
+  foreach ($terms as $term) {
+    taxonomy_term_delete($term->tid);
+    drupal_set_message(t('Deleted term "%name".', array('%name' => $term->name)));
+  }
+  $form_state['redirect'] = 'admin/shopify/sync';
 }
 
 /**

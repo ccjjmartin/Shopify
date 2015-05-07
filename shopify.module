@@ -254,6 +254,16 @@ function shopify_menu() {
     'type' => MENU_LOCAL_TASK,
     'file' => 'includes/shopify.admin.inc',
   );
+  $items['admin/shopify/sync/delete-orphaned-tags'] = array(
+    'title' => 'Delete orphaned tags',
+    'description' => 'Deletes shopify product tag taxonomy terms from the system.',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('shopify_admin_delete_orphaned_tags_form'),
+    'access callback' => 'shopify_user_access',
+    'access arguments' => array('administer shopify'),
+    'type' => MENU_CALLBACK,
+    'file' => 'includes/shopify.admin.inc',
+  );
   $items['admin/shopify/theme'] = array(
     'title' => 'Theme',
     'description' => 'Download a default Shopify Theme for your Shopify store.',
@@ -310,6 +320,31 @@ function shopify_menu() {
   );
 
   return $items;
+}
+
+/**
+ * Gets tags from the system that are not associated with any products.
+ */
+function shopify_get_orphaned_tags() {
+  $query = new EntityFieldQuery();
+  $result = $query->entityCondition('entity_type', 'taxonomy_term')
+    ->entityCondition('bundle', 'shopify_tags')
+    ->execute();
+  $orphaned_terms = array();
+  if ($result && isset($result['taxonomy_term']) && $result['taxonomy_term']) {
+    $terms = taxonomy_term_load_multiple(array_keys($result['taxonomy_term']));
+    // For each term, check if it has products associated with it.
+    foreach ($terms as $tid => $term) {
+      $query = new EntityFieldQuery();
+      $count = $query->entityCondition('entity_type', 'shopify_product')
+        ->fieldCondition('shopify_product_tags', 'tid', $tid)
+        ->execute();
+      if (!$count || !isset($count['shopify_product']) || !count($count['shopify_product'])) {
+        $orphaned_terms[] = $term;
+      }
+    }
+  }
+  return $orphaned_terms;
 }
 
 /**
@@ -1669,7 +1704,7 @@ function shopify_form_taxonomy_form_term_alter(&$form, &$form_state) {
       $url = shopify_api_get_shop_admin_path() . '/collections/' . $wrapper->shopify_collection_id->value();
 
       $form['help'] = array(
-        '#markup' => t('Term data synced with Shopify is not editable. <a href="@shopify_collections" target="_blank">Edit that information on Shopify instead.</a>', array('@shopify_collections' => url( $url))),
+        '#markup' => t('Term data synced with Shopify is not editable. <a href="@shopify_collections" target="_blank">Edit that information on Shopify instead.</a>', array('@shopify_collections' => url($url))),
         '#weight' => -99,
       );
 
@@ -1682,7 +1717,7 @@ function shopify_form_taxonomy_form_term_alter(&$form, &$form_state) {
 
       $url = shopify_api_get_shop_admin_path() . '/products/';
       $form['help'] = array(
-        '#markup' => t('Term data synced with Shopify products is not editable. <a href="@shopify_products" target="_blank">Edit that information on the Shopify products instead.</a>', array('@shopify_products' => url( $url))),
+        '#markup' => t('Term data synced with Shopify products is not editable. <a href="@shopify_products" target="_blank">Edit that information on the Shopify products instead.</a>', array('@shopify_products' => url($url))),
         '#weight' => -99,
       );
 

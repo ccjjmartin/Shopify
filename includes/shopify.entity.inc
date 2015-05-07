@@ -323,6 +323,8 @@ class ShopifyProduct extends Entity {
    * Set terms from tags for this product.
    */
   function setTerms() {
+    // Reset terms for this products.
+    $this->wrapper()->shopify_product_tags = array();
     foreach (array_reverse(explode(',', $this->tags)) as $tag) {
       $tag = trim($tag);
       if ($tag) {
@@ -338,11 +340,8 @@ class ShopifyProduct extends Entity {
           taxonomy_term_save($term);
           $tid = $term->tid;
         }
-        $terms[] = $tid;
+        $this->wrapper()->shopify_product_tags[] = $tid;
       }
-    }
-    if (isset($terms)) {
-      $this->wrapper()->shopify_product_tags->set($terms);
     }
   }
 
