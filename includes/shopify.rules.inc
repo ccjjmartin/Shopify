@@ -5,6 +5,43 @@
  */
 
 /**
+ * Implements hook_rules_action_info().
+ */
+function shopify_rules_action_info() {
+  return array(
+    'shopify_api_call_action' => array(
+      'label' => t('Shopify API call'),
+      'group' => t('Shopify'),
+      'parameter' => array(
+        'method' => array(
+          'type' => 'text',
+          'label' => t('Method'),
+          'description' => t('API method: GET, POST, PUT, DELETE'),
+        ),
+        'path' => array(
+          'type' => 'text',
+          'label' => t('Path'),
+          'description' => t('API path to resource. For a path of /admin/products.json, only type "products".'),
+        ),
+        'data' => array(
+          'type' => 'text',
+          'label' => t('Data (JSON)'),
+          'description' => t('Data to pass the API in JSON format.'),
+        ),
+      ),
+    ),
+  );
+}
+
+/**
+ * Callback for Shopify rules action.
+ */
+function shopify_api_call_action($method, $path, $data) {
+  $data = json_encode($data);
+  shopify_api_call($method, $path, $data);
+}
+
+/**
  * Implements hook_rules_event_info().
  */
 function shopify_rules_event_info() {
