@@ -219,7 +219,7 @@ function shopify_install() {
 
   // Set the shop info on install.
   $client = shopify_api_client();
-  $info = $client->call('get', '/admin/shop.json');
+  $info = $client->call('GET', '/admin/shop.json');
   variable_set('shopify_store_info', $info);
 
   //  Create Shopify Tags vocabulary
