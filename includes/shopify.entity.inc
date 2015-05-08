@@ -799,6 +799,14 @@ class ShopifyProductViewsController extends EntityDefaultViewsController {
   public function views_data() {
     $data = parent::views_data();
 
+    $data['shopify_products']['variants'] = array(
+      'title' => t('Variants'),
+      'help' => t('Product variants.'),
+      'field' => array(
+        'handler' => 'views_handler_field_shopify_product_variants',
+      ),
+    );
+
     $data['shopify_products']['add_to_cart_form'] = array(
       'title' => t('Add to Cart form'),
       'help' => t('Displays an add to cart form.'),
