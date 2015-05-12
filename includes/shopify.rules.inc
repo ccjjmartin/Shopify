@@ -568,7 +568,14 @@ function shopify_rules_parse_order_empty_variables(&$order, $vars) {
       $order[$key] = FALSE;
     }
     if (isset($info['property info'])) {
-      shopify_rules_parse_order_empty_variables($order[$key], $info['property info']);
+      if ($info['type'] == 'list<struct>') {
+        foreach ($order[$key] as $index => &$item) {
+          shopify_rules_parse_order_empty_variables($item, $info['property info']);
+        }
+      }
+      else {
+        shopify_rules_parse_order_empty_variables($order[$key], $info['property info']);
+      }
     }
   }
 }

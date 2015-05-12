@@ -1221,8 +1221,8 @@ function shopify_store_info() {
  *
  * @param int $variant_id
  *   Product variant ID.
- * @return ShopifyProduct[]
- *   Returns an array of shopify products with the variant id.
+ * @return ShopifyProduct
+ *   Returns a shopify product with the variant id.
  */
 function shopify_product_load_by_variant_id($variant_id) {
   $query = new EntityFieldQuery();
@@ -1230,9 +1230,10 @@ function shopify_product_load_by_variant_id($variant_id) {
     ->propertyCondition('variant_id', $variant_id)
     ->execute();
   if (isset($result['shopify_product']) && $result['shopify_product']) {
-    return entity_load('shopify_product', array_keys($result['shopify_product']));
+    $entities = entity_load('shopify_product', array_keys($result['shopify_product']));
+    return reset($entities);
   }
-  return array();
+  return NULL;
 }
 
 /**
