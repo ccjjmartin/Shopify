@@ -211,6 +211,23 @@ function shopify_schema() {
 }
 
 /**
+ * Modify product and variant ID columns to be large INT.
+ */
+function shopify_update_7100() {
+  db_change_field('shopify_products', 'product_id', 'product_id', array(
+    'type' => 'int',
+    'description' => 'Product ID',
+    'size' => 'big',
+  ));
+  db_change_field('shopify_products', 'variant_id', 'variant_id', array(
+    'type' => 'int',
+    'description' => 'Variant ID',
+    'default' => 0,
+    'size' => 'big',
+  ));
+}
+
+/**
  * Implements hook_install().
  */
 function shopify_install() {
