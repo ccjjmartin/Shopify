@@ -71,11 +71,13 @@ function shopify_schema() {
       'product_id' => array(
         'type' => 'int',
         'description' => 'Product ID',
+        'size' => 'big',
       ),
       'variant_id' => array(
         'type' => 'int',
         'description' => 'Variant ID',
         'default' => 0,
+        'size' => 'big',
       ),
       'title' => array(
         'description' => 'Product title',
@@ -91,7 +93,7 @@ function shopify_schema() {
       'handle' => array(
         'description' => 'Product handle',
         'type' => 'varchar',
-        'length' => 32,
+        'length' => 128,
       ),
       'product_type' => array(
         'description' => 'Product type',
@@ -224,6 +226,17 @@ function shopify_update_7100() {
     'description' => 'Variant ID',
     'default' => 0,
     'size' => 'big',
+  ));
+}
+
+/**
+ * Modify product handler to be a larger field.
+ */
+function shopify_update_7101() {
+  db_change_field('shopify_products', 'handle', 'handle', array(
+    'description' => 'Product handle',
+    'type' => 'varchar',
+    'length' => 128,
   ));
 }
 
