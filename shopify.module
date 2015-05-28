@@ -1201,7 +1201,7 @@ function shopify_add_to_cart_form($form, &$form_state, ShopifyProduct $product =
  */
 function shopify_money_format() {
   $format = shopify_store_info()->money_format;
-  return str_replace(' {{amount}}', '', $format);
+  return str_replace('{{amount}}', '', $format);
 }
 
 /**
