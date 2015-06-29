@@ -12,8 +12,9 @@ function shopify_admin_theme_download($form, $form_state) {
   $form['download'] = array(
     '#type' => 'fieldset',
     '#title' => t('Shopify Theme'),
-    '#description' => t('Download this starter Shopify theme then upload it manually to your <a target="_blank" href="@shopify_store_link">Shopify store</a>, or use the "Upload and Publish Automatically" feature. <span style="color: red">Automatic upload requires this website be publicly accessible from the internet.</span><br /><br />This theme will disable most Shopify store features except for the shopping cart and customer login area, and will redirect the user to your store on your Drupal site if they attempt to access areas covered by this module like products, tags, or collections.<br /><br />We <strong>highly recommend</strong> using this theme generator as a starting point for your Shopify theme. Once uploaded you may use the Shopify theme GUI to match your site\'s colors, fonts, etc.', array('@shopify_store_link' => url('http://' . shopify_store_info()->myshopify_domain . '/admin/themes'),
-      )),
+    '#description' => t('Download this starter Shopify theme then upload it manually to your <a target="_blank" href="@shopify_store_link">Shopify store</a>, or use the "Upload and Publish Automatically" feature. <span style="color: red">Automatic upload requires this website be publicly accessible from the internet.</span><br /><br />This theme will disable most Shopify store features except for the shopping cart and customer login area, and will redirect the user to your store on your Drupal site if they attempt to access areas covered by this module like products, tags, or collections.<br /><br />We <strong>highly recommend</strong> using this theme generator as a starting point for your Shopify theme. Once uploaded you may use the Shopify theme GUI to match your site\'s colors, fonts, etc.', array(
+      '@shopify_store_link' => url('http://' . shopify_store_info()->myshopify_domain . '/admin/themes'),
+    )),
   );
   $form['download']['actions'] = array(
     '#type' => 'actions',
@@ -850,7 +851,7 @@ function shopify_webhooks_admin($form, &$form_state) {
  * Shopify webhooks admin form remove submit handler.
  */
 function shopify_remove_webhooks_submit($form, &$form_state) {
-  if ($form_state['values']['op'] == 'Remove') {
+  if ($form_state['values']['op'] == t('Remove')) {
     unset($form_state['values']['registered']['remove_submit']);
     foreach ((array) $form_state['values']['registered'] as $host => $values) {
       foreach ((array) $values as $id => $remove) {
@@ -879,7 +880,7 @@ function shopify_register_webhooks_submit($form, &$form_state) {
   variable_set('shopify_webhooks_debug', $values['debug']);
   variable_set('shopify_last_registered_host', $values['register']['hostname']);
 
-  if ($form_state['values']['op'] == 'Save') {
+  if ($form_state['values']['op'] == t('Save')) {
 
     unset($values['save']);
     $hostname = $values['register']['hostname'];
