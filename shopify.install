@@ -117,8 +117,7 @@ function shopify_schema() {
       ),
       'options' => array(
         'description' => 'Options',
-        'type' => 'varchar',
-        'length' => 256,
+        'type' => 'blob',
       ),
       'barcode' => array(
         'description' => 'Barcode',
@@ -238,6 +237,17 @@ function shopify_update_7101() {
     'type' => 'varchar',
     'length' => 128,
   ));
+}
+
+/**
+ * Update options column to accommodate larger variant data.
+ */
+function shopify_update_7102() {
+  $options_column = array(
+    'type' => 'blob',
+    'description' => 'Options'
+  );
+  db_change_field('shopify_products', 'options', 'options', $options_column);
 }
 
 /**
