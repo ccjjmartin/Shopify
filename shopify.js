@@ -17,8 +17,7 @@
     $forms.unbind('submit').submit(function (e) {
       var $form = $(this);
       e.preventDefault();
-      console.log(Drupal.settings);
-      $.post(Drupal.settings.basePath + 'shopify/added-to-cart', {
+      $.post(Drupal.settings.basePath + '?q=shopify/added-to-cart', {
         product_id: $form.data('product-id'),
         variant_id: $form.data('variant-id')
       }, function (data) {
