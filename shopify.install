@@ -113,7 +113,7 @@ function shopify_schema() {
       'tags' => array(
         'description' => 'Tags',
         'type' => 'varchar',
-        'length' => 256,
+        'length' => 512,
       ),
       'options' => array(
         'description' => 'Options',
@@ -248,6 +248,17 @@ function shopify_update_7102() {
     'description' => 'Options'
   );
   db_change_field('shopify_products', 'options', 'options', $options_column);
+}
+
+/**
+ * Update tags column to accommodate more tags.
+ */
+function shopify_update_7103() {
+  $tags_column = array(
+    'type' => 'varchar',
+    'length' => 512,
+  );
+  db_change_field('shopify_products', 'tags', 'tags', $tags_column);
 }
 
 /**
