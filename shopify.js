@@ -19,7 +19,8 @@
       e.preventDefault();
       $.post(Drupal.settings.basePath + '?q=shopify/added-to-cart', {
         product_id: $form.data('product-id'),
-        variant_id: $form.data('variant-id')
+        variant_id: $form.data('variant-id'),
+        quantity: $form.find('input[name="quantity"]').val()
       }, function (data) {
         $form.get(0).submit();
       });

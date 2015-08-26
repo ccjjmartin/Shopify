@@ -699,12 +699,14 @@ function shopify_added_to_cart() {
   $data = drupal_get_query_array(file_get_contents('php://input'));
   $parent = shopify_product_load_single($data['product_id'], 0);
   $product = shopify_product_load_single($data['product_id'], $data['variant_id']);
-  $title = $product->label()  == 'Default Title' ? '' : '- ' . $product->label();
-  drupal_set_message(t('@parent @title (@price) added to !cart_link', array(
+  $quantity = $data['quantity'];
+  $title = $product->label() == 'Default Title' ? '' : '- ' . $product->label();
+  drupal_set_message(t('@quantity x @parent @title (@price) added to !cart_link.', array(
     '@parent' => $parent->label(),
     '@title' => $title,
     '@price' => shopify_money_format() . $product->wrapper()->price->value(),
     '!cart_link' => l(t('your cart'), 'https://' . shopify_store_info()->myshopify_domain . '/cart'),
+    '@quantity' => $quantity,
   )));
   print '';
 }
@@ -1169,7 +1171,7 @@ function shopify_add_to_cart_form($form, &$form_state, ShopifyProduct $product =
       '#value' => 1,
       '#size' => 1
     );
-    
+
     if ($default_variant->inventory_policy == 'continue' || $default_variant->inventory_quantity > 0) {
       $form['product']['variant']['actions'] = array(
         '#type' => 'actions',
