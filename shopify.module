@@ -1079,7 +1079,7 @@ function shopify_products_fields_admin() {
 function shopify_add_to_cart_form($form, &$form_state, ShopifyProduct $product = NULL) {
   $form_id = 'shopify-add-to-cart-form-' . $product->handle;
   $form['#id'] = $form_id;
-  $form['#action'] = 'https://' . variable_get('shopify_api_domain') . '/cart/add';
+  $form['#action'] = 'https://' . shopify_store_info()->myshopify_domain . '/cart/add';
   $form['#attributes']['class'] = 'shopify-add-to-cart-form';
 
   if ($product) {
