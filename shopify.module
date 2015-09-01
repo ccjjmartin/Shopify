@@ -1628,10 +1628,11 @@ function shopify_block_view($delta = '') {
   switch ($delta) {
     case 'cart':
       $domain = shopify_store_info()->myshopify_domain;
-      $block['subject'] = t('Cart');
+      $cart = t('Cart');
+      $block['subject'] = $cart;
       $block['content'] = array(
         '#markup' => <<<_HTML
-      <a href="https://$domain/cart"><i class="fa fa-shopping-cart"></i> <span id="shopify-cart-text">Cart<span> (<span id='shopify-cart-total'></span>)</a>
+      <a href="https://$domain/cart"><i class="fa fa-shopping-cart"></i> <span id="shopify-cart-text">$cart<span> (<span id='shopify-cart-total'></span>)</a>
       <script type='text/javascript'>
         jQuery.ajax({
             type: 'GET',
