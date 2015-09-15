@@ -82,7 +82,7 @@ function shopify_schema() {
       'title' => array(
         'description' => 'Product title',
         'type' => 'varchar',
-        'length' => 128,
+        'length' => 512,
         'not null' => TRUE,
         'default' => '',
       ),
@@ -259,6 +259,17 @@ function shopify_update_7103() {
     'length' => 512,
   );
   db_change_field('shopify_products', 'tags', 'tags', $tags_column);
+}
+
+/**
+ * Increase length of title column to 512 characters.
+ */
+function shopify_update_7104() {
+  $title_column = array(
+    'type' => 'varchar',
+    'length' => 512,
+  );
+  db_change_field('shopify_products', 'title', 'title', $title_column);
 }
 
 /**
