@@ -1174,7 +1174,7 @@ function shopify_add_to_cart_form($form, &$form_state, ShopifyProduct $product =
       '#size' => 1
     );
 
-    if ($default_variant->inventory_policy == 'continue' || $default_variant->inventory_quantity > 0) {
+    if ($default_variant->inventory_policy == 'continue' || $default_variant->inventory_quantity > 0 || empty($default_variant->inventory_management)) {
       $form['product']['variant']['actions'] = array(
         '#type' => 'actions',
         'submit' => array(
