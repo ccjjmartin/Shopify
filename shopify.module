@@ -1186,10 +1186,17 @@ function shopify_add_to_cart_form($form, &$form_state, ShopifyProduct $product =
     }
     else {
       $form['product']['variant']['actions'] = array(
-        '#type' => 'actions',
-        'submit' => array(
-          '#markup' => t('Out of stock'),
+        '#type' => 'button',
+        '#disabled' => TRUE,
+        '#attributes' => array(
+          'class' => array(
+            'shopify-add-to-cart-button',
+            'shopify-disabled-button',
+            'shopify-out-of-stock-button',
+            'disabled'
+          ),
         ),
+        '#value' => t('Out of Stock'),
       );
     }
 
@@ -1202,11 +1209,11 @@ function shopify_add_to_cart_form($form, &$form_state, ShopifyProduct $product =
         'class' => array(
           'shopify-add-to-cart-button',
           'shopify-disabled-button',
+          'shopify-unavailable-button',
           'disabled'
         ),
       ),
       '#value' => t('Add to Cart'),
-      '#weight' => 1000,
     );
   }
 
