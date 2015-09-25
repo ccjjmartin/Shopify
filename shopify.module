@@ -1196,10 +1196,17 @@ function shopify_add_to_cart_form($form, &$form_state, ShopifyProduct $product =
   }
   else {
     $form['product']['variant']['actions'] = array(
-      '#type' => 'actions',
-      'submit' => array(
-        '#markup' => t('Unavailable'),
+      '#type' => 'button',
+      '#disabled' => TRUE,
+      '#attributes' => array(
+        'class' => array(
+          'shopify-add-to-cart-button',
+          'shopify-disabled-button',
+          'disabled'
+        ),
       ),
+      '#value' => t('Add to Cart'),
+      '#weight' => 1000,
     );
   }
 
