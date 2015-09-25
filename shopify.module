@@ -1213,7 +1213,7 @@ function shopify_add_to_cart_form($form, &$form_state, ShopifyProduct $product =
           'disabled'
         ),
       ),
-      '#value' => t('Unavailable'),
+      '#value' => t('Not Available'),
     );
   }
 
