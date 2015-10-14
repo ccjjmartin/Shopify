@@ -765,13 +765,6 @@ function shopify_uninstall() {
   taxonomy_vocabulary_delete($vocabulary->vid);
   $vocabulary = taxonomy_vocabulary_machine_name_load('shopify_collections');
   taxonomy_vocabulary_delete($vocabulary->vid);
-  variable_del('shopify_last_product_sync');
-  variable_del('shopify_last_collection_sync');
-  variable_del('shopify_store_info');
-  variable_del('shopify_cron_sync_products');
-  variable_del('shopify_cron_sync_collections');
-  variable_del('shopify_cron_sync_time');
-  variable_del('shopify_webhooks_debug');
-  variable_del('shopify_last_registered_host');
+  db_delete('variable')->condition('name', 'shopify_%', 'LIKE')->execute();
   field_purge_batch(20);
 }

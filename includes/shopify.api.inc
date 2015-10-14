@@ -4,12 +4,15 @@
  * Contains functions for working with the Shopify API.
  */
 
+// Sleep timeout in ms.
+define('SHOPIFY_API_CALL_TIMEOUT', 500);
+
 /**
  * Perform an API call to Shopify.
  *
  * @param string $method
  *   HTTP method: GET, POST, PUT, DELETE.
- * @param $path
+ * @param string $path
  *   API path to the resource.
  * @param array $options
  *   Options to pass to the API call.
@@ -20,11 +23,55 @@
  * @throws \ShopifyApiException
  */
 function shopify_api_call($method, $path, array $options = array()) {
+  if ($timeout = variable_get('shopify_api_next_timeout', 0)) {
+    // Sleep for a while to let the bucket empty out a bit.
+    usleep($timeout * 1000);
+    variable_set('shopify_api_next_timeout', 0);
+  }
   $client = shopify_api_client();
   if (!$client instanceof ShopifyClient) {
     throw new Exception('Unable to create ShopifyClient. Check your Shopify API credentials at /admin/config/services/shopify');
   }
-  return $client->call($method, '/admin/' . $path . '.json', $options);
+  $result = $client->call($method, '/admin/' . $path . '.json', $options);
+  if (shopify_api_call_limit_reached($client)) {
+    variable_set('shopify_api_next_timeout', shopify_api_get_next_timeout());
+  }
+  return $result;
+}
+
+/**
+ * Gets a somewhat random timeout, between 500-2000ms.
+ * This is the best chance at allowing the "leaky bucket" to refill.
+ *
+ * Timeout can be disabled by setting "shopify_api_call_timeout" to 0.
+ * Timeout randomizer can be disabled by setting "shopify_api_call_timeout_multiplier" to 1.
+ *
+ * @return int
+ *   Number of ms to delay.
+ */
+function shopify_api_get_next_timeout() {
+  return variable_get('shopify_api_call_timeout', SHOPIFY_API_CALL_TIMEOUT) * rand(1, variable_get('shopify_api_call_timeout_multiplier', 4));
+}
+
+/**
+ * Determines if the API call limits have been reached and should be throttled.
+ *
+ * @param \ShopifyClient $client
+ *   Shopify API client.
+ *
+ * @return bool
+ *   Returns TRUE if the following call should be throttled.
+ */
+function shopify_api_call_limit_reached(ShopifyClient $client) {
+  try {
+    if ($client->callsMade() >= ($client->callLimit() - 2)) {
+      return TRUE;
+    }
+  } catch (Exception $e) {
+    // Cannot get the callsMade(), can safely assume limit is not reached.
+    return FALSE;
+  }
+  return FALSE;
 }
 
 /**
