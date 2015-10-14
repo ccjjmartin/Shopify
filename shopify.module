@@ -536,9 +536,7 @@ function shopify_sync_deleted_products(array $options = array()) {
     // Get variant count for this product.
     foreach ($products as $p) {
       $variant_count = shopify_api_get_product_variants_count($p['id']);
-      usleep(250000); // Help prevent reaching Shopify API limits [#2574047].
       for ($variant_page = 1; $variant_page <= ceil($variant_count / 250); $variant_page++) {
-        usleep(250000); // Help prevent reaching Shopify API limits [#2574047].
         $variants = array_merge($variants, shopify_api_get_product_variants($p['id'], array(
           'limit' => 250,
           'page' => $variant_page,
