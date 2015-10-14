@@ -547,6 +547,11 @@ function shopify_sync_deleted_products(array $options = array()) {
   // Free up memory.
   unset($products);
 
+  // Safety check in case the product/variants counts failed.
+  if ($product_count !== count($product_ids)) {
+    return 0;
+  }
+
   // Delete products in the DB that we did not pull back.
   $deleted_products = db_delete('shopify_products')
     ->condition('product_id', $product_ids, 'NOT IN')
