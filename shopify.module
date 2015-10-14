@@ -524,37 +524,28 @@ function shopify_sync_deleted_products(array $options = array()) {
   if (!isset($options['limit'])) {
     $options['limit'] = 250;
   }
+  $variant_ids = $product_ids = array();
+
   for ($page = 1; $page <= ceil($product_count / $options['limit']); $page++) {
 
     // Setup default options for the products API call.
     $options['page'] = $page;
-    $options['fields'] = 'id';
+    $options['fields'] = 'id,variants';
 
     // Build a list of all products in the Shopify system.
     $products = shopify_api_get_products($options);
 
-    // Get variant count for this product.
+    // Merge all variants for these products.
     foreach ($products as $p) {
-      $variant_count = shopify_api_get_product_variants_count($p['id']);
-      for ($variant_page = 1; $variant_page <= ceil($variant_count / 250); $variant_page++) {
-        $variants = array_merge($variants, shopify_api_get_product_variants($p['id'], array(
-          'limit' => 250,
-          'page' => $variant_page,
-          'fields' => 'id',
-        )));
+      $product_ids[] = $p['id'];
+      foreach ($p['variants'] as $v) {
+        $variant_ids[] = $v['id'];
       }
     }
   }
 
-  // Format result set as an array of product and variant IDs.
-  $product_ids = array();
-  array_walk_recursive($products, function ($p) use (&$product_ids) {
-    $product_ids[] = $p;
-  });
-  $variant_ids = array();
-  array_walk_recursive($variants, function ($v) use (&$variant_ids) {
-    $variant_ids[] = $v;
-  });
+  // Free up memory.
+  unset($products);
 
   // Delete products in the DB that we did not pull back.
   $deleted_products = db_delete('shopify_products')
