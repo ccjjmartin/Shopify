@@ -122,7 +122,7 @@ function shopify_schema() {
       'barcode' => array(
         'description' => 'Barcode',
         'type' => 'varchar',
-        'length' => 32,
+        'length' => 128,
       ),
       'compare_at_price' => array(
         'description' => 'Product comparison price',
@@ -270,6 +270,17 @@ function shopify_update_7104() {
     'length' => 512,
   );
   db_change_field('shopify_products', 'title', 'title', $title_column);
+}
+
+/**
+ * Increase length of title column to 512 characters.
+ */
+function shopify_update_7105() {
+  $barcode_column = array(
+    'type' => 'varchar',
+    'length' => 128,
+  );
+  db_change_field('shopify_products', 'barcode', 'barcode', $barcode_column);
 }
 
 /**
