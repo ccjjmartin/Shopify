@@ -13,7 +13,7 @@ function shopify_admin_theme_download($form, $form_state) {
     '#type' => 'fieldset',
     '#title' => t('Shopify Theme'),
     '#description' => t('Download this starter Shopify theme then upload it manually to your <a target="_blank" href="@shopify_store_link">Shopify store</a>, or use the "Upload and Publish Automatically" feature. <span style="color: red">Automatic upload requires this website be publicly accessible from the internet.</span><br /><br />This theme will disable most Shopify store features except for the shopping cart and customer login area, and will redirect the user to your store on your Drupal site if they attempt to access areas covered by this module like products, tags, or collections.<br /><br />We <strong>highly recommend</strong> using this theme generator as a starting point for your Shopify theme. Once uploaded you may use the Shopify theme GUI to match your site\'s colors, fonts, etc.', array(
-      '@shopify_store_link' => url('http://' . shopify_store_info()->myshopify_domain . '/admin/themes'),
+      '@shopify_store_link' => url('http://' . shopify_store_info()->domain . '/admin/themes'),
     )),
   );
   $form['download']['actions'] = array(
@@ -109,7 +109,7 @@ function shopify_admin_theme_download_submit($form, $form_state) {
         ),
       ));
       drupal_set_message(t('Drupal Shopify Theme was uploaded to your store. !link.', array(
-        '!link' => l('View now', 'https://' . shopify_store_info()->myshopify_domain . '/admin/themes', array('attributes' => array('target' => '_blank'))),
+        '!link' => l('View now', 'https://' . shopify_store_info()->domain . '/admin/themes', array('attributes' => array('target' => '_blank'))),
       )));
     } catch (Exception $e) {
       drupal_set_message(t('Could not upload the ZIP folder: @error', array('@error' => $e->getMessage())), 'error');
