@@ -1,0 +1,11 @@
+name: 'Shopify eCommerce'
+description: 'Display your Shopify store within your Drupal site.'
+core: 8.x
+dependencies:
+  - shopify_api
+  - views
+scripts:
+ - shopify.js
+package: Shopify
+configure: shopify.admin
+type: module
