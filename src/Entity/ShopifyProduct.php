@@ -59,7 +59,7 @@ class ShopifyProduct extends ContentEntityBase implements ShopifyProductInterfac
   /**
    * {@inheritdoc}
    */
-  public static function create(array $values = []) {
+  public static function preCreate(EntityStorageInterface $storage_controller, array &$values) {
     if (isset($values['id'])) {
       // We don't want to set the incoming product_id as the entity ID.
       $values['product_id'] = $values['id'];
@@ -70,24 +70,16 @@ class ShopifyProduct extends ContentEntityBase implements ShopifyProductInterfac
       'published_at',
       'updated_at',
     ]);
-    return parent::create($values);
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public static function preCreate(EntityStorageInterface $storage_controller, array &$values) {
+    // Format variants as entities.
+    foreach ($values['variants'] as &$variant) {
+      if (is_object($variant) && !$variant instanceof ShopifyProductVariant) {
+        $variant = ShopifyProductVariant::create((array) $variant);
+      }
+    }
     parent::preCreate($storage_controller, $values);
     $values += array(
       'user_id' => \Drupal::currentUser()->id(),
     );
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function getCreatedTime() {
-    return $this->get('created')->value;
   }
 
   /**
@@ -185,7 +177,7 @@ class ShopifyProduct extends ContentEntityBase implements ShopifyProductInterfac
       ->setLabel(t('Language code'))
       ->setDescription(t('The language code for the Shopify product entity.'));
 
-    $fields['variant_id'] = BaseFieldDefinition::create('entity_reference')
+    $fields['variants'] = BaseFieldDefinition::create('entity_reference')
       ->setLabel(t('Product variants'))
       ->setDescription(t('Product variants for this product.'))
       ->setSetting('target_type', 'shopify_product_variant')

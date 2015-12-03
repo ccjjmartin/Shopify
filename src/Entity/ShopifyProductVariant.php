@@ -58,7 +58,7 @@ class ShopifyProductVariant extends ContentEntityBase implements ShopifyProductV
   /**
    * {@inheritdoc}
    */
-  public static function create(array $values = []) {
+  public static function preCreate(EntityStorageInterface $storage_controller, array &$values) {
     if (isset($values['id'])) {
       // We don't want to set the incoming product_id as the entity ID.
       $values['variant_id'] = $values['id'];
@@ -68,24 +68,10 @@ class ShopifyProductVariant extends ContentEntityBase implements ShopifyProductV
       'created_at',
       'updated_at',
     ]);
-    return parent::create($values);
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public static function preCreate(EntityStorageInterface $storage_controller, array &$values) {
     parent::preCreate($storage_controller, $values);
     $values += array(
       'user_id' => \Drupal::currentUser()->id(),
     );
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function getCreatedTime() {
-    return $this->get('created')->value;
   }
 
   /**
