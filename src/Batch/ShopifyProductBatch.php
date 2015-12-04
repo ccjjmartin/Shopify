@@ -111,8 +111,8 @@ class ShopifyProductBatch {
           $entity->update((array) $product);
           $entity->save();
         }
+        $context['results'][] = $entity->product_id . ' : ' . Html::escape($entity->title);
       }
-      $context['results'][] = $entity->product_id . ' : ' . Html::escape($entity->title);
     }
     $context['message'] = t('Syncing...');
   }

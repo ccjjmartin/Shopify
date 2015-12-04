@@ -85,9 +85,12 @@ class ShopifyProduct extends ContentEntityBase implements ShopifyProductInterfac
         $values['image'] = $file;
       }
     }
+    else {
+      $values['image'] = NULL;
+    }
 
     // Format variant images as File entities.
-    if (isset($values['images']) && is_array($values['images'])) {
+    if (isset($values['images']) && is_array($values['images']) && !empty($values['images'])) {
       foreach ($values['images'] as $variant_image) {
         foreach ($variant_image->variant_ids as $variant_id) {
           foreach ($values['variants'] as &$variant) {
@@ -100,9 +103,12 @@ class ShopifyProduct extends ContentEntityBase implements ShopifyProductInterfac
       }
     }
 
-    if (isset($values['tags']) && !is_array($values['tags'])) {
+    if (isset($values['tags']) && !is_array($values['tags']) && !empty($values['tags'])) {
       $values['tags'] = explode(', ', $values['tags']);
       $values['tags'] = self::setupTags($values['tags']);
+    }
+    else {
+      $values['tags'] = NULL;
     }
 
     // Format variants as entities.
@@ -121,7 +127,7 @@ class ShopifyProduct extends ContentEntityBase implements ShopifyProductInterfac
     );
   }
 
-  private function setupTags(array $tags = []) {
+  private static function setupTags(array $tags = []) {
     $terms = [];
     foreach ($tags as $tag) {
       // Find out if this tag already exists.
@@ -415,6 +421,26 @@ class ShopifyProduct extends ContentEntityBase implements ShopifyProductInterfac
       ->setLabel(t('Tags'))
       ->setDescription(t('Product tags.'))
       ->setSetting('target_type', 'taxonomy_term')
+      ->setSetting('target_bundles', ['shopify_tags'])// @todo: Not working.
+      ->setSetting('handler', 'default')
+      ->setCardinality(FieldStorageDefinitionInterface::CARDINALITY_UNLIMITED)
+      ->setDisplayOptions('view', array(
+        'label' => 'above',
+        'type' => 'entity_reference_entity_view',
+        'weight' => -25,
+      ))
+      ->setDisplayOptions('form', array(
+        'type' => 'entity_reference_autocomplete_tags',
+        'weight' => -25,
+      ))
+      ->setDisplayConfigurable('form', TRUE)
+      ->setDisplayConfigurable('view', TRUE);
+
+    $fields['collections'] = BaseFieldDefinition::create('entity_reference')
+      ->setLabel(t('Collections'))
+      ->setDescription(t('Product collections.'))
+      ->setSetting('target_type', 'taxonomy_term')
+      ->setSetting('target_bundles', ['shopify_collections'])// @todo: Not working.
       ->setSetting('handler', 'default')
       ->setCardinality(FieldStorageDefinitionInterface::CARDINALITY_UNLIMITED)
       ->setDisplayOptions('view', array(

@@ -10,6 +10,7 @@ namespace Drupal\shopify\Form;
 use Drupal\Core\Form\ConfigFormBase;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\shopify\Batch\ShopifyProductBatch;
+use Drupal\shopify\Batch\ShopifyCollectionBatch;
 
 /**
  * Class ShopifySyncAdminForm.
@@ -42,6 +43,8 @@ class ShopifySyncAdminForm extends ConfigFormBase {
 
     $products_last_sync_time = \Drupal::state()
       ->get('shopify.sync.products_last_sync_time');
+    $collections_last_sync_time = \Drupal::state()
+      ->get('shopify.sync.collections_last_sync_time');
 
     if (empty($products_last_sync_time)) {
       $products_last_sync_time_formatted = t('Never');
@@ -49,6 +52,14 @@ class ShopifySyncAdminForm extends ConfigFormBase {
     else {
       $products_last_sync_time_formatted = \Drupal::service('date.formatter')
         ->format($products_last_sync_time, 'medium');
+    }
+
+    if (empty($collections_last_sync_time)) {
+      $collections_last_sync_time_formatted = t('Never');
+    }
+    else {
+      $collections_last_sync_time_formatted = \Drupal::service('date.formatter')
+        ->format($collections_last_sync_time, 'medium');
     }
 
     $form['products'] = [
@@ -72,7 +83,7 @@ class ShopifySyncAdminForm extends ConfigFormBase {
     );
     $form['products']['delete_products_first'] = array(
       '#type' => 'checkbox',
-      '#title' => t('Delete all products then re-import fresh.') . '<br /><strong>' . t('CAUTION: Product entities will be completely deleted then re-imported. Custom fields will be erased, comments deleted, etc.') . '</strong>',
+      '#title' => t('Delete all products then re-import fresh.') . '<br /><strong>' . t('CAUTION: Product entities will be completely deleted then re-imported. Custom field data will be erased, comments deleted, etc.') . '</strong>',
     );
     $form['products']['force_update'] = array(
       '#type' => 'checkbox',
@@ -83,6 +94,24 @@ class ShopifySyncAdminForm extends ConfigFormBase {
       '#value' => t('Sync Products'),
       '#name' => 'sync_products',
     ];
+
+    $form['collections'] = [
+      '#type' => 'details',
+      '#title' => t('Sync Collections'),
+      '#description' => t('Last sync time: @time', [
+        '@time' => $collections_last_sync_time_formatted,
+      ]),
+    ];
+    $form['collections']['delete_collections_first'] = array(
+      '#type' => 'checkbox',
+      '#title' => t('Delete all collections then re-import fresh.') . '<br /><strong>' . t('CAUTION: Collection terms will be completely deleted then re-imported. Custom field data will be erased.') . '</strong>',
+    );
+    $form['collections']['sync'] = [
+      '#type' => 'submit',
+      '#value' => t('Sync Collections'),
+      '#name' => 'sync_collections',
+    ];
+
     return parent::buildForm($form, $form_state);
   }
 
@@ -101,11 +130,21 @@ class ShopifySyncAdminForm extends ConfigFormBase {
       case 'sync_products':
         $this->batchSyncProducts($form, $form_state);
         break;
+      case 'sync_collections':
+        $this->batchSyncCollections($form, $form_state);
+        break;
       default:
         parent::submitForm($form, $form_state);
         $this->config('shopify.sync')
           ->save();
     }
+  }
+
+  private function batchSyncCollections(array &$form, FormStateInterface $form_state) {
+    $batch = new ShopifyCollectionBatch();
+    $batch->prepare([
+      'delete_collections_first' => $form_state->getValue('delete_collections_first'),
+    ])->set();
   }
 
   private function batchSyncProducts(array &$form, FormStateInterface $form_state) {

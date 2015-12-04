@@ -20,7 +20,8 @@ trait ShopifyEntityTrait {
       // If our directory doesn't exist and can't be created, use the default.
       $directory = NULL;
     }
-    return system_retrieve_file($image_url, $directory, TRUE, FILE_EXISTS_REPLACE);
+    $file = system_retrieve_file($image_url, $directory, TRUE, FILE_EXISTS_REPLACE);
+    return $file;
   }
 
 }

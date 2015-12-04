@@ -1,6 +1,8 @@
 <?php
 
 use Drupal\shopify\Entity\ShopifyProduct;
+use Shopify\Client;
+use  Drupal\taxonomy\Entity\Term;
 
 /**
  * Loads a Shopify product by it's product_id.
@@ -18,6 +20,7 @@ function shopify_product_load_by_product_id($product_id) {
     $products = ShopifyProduct::loadMultiple($ids);
     return reset($products);
   }
+  return FALSE;
 }
 
 /**
@@ -44,3 +47,195 @@ function shopify_product_load_all_ids() {
   }
   return array();
 }
+
+/**
+ * Get Shopify collections from the API.
+ *
+ * @param array $options
+ *   Arguments to pass to the API.
+ * @param string $type
+ *   Type of collections to get, options are:
+ *   - both: Get smart and custom collections.
+ *   - smart: Get smart collections only.
+ *   - custom: Get custom collections only.
+ *
+ * @return array
+ *   Returns the API response data.
+ */
+function shopify_api_get_collections(array $options = [], $type = 'both') {
+  $smart_collections = $custom_collections = [];
+  $client = shopify_api_client();
+  if ($type == 'both' || $type == 'smart') {
+    $smart_collections = $client->getResources('smart_collections', $options);
+  }
+  if ($type == 'both' || $type == 'custom') {
+    $custom_collections = $client->getResources('custom_collections', $options);
+  }
+  return array_merge($smart_collections, $custom_collections);
+}
+
+/**
+ * Loads a collection term based on the collection ID.
+ *
+ * @param int $collection_id
+ *   Shopify collection ID.
+ *
+ * @return Term
+ */
+function shopify_collection_load($collection_id) {
+  $query = \Drupal::entityQuery('taxonomy_term');
+  $query->condition('field_shopify_collection_id', $collection_id);
+  $ids = $query->execute();
+  if ($ids) {
+    $terms = Term::loadMultiple($ids);
+    return reset($terms);
+  }
+  return FALSE;
+}
+
+/**
+ * Create a new collection in the system and sync products.
+ *
+ * @param \stdClass $collection
+ *   Shopify collection.
+ * @param boolean $sync_products
+ *   Whether or not to sync product information during creation.
+ */
+function shopify_collection_create(\stdClass $collection, $sync_products = FALSE) {
+  $date = strtotime($collection->published_at);
+  $term = Term::create(array(
+    'vid' => ShopifyProduct::SHOPIFY_COLLECTIONS_VID,
+    'name' => $collection->title,
+    'description' => $collection->body_html,
+    'field_shopify_collection_id' => $collection->id,
+    'field_shopify_collection_pub' => $date ? $date : 0,
+  ));
+  if ($term->save() && isset($collection->image->src)) {
+    // Save the image for this term.
+    shopify_collection_save_image($term, $collection->image->src);
+  }
+  if ($sync_products) {
+    // Sync product information for this collection.
+    shopify_collection_sync_products($collection);
+  }
+}
+
+/**
+ * Saves an image for a Shopify collection.
+ *
+ * @param Term $term
+ *   Taxonomy term entity.
+ * @param string $image_url
+ *   Remote image URL for the collection image.
+ */
+function shopify_collection_save_image(Term $term, $image_url) {
+  $directory = file_build_uri('shopify_images');
+  if (!file_prepare_directory($directory, FILE_CREATE_DIRECTORY)) {
+    // If our directory doesn't exist and can't be created, use the default.
+    $directory = NULL;
+  }
+  $file = system_retrieve_file($image_url, $directory, TRUE, FILE_EXISTS_REPLACE);
+  $term->field_shopify_collection_image = $file;
+  $term->save();
+}
+
+/**
+ * Sync product collect information for a given collection.
+ *
+ * @param \stdClass $collection
+ *   Shopify collection.
+ */
+function shopify_collection_sync_products(\stdClass $collection) {
+  $term = shopify_collection_load($collection->id);
+  $client = shopify_api_client();
+  $collects = $client->getResources('collects', ['query' => ['collection_id' => $collection->id]]);
+  foreach ($collects as $c) {
+    // Update this product information.
+    $product = shopify_product_load_by_product_id($c->product_id);
+    if (!$product) {
+      continue;
+    }
+    foreach ($product->collections as $key => $item) {
+      if ($item->target_id && ($item->target_id == $term->id())) {
+        // Product already in collection.
+        // Check if this collection is active.
+        if ($term->field_shopify_collection_pub == 0) {
+          // Remove this collection from the product.
+          $product->collections->removeItem($key);
+          $product->save();
+        }
+        continue 2;
+      }
+    }
+    if ($term->field_shopify_collection_pub->value != 0) {
+      $product->collections[] = $term;
+      $product->save();
+    }
+  }
+}
+
+/**
+ * Update a Shopify collection with new information.
+ *
+ * @param array $collection
+ *   Shopify collection.
+ * @param boolean $sync_products
+ *   Whether or not to sync product information during update.
+ */
+function shopify_collection_update($collection, $sync_products = FALSE) {
+//  $term = shopify_collection_load($collection['id']);
+//  if ($term) {
+//    $term->name = $collection['title'];
+//    $term->description = $collection['body_html'];
+//    $date = strtotime($collection['published_at']);
+//    $term->shopify_collection_published_at = array('und' => array(array('value' => $date ? $date : 0)));
+//  }
+//  if (taxonomy_term_save($term) && isset($collection['image']['src'])) {
+//    // Save the image for this term.
+//    shopify_collection_save_image($term, $collection['image']['src']);
+//  }
+//  // Sync product information for this collection.
+//  shopify_collection_sync_products($collection);
+}
+
+/**
+ * Delete all Shopify collections.
+ */
+function shopify_delete_all_collections() {
+  $ids = shopify_collection_load_all_ids();
+  foreach ($ids as $id) {
+    $term = Term::load($id);
+    $term->delete();
+  }
+}
+
+/**
+ * Loads all Shopify collection IDs.
+ *
+ * @return array
+ */
+function shopify_collection_load_all_ids() {
+  $query = \Drupal::entityQuery('taxonomy_term');
+  $query->condition('vid', ShopifyProduct::SHOPIFY_COLLECTIONS_VID);
+  $ids = $query->execute();
+  if ($ids) {
+    return $ids;
+  }
+  return array();
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

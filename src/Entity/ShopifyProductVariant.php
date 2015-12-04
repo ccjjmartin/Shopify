@@ -79,6 +79,9 @@ class ShopifyProductVariant extends ContentEntityBase implements ShopifyProductV
         $values['image'] = $file;
       }
     }
+    else {
+      $values['image'] = NULL;
+    }
 
     parent::preCreate($storage_controller, $values);
     $values += array(
