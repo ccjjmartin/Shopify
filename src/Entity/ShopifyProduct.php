@@ -228,6 +228,7 @@ class ShopifyProduct extends ContentEntityBase implements ShopifyProductInterfac
         'weight' => -25,
       ))
       ->setDisplayOptions('form', array(
+//        'type' => 'inline_entity_form_complex', // @todo: Would prefer to use inline entity form, but it's buggy, not working...
         'type' => 'entity_reference_autocomplete_tags',
         'weight' => -25,
         'settings' => array(
