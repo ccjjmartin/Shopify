@@ -13,6 +13,7 @@ use Drupal\Core\Entity\ContentEntityBase;
 use Drupal\Core\Entity\EntityChangedTrait;
 use Drupal\Core\Entity\EntityTypeInterface;
 use Drupal\Core\Field\FieldStorageDefinitionInterface;
+use Drupal\file\FileInterface;
 use Drupal\shopify\ShopifyProductInterface;
 use Drupal\user\UserInterface;
 
@@ -65,22 +66,57 @@ class ShopifyProduct extends ContentEntityBase implements ShopifyProductInterfac
       $values['product_id'] = $values['id'];
       unset($values['id']);
     }
+
+    // Format timestamps properly.
     self::formatDatetimeAsTimestamp($values, [
       'created_at',
       'published_at',
       'updated_at',
     ]);
+
+    // Set the image for this product.
+    if (isset($values['image']) && !empty($values['image'])) {
+      $file = self::setupProductImage($values['image']->src);
+      if ($file instanceof FileInterface) {
+        $values['image'] = $file;
+      }
+    }
+
+    // Format variant images as File entities.
+    if (isset($values['images']) && is_array($values['images'])) {
+      foreach ($values['images'] as $variant_image) {
+        foreach ($variant_image->variant_ids as $variant_id) {
+          foreach ($values['variants'] as &$variant) {
+            if ($variant->id == $variant_id) {
+              // Set an image for this variant.
+              $variant->image = $variant_image;
+            }
+          }
+        }
+      }
+    }
+
     // Format variants as entities.
     foreach ($values['variants'] as &$variant) {
-      if (is_object($variant) && !$variant instanceof ShopifyProductVariant) {
+      if (is_object($variant) && !($variant instanceof ShopifyProductVariant)) {
         $variant = ShopifyProductVariant::create((array) $variant);
       }
     }
+
     parent::preCreate($storage_controller, $values);
     $values += array(
       'user_id' => \Drupal::currentUser()->id(),
     );
   }
+
+//  public function getVariantByVariantId($variant_id) {
+//    foreach ($this->variants as $variant) {
+//      if ($variant_id == $variant->variant_id) {
+//        return $variant;
+//      }
+//    }
+//    return FALSE;
+//  }
 
   /**
    * {@inheritdoc}
@@ -288,6 +324,21 @@ class ShopifyProduct extends ContentEntityBase implements ShopifyProductInterfac
       ))
       ->setDisplayOptions('form', array(
         'type' => 'string_textfield',
+        'weight' => 2,
+      ))
+      ->setDisplayConfigurable('form', TRUE)
+      ->setDisplayConfigurable('view', TRUE);
+
+    $fields['image'] = BaseFieldDefinition::create('image')
+      ->setLabel(t('Image'))
+      ->setDefaultValue('')
+      ->setDisplayOptions('view', array(
+        'label' => 'above',
+        'type' => 'image',
+        'weight' => 2,
+      ))
+      ->setDisplayOptions('form', array(
+        'type' => 'image',
         'weight' => 2,
       ))
       ->setDisplayConfigurable('form', TRUE)

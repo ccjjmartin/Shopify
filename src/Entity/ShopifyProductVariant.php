@@ -12,6 +12,7 @@ use Drupal\Core\Field\BaseFieldDefinition;
 use Drupal\Core\Entity\ContentEntityBase;
 use Drupal\Core\Entity\EntityChangedTrait;
 use Drupal\Core\Entity\EntityTypeInterface;
+use Drupal\file\FileInterface;
 use Drupal\shopify\ShopifyProductVariantInterface;
 use Drupal\user\UserInterface;
 
@@ -64,10 +65,21 @@ class ShopifyProductVariant extends ContentEntityBase implements ShopifyProductV
       $values['variant_id'] = $values['id'];
       unset($values['id']);
     }
+
+    // Format timestamps properly.
     self::formatDatetimeAsTimestamp($values, [
       'created_at',
       'updated_at',
     ]);
+
+    // Setup image.
+    if (isset($values['image']) && !empty($values['image'])) {
+      $file = self::setupProductImage($values['image']->src);
+      if ($file instanceof FileInterface) {
+        $values['image'] = $file;
+      }
+    }
+
     parent::preCreate($storage_controller, $values);
     $values += array(
       'user_id' => \Drupal::currentUser()->id(),
@@ -396,6 +408,21 @@ class ShopifyProductVariant extends ContentEntityBase implements ShopifyProductV
       ->setDisplayOptions('form', array(
         'type' => 'boolean_checkbox',
         'weight' => -4,
+      ))
+      ->setDisplayConfigurable('form', TRUE)
+      ->setDisplayConfigurable('view', TRUE);
+
+    $fields['image'] = BaseFieldDefinition::create('image')
+      ->setLabel(t('Image'))
+      ->setDefaultValue('')
+      ->setDisplayOptions('view', array(
+        'label' => 'above',
+        'type' => 'image',
+        'weight' => 2,
+      ))
+      ->setDisplayOptions('form', array(
+        'type' => 'image',
+        'weight' => 2,
       ))
       ->setDisplayConfigurable('form', TRUE)
       ->setDisplayConfigurable('view', TRUE);

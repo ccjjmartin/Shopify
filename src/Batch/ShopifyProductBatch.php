@@ -61,14 +61,14 @@ class ShopifyProductBatch {
         // Remove id property since that would error with the entity key.
 //        dpm($product);
 //        return;
-        $entity = shopify_product_load_by_product_id($product->product_id);
+        $entity = shopify_product_load_by_product_id($product->id);
         if (!$entity) {
           // Need to create this product.
           $entity = ShopifyProduct::create((array) $product);
           $entity->save();
         }
         else {
-          $entity->update($product);
+//          $entity->update($product);
         }
       }
 
