@@ -15,6 +15,7 @@ use Drupal\Core\Entity\EntityTypeInterface;
 use Drupal\Core\Field\FieldStorageDefinitionInterface;
 use Drupal\file\FileInterface;
 use Drupal\shopify\ShopifyProductInterface;
+use Drupal\taxonomy\Entity\Term;
 use Drupal\user\UserInterface;
 
 /**
@@ -57,6 +58,9 @@ class ShopifyProduct extends ContentEntityBase implements ShopifyProductInterfac
   use EntityChangedTrait;
   use ShopifyEntityTrait;
 
+  const SHOPIFY_COLLECTIONS_VID = 'shopify_collections';
+  const SHOPIFY_TAGS_VID = 'shopify_tags';
+
   /**
    * {@inheritdoc}
    */
@@ -96,6 +100,11 @@ class ShopifyProduct extends ContentEntityBase implements ShopifyProductInterfac
       }
     }
 
+    if (isset($values['tags']) && !is_array($values['tags'])) {
+      $values['tags'] = explode(', ', $values['tags']);
+      $values['tags'] = self::setupTags($values['tags']);
+    }
+
     // Format variants as entities.
     foreach ($values['variants'] as &$variant) {
       if (is_object($variant) && !($variant instanceof ShopifyProductVariant)) {
@@ -110,6 +119,26 @@ class ShopifyProduct extends ContentEntityBase implements ShopifyProductInterfac
     $values += array(
       'user_id' => \Drupal::currentUser()->id(),
     );
+  }
+
+  private function setupTags(array $tags = []) {
+    $terms = [];
+    foreach ($tags as $tag) {
+      // Find out if this tag already exists.
+      $term = taxonomy_term_load_multiple_by_name($tag, self::SHOPIFY_TAGS_VID);
+      $term = reset($term);
+      if ($term) {
+        $terms[] = $term;
+      }
+      else {
+        // Need to create this term.
+        $terms[] = Term::create([
+          'name' => $tag,
+          'vid' => self::SHOPIFY_TAGS_VID,
+        ]);
+      }
+    }
+    return $terms;
   }
 
   /**
@@ -378,6 +407,24 @@ class ShopifyProduct extends ContentEntityBase implements ShopifyProductInterfac
       ->setDisplayOptions('form', array(
         'type' => 'map',
         'weight' => 2,
+      ))
+      ->setDisplayConfigurable('form', TRUE)
+      ->setDisplayConfigurable('view', TRUE);
+
+    $fields['tags'] = BaseFieldDefinition::create('entity_reference')
+      ->setLabel(t('Tags'))
+      ->setDescription(t('Product tags.'))
+      ->setSetting('target_type', 'taxonomy_term')
+      ->setSetting('handler', 'default')
+      ->setCardinality(FieldStorageDefinitionInterface::CARDINALITY_UNLIMITED)
+      ->setDisplayOptions('view', array(
+        'label' => 'above',
+        'type' => 'taxonomy_term',
+        'weight' => -25,
+      ))
+      ->setDisplayOptions('form', array(
+        'type' => 'entity_reference_autocomplete_tags',
+        'weight' => -25,
       ))
       ->setDisplayConfigurable('form', TRUE)
       ->setDisplayConfigurable('view', TRUE);
