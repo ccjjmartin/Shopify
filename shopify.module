@@ -177,25 +177,27 @@ function shopify_collection_sync_products(\stdClass $collection) {
 /**
  * Update a Shopify collection with new information.
  *
- * @param array $collection
+ * @param \stdClass $collection
  *   Shopify collection.
  * @param boolean $sync_products
  *   Whether or not to sync product information during update.
  */
-function shopify_collection_update($collection, $sync_products = FALSE) {
-//  $term = shopify_collection_load($collection['id']);
-//  if ($term) {
-//    $term->name = $collection['title'];
-//    $term->description = $collection['body_html'];
-//    $date = strtotime($collection['published_at']);
-//    $term->shopify_collection_published_at = array('und' => array(array('value' => $date ? $date : 0)));
-//  }
-//  if (taxonomy_term_save($term) && isset($collection['image']['src'])) {
-//    // Save the image for this term.
-//    shopify_collection_save_image($term, $collection['image']['src']);
-//  }
-//  // Sync product information for this collection.
-//  shopify_collection_sync_products($collection);
+function shopify_collection_update(\stdClass $collection, $sync_products = FALSE) {
+  $term = shopify_collection_load($collection->id);
+  if ($term) {
+    $term->name = $collection->title;
+    $term->description = $collection->body_html;
+    $date = strtotime($collection->published_at);
+    $term->field_shopify_collection_pub = $date ? $date : 0;
+  }
+  if ($term->save() && isset($collection->image->src)) {
+    // Save the image for this term.
+    shopify_collection_save_image($term, $collection->image->src);
+  }
+  if ($sync_products) {
+    // Sync product information for this collection.
+    shopify_collection_sync_products($collection);
+  }
 }
 
 /**
