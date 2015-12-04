@@ -2,6 +2,14 @@
 
 use Drupal\shopify\Entity\ShopifyProduct;
 
+/**
+ * Loads a Shopify product by it's product_id.
+ *
+ * @param int $product_id
+ *   Shopify product ID.
+ *
+ * @return ShopifyProduct
+ */
 function shopify_product_load_by_product_id($product_id) {
   $query = \Drupal::entityQuery('shopify_product');
   $query->condition('product_id', $product_id);
@@ -12,6 +20,27 @@ function shopify_product_load_by_product_id($product_id) {
   }
 }
 
-function shopify_product_variant_load_by_variant_id($variant_id) {
+/**
+ * Deletes all Shopify products.
+ */
+function shopify_product_delete_all() {
+  $ids = shopify_product_load_all_ids();
+  foreach ($ids as $id) {
+    $product = ShopifyProduct::load($id);
+    $product->delete();
+  }
+}
 
+/**
+ * Loads all Shopify product IDs.
+ *
+ * @return array
+ */
+function shopify_product_load_all_ids() {
+  $query = \Drupal::entityQuery('shopify_product');
+  $ids = $query->execute();
+  if ($ids) {
+    return $ids;
+  }
+  return array();
 }

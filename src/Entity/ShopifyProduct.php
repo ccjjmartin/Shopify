@@ -60,7 +60,7 @@ class ShopifyProduct extends ContentEntityBase implements ShopifyProductInterfac
   /**
    * {@inheritdoc}
    */
-  public static function preCreate(EntityStorageInterface $storage_controller, array &$values) {
+  public static function preCreate(EntityStorageInterface $storage, array &$values) {
     if (isset($values['id'])) {
       // We don't want to set the incoming product_id as the entity ID.
       $values['product_id'] = $values['id'];
@@ -103,20 +103,23 @@ class ShopifyProduct extends ContentEntityBase implements ShopifyProductInterfac
       }
     }
 
-    parent::preCreate($storage_controller, $values);
+    parent::preCreate($storage, $values);
     $values += array(
       'user_id' => \Drupal::currentUser()->id(),
     );
   }
 
-//  public function getVariantByVariantId($variant_id) {
-//    foreach ($this->variants as $variant) {
-//      if ($variant_id == $variant->variant_id) {
-//        return $variant;
-//      }
-//    }
-//    return FALSE;
-//  }
+  /**
+   * {@inheritdoc}
+   */
+  public function delete() {
+    // Delete all variants for this product.
+    foreach ($this->get('variants') as $variant) {
+      $variant = ShopifyProductVariant::load($variant->target_id);
+      $variant->delete();
+    }
+    parent::delete();
+  }
 
   /**
    * {@inheritdoc}

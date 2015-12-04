@@ -1,10 +1,21 @@
 <?php
+/**
+ * @file
+ * Contains code specific to the product sync batch.
+ */
 
 namespace Drupal\shopify\Batch;
 
 use Drupal\shopify\Entity\ShopifyProduct;
 use Shopify\Client;
 
+/**
+ * Class ShopifyProductBatch
+ *
+ * Used for creating a product syncing batch.
+ *
+ * @package Drupal\shopify\Batch
+ */
 class ShopifyProductBatch {
 
   private $batch;
@@ -15,12 +26,33 @@ class ShopifyProductBatch {
     $this->client = shopify_api_client();
   }
 
+  /**
+   * Prepares the product sync batch from passed settings.
+   *
+   * @param array $settings
+   *   Batch specific settings. Valid values include:
+   *    - num_per_batch: The number of items to sync per operation.
+   *    - delete_products_first: Deletes all products from the site first.
+   *    - force_udpate: Ignores last sync time and updates everything anyway.
+   *
+   * @return $this
+   */
   public function prepare(array $settings = []) {
-    $limit = 250; // @todo: make dynamic from settings.
+    $limit = $settings['num_per_batch'];
     $updated_at_min = REQUEST_TIME - 3600; // @todo: Make dynamic.
 
     $num_products = $this->client->getProductsCount();
     $num_operations = ceil($num_products / $limit);
+
+    if ($settings['delete_products_first']) {
+      // Set the first operation to delete all products.
+      $this->operations[] = [
+        [__CLASS__, 'deleteAllProducts'],
+        [
+          t('Deleting all products...'),
+        ],
+      ];
+    }
 
     for ($page = 1; $page <= $num_operations; $page++) {
       $this->operations[] = [
@@ -52,6 +84,17 @@ class ShopifyProductBatch {
     return $this->batch;
   }
 
+  /**
+   * Deletes all products and variants from the database.
+   */
+  public static function deleteAllProducts($operation_details, &$context) {
+    shopify_product_delete_all();
+    $context['message'] = $operation_details;
+  }
+
+  /**
+   * Product sync operation.
+   */
   public static function operation(array $settings = [], $operation_details, &$context) {
     $client = shopify_api_client();
     $result = $client->get('products', $settings);
