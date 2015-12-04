@@ -427,6 +427,10 @@ class ShopifyProductVariant extends ContentEntityBase implements ShopifyProductV
       ->setDisplayConfigurable('form', TRUE)
       ->setDisplayConfigurable('view', TRUE);
 
+    $fields['changed'] = BaseFieldDefinition::create('changed')
+      ->setLabel(t('Changed'))
+      ->setDescription(t('The time that the entity was last udpated.'));
+
     $fields['created_at'] = BaseFieldDefinition::create('integer')
       ->setLabel(t('Created'))
       ->setDescription(t('The time that the product was created.'));
