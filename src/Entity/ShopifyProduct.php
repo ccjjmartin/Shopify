@@ -272,7 +272,7 @@ class ShopifyProduct extends ContentEntityBase implements ShopifyProductInterfac
       ->setCardinality(FieldStorageDefinitionInterface::CARDINALITY_UNLIMITED)
       ->setDisplayOptions('view', array(
         'label' => 'above',
-        'type' => 'shopify_product_variant',
+        'type' => 'entity_reference_entity_view',
         'weight' => -25,
       ))
       ->setDisplayOptions('form', array(
@@ -296,7 +296,7 @@ class ShopifyProduct extends ContentEntityBase implements ShopifyProductInterfac
       ))
       ->setDisplayOptions('view', array(
         'label' => 'above',
-        'type' => 'integer',
+        'type' => 'string',
         'weight' => -3,
       ))
       ->setDisplayOptions('form', array(
@@ -311,11 +311,11 @@ class ShopifyProduct extends ContentEntityBase implements ShopifyProductInterfac
       ->setDefaultValue('')
       ->setDisplayOptions('view', array(
         'label' => 'above',
-        'type' => 'text_textarea',
+        'type' => 'text_default',
         'weight' => -2,
       ))
       ->setDisplayOptions('form', array(
-        'type' => 'text_textarea',
+        'type' => 'text_textfield',
         'weight' => -2,
       ))
       ->setDisplayConfigurable('form', TRUE)
@@ -390,7 +390,7 @@ class ShopifyProduct extends ContentEntityBase implements ShopifyProductInterfac
         'weight' => 2,
       ))
       ->setDisplayOptions('form', array(
-        'type' => 'image',
+        'type' => 'image_image',
         'weight' => 2,
       ))
       ->setDisplayConfigurable('form', TRUE)
@@ -419,7 +419,7 @@ class ShopifyProduct extends ContentEntityBase implements ShopifyProductInterfac
       ->setCardinality(FieldStorageDefinitionInterface::CARDINALITY_UNLIMITED)
       ->setDisplayOptions('view', array(
         'label' => 'above',
-        'type' => 'taxonomy_term',
+        'type' => 'entity_reference_entity_view',
         'weight' => -25,
       ))
       ->setDisplayOptions('form', array(
