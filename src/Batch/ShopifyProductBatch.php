@@ -38,11 +38,15 @@ class ShopifyProductBatch {
    * @return $this
    */
   public function prepare(array $settings = []) {
-    $limit = $settings['num_per_batch'];
-    $updated_at_min = REQUEST_TIME - 3600; // @todo: Make dynamic.
+    $params = [];
+    $params['limit'] = $settings['num_per_batch'];
+
+    if (!$settings['force_update'] && $settings['updated_at_min'] && !$settings['delete_products_first']) {
+      $params['updated_at_min'] = date(DATE_ISO8601, $settings['updated_at_min']);
+    }
 
     $num_products = $this->client->getProductsCount();
-    $num_operations = ceil($num_products / $limit);
+    $num_operations = ceil($num_products / $params['limit']);
 
     if ($settings['delete_products_first']) {
       // Set the first operation to delete all products.
@@ -58,11 +62,7 @@ class ShopifyProductBatch {
       $this->operations[] = [
         [__CLASS__, 'operation'],
         [
-          [
-            'page' => $page,
-            'limit' => $limit,
-            'updated_at_min' => $updated_at_min,
-          ],
+          $params,
           t('(Processing page @operation)', ['@operations' => $page]),
         ]
       ];
@@ -97,7 +97,7 @@ class ShopifyProductBatch {
    */
   public static function operation(array $settings = [], $operation_details, &$context) {
     $client = shopify_api_client();
-    $result = $client->get('products', $settings);
+    $result = $client->get('products', ['query' => $settings]);
     if (isset($result->products) && !empty($result->products)) {
 
       foreach ($result->products as $product) {
@@ -137,6 +137,8 @@ class ShopifyProductBatch {
   }
 
   public static function finished($success, $results, $operations) {
+    // Update the product sync time.
+    \Drupal::state()->set('shopify.sync.products_last_sync_time', REQUEST_TIME);
     drupal_set_message(t('Done!'));
   }
 

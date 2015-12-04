@@ -38,10 +38,25 @@ class ShopifySyncAdminForm extends ConfigFormBase {
    * {@inheritdoc}
    */
   public function buildForm(array $form, FormStateInterface $form_state) {
-    $config = $this->config('shopify.sync');
+//    $config = $this->config('shopify.sync');
+
+    $products_last_sync_time = \Drupal::state()
+      ->get('shopify.sync.products_last_sync_time');
+
+    if (empty($products_last_sync_time)) {
+      $products_last_sync_time_formatted = t('Never');
+    }
+    else {
+      $products_last_sync_time_formatted = \Drupal::service('date.formatter')
+        ->format($products_last_sync_time, 'medium');
+    }
+
     $form['products'] = [
       '#type' => 'details',
       '#title' => t('Sync Products'),
+      '#description' => t('Last sync time: @time', [
+        '@time' => $products_last_sync_time_formatted,
+      ]),
     ];
     $form['products']['num_per_batch'] = array(
       '#type' => 'select',
@@ -95,10 +110,15 @@ class ShopifySyncAdminForm extends ConfigFormBase {
 
   private function batchSyncProducts(array &$form, FormStateInterface $form_state) {
     $batch = new ShopifyProductBatch();
+
+    $last_sync_time = \Drupal::state()
+      ->get('shopify.sync.products_last_sync_time');
+
     $batch->prepare([
       'num_per_batch' => $form_state->getValue('num_per_batch'),
       'delete_products_first' => $form_state->getValue('delete_products_first'),
       'force_update' => $form_state->getValue('force_update'),
+      'updated_at_min' => $last_sync_time,
     ])->set();
   }
 

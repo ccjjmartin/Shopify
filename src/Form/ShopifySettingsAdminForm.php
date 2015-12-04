@@ -8,6 +8,7 @@
 namespace Drupal\shopify\Form;
 
 use Drupal\Core\Form\ConfigFormBase;
+use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
 
 /**
@@ -15,7 +16,7 @@ use Drupal\Core\Form\FormStateInterface;
  *
  * @package Drupal\shopify\Form
  */
-class ShopifySettingsAdminForm extends ConfigFormBase {
+class ShopifySettingsAdminForm extends FormBase {
 
   /**
    * {@inheritdoc}
@@ -38,8 +39,7 @@ class ShopifySettingsAdminForm extends ConfigFormBase {
    */
   public function buildForm(array $form, FormStateInterface $form_state) {
     $config = $this->config('shopify.shopifysettingsadmin');
-
-    return parent::buildForm($form, $form_state);
+    return $form;
   }
 
   /**
