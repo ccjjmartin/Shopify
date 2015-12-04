@@ -4,6 +4,7 @@ core: 8.x
 dependencies:
   - shopify_api
   - views
+  - taxonomy
 scripts:
  - shopify.js
 package: Shopify

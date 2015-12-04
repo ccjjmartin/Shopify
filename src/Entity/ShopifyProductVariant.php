@@ -86,8 +86,12 @@ class ShopifyProductVariant extends ContentEntityBase implements ShopifyProductV
     );
   }
 
+  /**
+   * {@inheritdoc}
+   */
   public function delete() {
     if ($this->image instanceof FileInterface) {
+      // Ensure we delete this variant's image.
       $this->image->delete();
     }
     parent::delete();

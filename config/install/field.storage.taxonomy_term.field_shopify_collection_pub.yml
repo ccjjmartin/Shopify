@@ -1,0 +1,20 @@
+uuid: 0f20c5b3-ece5-4bfd-bf00-a4876045c5bf
+langcode: en
+status: true
+dependencies:
+  module:
+    - taxonomy
+id: taxonomy_term.field_shopify_collection_pub
+field_name: field_shopify_collection_pub
+entity_type: taxonomy_term
+type: integer
+settings:
+  unsigned: false
+  size: normal
+module: core
+locked: false
+cardinality: 1
+translatable: true
+indexes: {  }
+persist_with_no_fields: false
+custom_storage: false
