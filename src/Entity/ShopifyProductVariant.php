@@ -86,6 +86,13 @@ class ShopifyProductVariant extends ContentEntityBase implements ShopifyProductV
     );
   }
 
+  public function delete() {
+    if ($this->image instanceof FileInterface) {
+      $this->image->delete();
+    }
+    parent::delete();
+  }
+
   /**
    * {@inheritdoc}
    */
@@ -180,21 +187,6 @@ class ShopifyProductVariant extends ContentEntityBase implements ShopifyProductV
     $fields['langcode'] = BaseFieldDefinition::create('language')
       ->setLabel(t('Language code'))
       ->setDescription(t('The language code for the Shopify product variant entity.'));
-
-    $fields['weight_unit'] = BaseFieldDefinition::create('string')
-      ->setLabel(t('Weight unit'))
-      ->setDefaultValue('')
-      ->setDisplayOptions('view', array(
-        'label' => 'above',
-        'type' => 'string',
-        'weight' => 8,
-      ))
-      ->setDisplayOptions('form', array(
-        'type' => 'string_textfield',
-        'weight' => 8,
-      ))
-      ->setDisplayConfigurable('form', TRUE)
-      ->setDisplayConfigurable('view', TRUE);
 
     $fields['inventory_management'] = BaseFieldDefinition::create('string')
       ->setLabel(t('Inventory management'))
@@ -322,6 +314,23 @@ class ShopifyProductVariant extends ContentEntityBase implements ShopifyProductV
       ->setDisplayConfigurable('form', TRUE)
       ->setDisplayConfigurable('view', TRUE);
 
+    $fields['position'] = BaseFieldDefinition::create('integer')
+      ->setLabel(t('Position'))
+      ->setSettings(array(
+        'unsigned' => TRUE,
+      ))
+      ->setDisplayOptions('view', array(
+        'label' => 'above',
+        'type' => 'integer',
+        'weight' => -4,
+      ))
+      ->setDisplayOptions('form', array(
+        'type' => 'number',
+        'weight' => -4,
+      ))
+      ->setDisplayConfigurable('form', TRUE)
+      ->setDisplayConfigurable('view', TRUE);
+
     $fields['weight'] = BaseFieldDefinition::create('decimal')
       ->setLabel(t('Weight'))
       ->setSettings(array(
@@ -336,6 +345,21 @@ class ShopifyProductVariant extends ContentEntityBase implements ShopifyProductV
       ->setDisplayOptions('form', array(
         'type' => 'number',
         'weight' => -4,
+      ))
+      ->setDisplayConfigurable('form', TRUE)
+      ->setDisplayConfigurable('view', TRUE);
+
+    $fields['weight_unit'] = BaseFieldDefinition::create('string')
+      ->setLabel(t('Weight unit'))
+      ->setDefaultValue('')
+      ->setDisplayOptions('view', array(
+        'label' => 'above',
+        'type' => 'string',
+        'weight' => 8,
+      ))
+      ->setDisplayOptions('form', array(
+        'type' => 'string_textfield',
+        'weight' => 8,
       ))
       ->setDisplayConfigurable('form', TRUE)
       ->setDisplayConfigurable('view', TRUE);
@@ -426,6 +450,52 @@ class ShopifyProductVariant extends ContentEntityBase implements ShopifyProductV
       ))
       ->setDisplayConfigurable('form', TRUE)
       ->setDisplayConfigurable('view', TRUE);
+
+    $fields['option1'] = BaseFieldDefinition::create('string')
+      ->setLabel(t('Option 1'))
+      ->setDefaultValue('')
+      ->setDisplayOptions('view', array(
+        'label' => 'above',
+        'type' => 'string',
+        'weight' => 4,
+      ))
+      ->setDisplayOptions('form', array(
+        'type' => 'string_textfield',
+        'weight' => 4,
+      ))
+      ->setDisplayConfigurable('form', TRUE)
+      ->setDisplayConfigurable('view', TRUE);
+
+    $fields['option2'] = BaseFieldDefinition::create('string')
+      ->setLabel(t('Option 2'))
+      ->setDefaultValue('')
+      ->setDisplayOptions('view', array(
+        'label' => 'above',
+        'type' => 'string',
+        'weight' => 4,
+      ))
+      ->setDisplayOptions('form', array(
+        'type' => 'string_textfield',
+        'weight' => 4,
+      ))
+      ->setDisplayConfigurable('form', TRUE)
+      ->setDisplayConfigurable('view', TRUE);
+
+    $fields['option3'] = BaseFieldDefinition::create('string')
+      ->setLabel(t('Option 3'))
+      ->setDefaultValue('')
+      ->setDisplayOptions('view', array(
+        'label' => 'above',
+        'type' => 'string',
+        'weight' => 4,
+      ))
+      ->setDisplayOptions('form', array(
+        'type' => 'string_textfield',
+        'weight' => 4,
+      ))
+      ->setDisplayConfigurable('form', TRUE)
+      ->setDisplayConfigurable('view', TRUE);
+
 
     $fields['changed'] = BaseFieldDefinition::create('changed')
       ->setLabel(t('Changed'))

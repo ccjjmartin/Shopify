@@ -8,6 +8,7 @@ namespace Drupal\shopify\Batch;
 
 use Drupal\shopify\Entity\ShopifyProduct;
 use Shopify\Client;
+use Drupal\Component\Utility\Html;
 
 /**
  * Class ShopifyProductBatch
@@ -99,11 +100,7 @@ class ShopifyProductBatch {
     $client = shopify_api_client();
     $result = $client->get('products', ['query' => $settings]);
     if (isset($result->products) && !empty($result->products)) {
-
       foreach ($result->products as $product) {
-        // Remove id property since that would error with the entity key.
-//        dpm($product);
-//        return;
         $entity = shopify_product_load_by_product_id($product->id);
         if (!$entity) {
           // Need to create this product.
@@ -111,27 +108,11 @@ class ShopifyProductBatch {
           $entity->save();
         }
         else {
-//          $entity->update($product);
+          $entity->update((array) $product);
+          $entity->save();
         }
       }
-
-
-      // Create product entities or load.
-
-      /*
-       * OLD CODE....
-      foreach ($products as $product) {
-        $shopify_product = shopify_product_update($product['id'], 0, $product);
-        $shopify_product->save();
-
-        foreach ($product['variants'] as $v) {
-          $variant = shopify_product_update($product['id'], $v['id'], $v);
-          $variant->save();
-          $context['results'][] = $variant->product_id . ' : ' . check_plain($variant->title);
-        }
-        $context['results'][] = $shopify_product->product_id . ' : ' . check_plain($shopify_product->title);
-      }
-      */
+      $context['results'][] = $entity->product_id . ' : ' . Html::escape($entity->title);
     }
     $context['message'] = t('Syncing...');
   }
@@ -139,7 +120,10 @@ class ShopifyProductBatch {
   public static function finished($success, $results, $operations) {
     // Update the product sync time.
     \Drupal::state()->set('shopify.sync.products_last_sync_time', REQUEST_TIME);
-    drupal_set_message(t('Done!'));
+    drupal_set_message(t('Synced @count.', [
+      '@count' => \Drupal::translation()
+        ->formatPlural(count($results), '@count product', '@count products')
+    ]));
   }
 
 }

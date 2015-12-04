@@ -103,6 +103,9 @@ class ShopifyProduct extends ContentEntityBase implements ShopifyProductInterfac
       }
     }
 
+    // Convert options.
+    $values['options'] = serialize($values['options']);
+
     parent::preCreate($storage, $values);
     $values += array(
       'user_id' => \Drupal::currentUser()->id(),
@@ -110,9 +113,25 @@ class ShopifyProduct extends ContentEntityBase implements ShopifyProductInterfac
   }
 
   /**
+   * Updates existing product and variants.
+   *
+   * @param array $values
+   *   Shopify product array.
+   */
+  public function update(array $values = []) {
+//    foreach ($values as $key => $value) {
+//      $this->{$key} = $value;
+//    }
+  }
+
+  /**
    * {@inheritdoc}
    */
   public function delete() {
+    // Delete this products image.
+    if ($this->image instanceof FileInterface) {
+      $this->image->delete();
+    }
     // Delete all variants for this product.
     foreach ($this->get('variants') as $variant) {
       $variant = ShopifyProductVariant::load($variant->target_id);
@@ -343,6 +362,21 @@ class ShopifyProduct extends ContentEntityBase implements ShopifyProductInterfac
       ))
       ->setDisplayOptions('form', array(
         'type' => 'image',
+        'weight' => 2,
+      ))
+      ->setDisplayConfigurable('form', TRUE)
+      ->setDisplayConfigurable('view', TRUE);
+
+    $fields['options'] = BaseFieldDefinition::create('map')
+      ->setLabel(t('Options'))
+      ->setDefaultValue('')
+      ->setDisplayOptions('view', array(
+        'label' => 'above',
+        'type' => 'map',
+        'weight' => 2,
+      ))
+      ->setDisplayOptions('form', array(
+        'type' => 'map',
         'weight' => 2,
       ))
       ->setDisplayConfigurable('form', TRUE)
