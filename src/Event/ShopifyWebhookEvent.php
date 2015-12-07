@@ -1,7 +1,7 @@
 <?php
 /**
  * @file
- * Contains the Stripe API webhook event object.
+ * Contains the Shopify webhook event object.
  */
 namespace Drupal\shopify\Event;
 

@@ -12,7 +12,7 @@ use Symfony\Component\HttpFoundation\Response;
 /**
  * Class ShopifyWebhook
  *
- * Provides the route functionality for stripe_api.webhook route.
+ * Provides the route functionality for shopify.webhook route.
  */
 class ShopifyWebhook extends ControllerBase {
 
