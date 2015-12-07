@@ -93,6 +93,9 @@ class ShopifyWebhookSubscriber implements EventSubscriberInterface {
    */
   private function webhook_collections_update(\stdClass $data) {
     // @todo: Needs functionality.
+    // Note: This does not currently get hit because of a bug in Shopify.
+    // See this issue for updates: https://www.drupal.org/node/2481105
+    shopify_collection_update($data, TRUE);
   }
 
   /**
