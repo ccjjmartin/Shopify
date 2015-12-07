@@ -1,0 +1,5 @@
+services:
+  shopify.webhook_subscriber:
+    class: Drupal\shopify\Event\ShopifyWebhookSubscriber
+    tags:
+      - {name: event_subscriber}

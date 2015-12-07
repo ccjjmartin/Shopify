@@ -1,4 +1,11 @@
 # ShopifyProduct routing definition
+shopify.webhook:
+  path: '/shopify/webhook'
+  defaults:
+    _controller: '\Drupal\shopify\Controller\ShopifyWebhook::handleIncomingWebhook'
+  requirements:
+    _permission: 'access content'
+
 shopify.admin:
   path: '/admin/config/system/shopify'
   defaults:
