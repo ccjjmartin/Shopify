@@ -5,6 +5,8 @@
  */
 namespace Drupal\shopify\Event;
 
+use Drupal\shopify\Entity\ShopifyProduct;
+use Drupal\taxonomy\Entity\Term;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
@@ -59,7 +61,8 @@ class ShopifyWebhookSubscriber implements EventSubscriberInterface {
    * @param \stdClass $data
    */
   private function webhook_products_create(\stdClass $data) {
-    // @todo: Needs functionality.
+    $entity = ShopifyProduct::create((array) $data);
+    $entity->save();
   }
 
   /**
@@ -68,7 +71,10 @@ class ShopifyWebhookSubscriber implements EventSubscriberInterface {
    * @param \stdClass $data
    */
   private function webhook_products_delete(\stdClass $data) {
-    // @todo: Needs functionality.
+    $entity = shopify_product_load_by_product_id($data->id);
+    if ($entity instanceof ShopifyProduct) {
+      $entity->delete();
+    }
   }
 
   /**
@@ -77,7 +83,7 @@ class ShopifyWebhookSubscriber implements EventSubscriberInterface {
    * @param \stdClass $data
    */
   private function webhook_collections_create(\stdClass $data) {
-    // @todo: Needs functionality.
+    shopify_collection_create($data, TRUE);
   }
 
   /**
@@ -95,7 +101,10 @@ class ShopifyWebhookSubscriber implements EventSubscriberInterface {
    * @param \stdClass $data
    */
   private function webhook_collections_delete(\stdClass $data) {
-    // @todo: Needs functionality.
+    $entity = shopify_collection_load($data->id);
+    if ($entity instanceof Term) {
+      $entity->delete();
+    }
   }
 
 }
