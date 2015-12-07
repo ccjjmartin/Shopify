@@ -99,7 +99,6 @@ class ShopifyWebhooksAdminForm extends ConfigFormBase {
       $form['registered'][$hook->address][$hook->id] = [
         '#type' => 'checkbox',
         '#title' => $hook->topic,
-        '#description' => t('React to this event using: @hook', ['@hook' => 'HOOK_shopify_webook_' . str_replace('/', '_', $hook->topic)]),
       ];
     }
 
@@ -133,7 +132,7 @@ class ShopifyWebhooksAdminForm extends ConfigFormBase {
       ],
       'collections' => [
         'create' => t('Collection Created - Highly Recommended'),
-        'update' => t('Collection Updated - Highly Recommended. Bug on Shopify side, see <a target="_blank" href="@issue">Issue</a>', ['@issue' => Url::fromUri('https://www.drupal.org/node/2481105')]),
+        'update' => t('Collection Updated - Highly Recommended. Bug on Shopify side, see <a target="_blank" target="_blank" href="https://www.drupal.org/node/2481105">Drupal.org issue</a>.'),
         'delete' => t('Collection Deleted - Highly Recommended'),
       ],
       'customers' => [
