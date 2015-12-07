@@ -52,7 +52,11 @@ class ShopifyWebhookSubscriber implements EventSubscriberInterface {
    * @param \stdClass $data
    */
   private function webhook_products_update(\stdClass $data) {
-    // @todo: Needs functionality.
+    $entity = shopify_product_load_by_product_id($data->id);
+    if ($entity instanceof ShopifyProduct) {
+      $entity->update((array) $data);
+      $entity->save();
+    }
   }
 
   /**

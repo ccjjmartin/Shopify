@@ -65,6 +65,14 @@ class ShopifyProduct extends ContentEntityBase implements ShopifyProductInterfac
    * {@inheritdoc}
    */
   public static function preCreate(EntityStorageInterface $storage, array &$values) {
+    $values = self::formatValues($values);
+    parent::preCreate($storage, $values);
+    $values += array(
+      'user_id' => \Drupal::currentUser()->id(),
+    );
+  }
+
+  private static function formatValues(array $values) {
     if (isset($values['id'])) {
       // We don't want to set the incoming product_id as the entity ID.
       $values['product_id'] = $values['id'];
@@ -113,18 +121,21 @@ class ShopifyProduct extends ContentEntityBase implements ShopifyProductInterfac
 
     // Format variants as entities.
     foreach ($values['variants'] as &$variant) {
-      if (is_object($variant) && !($variant instanceof ShopifyProductVariant)) {
+      // Attempt to load this variant.
+      $entity = shopify_variant_load_by_variant_id($variant->id);
+      if ($entity instanceof ShopifyProductVariant) {
+        $entity->update((array) $variant);
+        $entity->save();
+        $variant = $entity;
+      }
+      elseif (is_object($variant)) {
         $variant = ShopifyProductVariant::create((array) $variant);
       }
     }
 
     // Convert options.
     $values['options'] = serialize($values['options']);
-
-    parent::preCreate($storage, $values);
-    $values += array(
-      'user_id' => \Drupal::currentUser()->id(),
-    );
+    return $values;
   }
 
   private static function setupTags(array $tags = []) {
@@ -154,9 +165,14 @@ class ShopifyProduct extends ContentEntityBase implements ShopifyProductInterfac
    *   Shopify product array.
    */
   public function update(array $values = []) {
-//    foreach ($values as $key => $value) {
-//      $this->{$key} = $value;
-//    }
+    $entity_id = $this->id();
+    $values = self::formatValues($values);
+    foreach ($values as $key => $value) {
+      if ($this->__isset($key)) {
+        $this->set($key, $value);
+      }
+    }
+    $this->set('id', $entity_id);
   }
 
   /**
@@ -294,20 +310,17 @@ class ShopifyProduct extends ContentEntityBase implements ShopifyProductInterfac
       ->setDisplayConfigurable('form', TRUE)
       ->setDisplayConfigurable('view', TRUE);
 
-    $fields['product_id'] = BaseFieldDefinition::create('integer')
+    $fields['product_id'] = BaseFieldDefinition::create('string')
       ->setLabel(t('Product ID'))
-      ->setRequired(TRUE)
-      ->setSettings(array(
-        'unsigned' => TRUE,
-      ))
+      ->setDefaultValue('')
       ->setDisplayOptions('view', array(
         'label' => 'above',
         'type' => 'string',
-        'weight' => -3,
+        'weight' => 5,
       ))
       ->setDisplayOptions('form', array(
-        'type' => 'number',
-        'weight' => -3,
+        'type' => 'string_textfield',
+        'weight' => 5,
       ))
       ->setDisplayConfigurable('form', TRUE)
       ->setDisplayConfigurable('view', TRUE);

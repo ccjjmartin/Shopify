@@ -1,6 +1,7 @@
 <?php
 
 use Drupal\shopify\Entity\ShopifyProduct;
+use Drupal\shopify\Entity\ShopifyProductVariant;
 use Shopify\Client;
 use  Drupal\taxonomy\Entity\Term;
 
@@ -19,6 +20,25 @@ function shopify_product_load_by_product_id($product_id) {
   if ($ids) {
     $products = ShopifyProduct::loadMultiple($ids);
     return reset($products);
+  }
+  return FALSE;
+}
+
+/**
+ * Loads a Shopify variant by it's variant_id.
+ *
+ * @param int $variant_id
+ *   Shopify product variant ID.
+ *
+ * @return ShopifyProductVariant
+ */
+function shopify_variant_load_by_variant_id($variant_id) {
+  $query = \Drupal::entityQuery('shopify_product_variant');
+  $query->condition('variant_id', $variant_id);
+  $ids = $query->execute();
+  if ($ids) {
+    $variants = ShopifyProductVariant::loadMultiple($ids);
+    return reset($variants);
   }
   return FALSE;
 }

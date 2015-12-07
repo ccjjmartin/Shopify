@@ -60,11 +60,22 @@ class ShopifyProductVariant extends ContentEntityBase implements ShopifyProductV
    * {@inheritdoc}
    */
   public static function preCreate(EntityStorageInterface $storage_controller, array &$values) {
+    $values = self::formatValues($values);
+    parent::preCreate($storage_controller, $values);
+    $values += array(
+      'user_id' => \Drupal::currentUser()->id(),
+    );
+  }
+
+  private static function formatValues(array $values) {
     if (isset($values['id'])) {
       // We don't want to set the incoming product_id as the entity ID.
       $values['variant_id'] = $values['id'];
       unset($values['id']);
     }
+
+    // Don't need product_id.
+    unset($values['product_id']);
 
     // Format timestamps properly.
     self::formatDatetimeAsTimestamp($values, [
@@ -82,11 +93,18 @@ class ShopifyProductVariant extends ContentEntityBase implements ShopifyProductV
     else {
       $values['image'] = NULL;
     }
+    return $values;
+  }
 
-    parent::preCreate($storage_controller, $values);
-    $values += array(
-      'user_id' => \Drupal::currentUser()->id(),
-    );
+  public function update(array $values = []) {
+    $entity_id = $this->id();
+    $values = self::formatValues($values);
+    foreach ($values as $key => $value) {
+      if ($this->__isset($key)) {
+        $this->set($key, $value);
+      }
+    }
+    $this->set('id', $entity_id);
   }
 
   /**
@@ -187,6 +205,21 @@ class ShopifyProductVariant extends ContentEntityBase implements ShopifyProductV
       ->setDisplayOptions('form', array(
         'type' => 'string_textfield',
         'weight' => -4,
+      ))
+      ->setDisplayConfigurable('form', TRUE)
+      ->setDisplayConfigurable('view', TRUE);
+
+    $fields['variant_id'] = BaseFieldDefinition::create('string')
+      ->setLabel(t('Variant ID'))
+      ->setDefaultValue('')
+      ->setDisplayOptions('view', array(
+        'label' => 'above',
+        'type' => 'string',
+        'weight' => 5,
+      ))
+      ->setDisplayOptions('form', array(
+        'type' => 'string_textfield',
+        'weight' => 5,
       ))
       ->setDisplayConfigurable('form', TRUE)
       ->setDisplayConfigurable('view', TRUE);
@@ -304,8 +337,8 @@ class ShopifyProductVariant extends ContentEntityBase implements ShopifyProductV
       ->setDisplayConfigurable('form', TRUE)
       ->setDisplayConfigurable('view', TRUE);
 
-    $fields['inventory_old_quantity'] = BaseFieldDefinition::create('integer')
-      ->setLabel(t('Inventory old quantity'))
+    $fields['old_inventory_quantity'] = BaseFieldDefinition::create('integer')
+      ->setLabel(t('Old inventory quantity'))
       ->setSettings(array(
         'unsigned' => TRUE,
       ))
