@@ -6,6 +6,111 @@ use Shopify\Client;
 use  Drupal\taxonomy\Entity\Term;
 
 /**
+ * Implements hook_cron().
+ */
+function shopify_cron() {
+  $config = \Drupal::config('shopify.sync');
+  $shopify_cron_sync_time = $config->get('cron_sync_time') ?: 0;
+  $cron_last = \Drupal::state()->get('system.cron_last') ?: 0;
+
+  // Check last cron run time vs. the cron speed setting.
+  if ($cron_last + $shopify_cron_sync_time > REQUEST_TIME) {
+    // No need to sync yet.
+    return FALSE;
+  }
+
+  // Sync products.
+  if ($config->get('cron_sync_products')) {
+    $synced_products = shopify_sync_products([
+      'query' => [
+        'updated_at_min' => date(DATE_ISO8601, \Drupal::state()
+          ->get('shopify.sync.products_last_sync_time')),
+        'limit' => 250,
+      ],
+    ]);
+    \Drupal::state()
+      ->set('shopify.sync.products_last_sync_time', REQUEST_TIME);
+    \Drupal::logger('shopify.cron')
+      ->info(t('Synced @count on cron run.', [
+        '@count' => \Drupal::translation()
+          ->formatPlural(count($synced_products), '@count product', '@count products')
+      ]));
+  }
+
+  // Sync collections.
+  if ($config->get('cron_sync_collections')) {
+    $synced_collections = shopify_sync_collections([
+      'query' => [
+        'updated_at_min' => date(DATE_ISO8601, \Drupal::state()
+          ->get('shopify.sync.collections_last_sync_time')),
+        'limit' => 250,
+      ],
+    ]);
+    \Drupal::state()
+      ->set('shopify.sync.collections_last_sync_time', REQUEST_TIME);
+    \Drupal::logger('shopify.cron')
+      ->info(t('Synced @count on cron run.', [
+        '@count' => \Drupal::translation()
+          ->formatPlural(count($synced_collections), '@count collection', '@count collections')
+      ]));
+  }
+}
+
+/**
+ * Sync Shopify products to the site.
+ *
+ * @param array $opts
+ *   Array of options to pass the API call.
+ *
+ * @return ShopifyProduct[]
+ *   Returns the products that were updated/created.
+ */
+function shopify_sync_products(array $opts = []) {
+  $client = shopify_api_client();
+  $result = $client->get('products', $opts);
+  $synced_products = [];
+  foreach ($result->products as $product) {
+    $entity = shopify_product_load_by_product_id($product->id);
+    if ($entity instanceof ShopifyProduct) {
+      $entity->update((array) $product);
+      $entity->save();
+      $synced_products[] = $entity;
+    }
+  }
+
+  // shopify_sync_deleted_products(array('limit' => 250));
+  return $synced_products;
+}
+
+/**
+ * Sync Shopify collections to the site.
+ *
+ * @param array $opts
+ *   Array of options to pass the API call.
+ *
+ * @return Term[]
+ *   Returns the collections that were updated/created.
+ */
+function shopify_sync_collections(array $opts = []) {
+  $collections = shopify_api_get_collections($opts);
+  $synced_collections = [];
+  foreach ($collections as $collection) {
+    $term = shopify_collection_load($collection->id);
+    if ($term instanceof Term) {
+      $term = shopify_collection_update($collection, TRUE);
+    }
+    else {
+      // Need to create a new collection.
+      $term = shopify_collection_create($collection, TRUE);
+    }
+    $synced_collections[] = $term;
+  }
+
+  // shopify_sync_deleted_collections(array('limit' => 250));
+  return $synced_collections;
+}
+
+/**
  * Loads a Shopify product by it's product_id.
  *
  * @param int $product_id
@@ -71,7 +176,7 @@ function shopify_product_load_all_ids() {
 /**
  * Get Shopify collections from the API.
  *
- * @param array $options
+ * @param array $opts
  *   Arguments to pass to the API.
  * @param string $type
  *   Type of collections to get, options are:
@@ -82,14 +187,14 @@ function shopify_product_load_all_ids() {
  * @return array
  *   Returns the API response data.
  */
-function shopify_api_get_collections(array $options = [], $type = 'both') {
+function shopify_api_get_collections(array $opts = [], $type = 'both') {
   $smart_collections = $custom_collections = [];
   $client = shopify_api_client();
   if ($type == 'both' || $type == 'smart') {
-    $smart_collections = $client->getResources('smart_collections', $options);
+    $smart_collections = $client->getResources('smart_collections', $opts);
   }
   if ($type == 'both' || $type == 'custom') {
-    $custom_collections = $client->getResources('custom_collections', $options);
+    $custom_collections = $client->getResources('custom_collections', $opts);
   }
   return array_merge($smart_collections, $custom_collections);
 }
@@ -138,6 +243,7 @@ function shopify_collection_create(\stdClass $collection, $sync_products = FALSE
     // Sync product information for this collection.
     shopify_collection_sync_products($collection);
   }
+  return $term;
 }
 
 /**
@@ -179,7 +285,7 @@ function shopify_collection_sync_products(\stdClass $collection) {
       if ($item->target_id && ($item->target_id == $term->id())) {
         // Product already in collection.
         // Check if this collection is active.
-        if ($term->field_shopify_collection_pub == 0) {
+        if ($term->field_shopify_collection_pub->value == 0) {
           // Remove this collection from the product.
           $product->collections->removeItem($key);
           $product->save();
@@ -218,6 +324,7 @@ function shopify_collection_update(\stdClass $collection, $sync_products = FALSE
     // Sync product information for this collection.
     shopify_collection_sync_products($collection);
   }
+  return $term;
 }
 
 /**
