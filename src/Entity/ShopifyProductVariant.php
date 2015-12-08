@@ -412,7 +412,7 @@ class ShopifyProductVariant extends ContentEntityBase implements ShopifyProductV
       ))
       ->setDisplayOptions('view', array(
         'label' => 'above',
-        'type' => 'decimal',
+        'type' => 'shopify_price',
         'weight' => -4,
       ))
       ->setDisplayOptions('form', array(
@@ -430,7 +430,7 @@ class ShopifyProductVariant extends ContentEntityBase implements ShopifyProductV
       ))
       ->setDisplayOptions('view', array(
         'label' => 'above',
-        'type' => 'decimal',
+        'type' => 'shopify_price',
         'weight' => -4,
       ))
       ->setDisplayOptions('form', array(

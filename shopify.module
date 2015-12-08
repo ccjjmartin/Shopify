@@ -177,6 +177,18 @@ function shopify_shop_info($key = '', $refresh = FALSE) {
 }
 
 /**
+ * Formats currency based on Shopify settings.
+ *
+ * @param float $amount
+ *   Amount that should be formatted.
+ *
+ * @return string
+ */
+function shopify_currency_format($amount) {
+  return strtr(shopify_shop_info()->money_format, ['{{amount}}' => $amount]);
+}
+
+/**
  * Sync Shopify products to the site.
  *
  * @param array $opts
