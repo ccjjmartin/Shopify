@@ -36,14 +36,12 @@ shopify.webhooks:
 
 
 entity.shopify_product.canonical:
-  path: '/admin/shopify_product/{shopify_product}'
+  path: '/store/product/{shopify_product}'
   defaults:
     _entity_view: 'shopify_product'
     _title: 'Shopify product'
   requirements:
     _entity_access: 'shopify_product.view'
-  options:
-    _admin_route: TRUE
 
 entity.shopify_product.collection:
   path: '/admin/shopify_product'
