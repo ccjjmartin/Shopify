@@ -1,5 +1,9 @@
 <?php
 
+//namespace Drupal\shopify;
+
+use Drupal\Core\Cache\Cache;
+use Drupal\Core\Url;
 use Drupal\shopify\Entity\ShopifyProduct;
 use Drupal\shopify\Entity\ShopifyProductVariant;
 use Shopify\Client;
@@ -54,6 +58,91 @@ function shopify_cron() {
           ->formatPlural(count($synced_collections), '@count collection', '@count collections')
       ]));
   }
+}
+
+/**
+ * Implements hook_toolbar().
+ */
+function shopify_toolbar() {
+  $items = [];
+  $links = shopify_renderable_links();
+  // @todo: Need caching per user setup.
+  // @todo: Need better permission checking.
+  $items['shopify'] = array(
+    '#type' => 'toolbar_item',
+    'tab' => array(
+      '#type' => 'link',
+      '#title' => t('Shopify'),
+      '#url' => Url::fromRoute('shopify.admin'),
+      '#attributes' => array(
+        'title' => t('Shopify'),
+        'class' => array('toolbar-icon', 'toolbar-icon-shopify'),
+      ),
+    ),
+    'tray' => array(
+      '#heading' => t('Shopify admin pages'),
+      'shopify_links' => array(
+        '#theme' => 'item_list',
+        '#items' => $links,
+        '#attributes' => array(
+          'class' => array('toolbar-menu'),
+        ),
+        '#attached' => array(
+          'library' => array(
+            'shopify/shopify.toolbar.css',
+          ),
+        ),
+      ),
+    ),
+    '#weight' => -5,
+  );
+
+  return $items;
+}
+
+/**
+ * Returns an array of Shopify admin links.
+ */
+function shopify_renderable_links() {
+  // @todo: Need better permission checking.
+  $links[] = array(
+    '#type' => 'link',
+    '#title' => t('Overview'),
+    '#url' => Url::fromRoute('shopify.admin'),
+  );
+  $links[] = array(
+    '#type' => 'link',
+    '#title' => t('Sync'),
+    '#url' => Url::fromRoute('shopify.sync'),
+  );
+  $links[] = array(
+    '#type' => 'link',
+    '#title' => t('Webhooks'),
+    '#url' => Url::fromRoute('shopify.webhooks'),
+  );
+  $links[] = array(
+    '#type' => 'link',
+    '#title' => t('View Products'),
+    '#url' => Url::fromRoute('entity.shopify_product.collection'),
+  );
+  $links[] = array(
+    '#type' => 'link',
+    '#title' => t('View Collections'),
+    '#url' => Url::fromUri('internal:/admin/structure/taxonomy/manage/shopify_collections/overview'),
+    // @todo: Make more dynamic.
+  );
+  $links[] = array(
+    '#type' => 'link',
+    '#title' => t('View Tags'),
+    '#url' => Url::fromUri('internal:/admin/structure/taxonomy/manage/shopify_tags/overview'),
+    // @todo: Make more dynamic.
+  );
+  $links[] = array(
+    '#type' => 'link',
+    '#title' => t('API Settings'),
+    '#url' => Url::fromRoute('shopify_api.admin'),
+  );
+  return $links;
 }
 
 /**
