@@ -107,6 +107,11 @@ function shopify_renderable_links() {
   // @todo: Need better permission checking.
   $links[] = array(
     '#type' => 'link',
+    '#title' => t('Visit Store'),
+    '#url' => Url::fromUri('internal:/store'),
+  );
+  $links[] = array(
+    '#type' => 'link',
     '#title' => t('Overview'),
     '#url' => Url::fromRoute('shopify.admin'),
   );
