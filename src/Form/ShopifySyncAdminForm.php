@@ -7,7 +7,7 @@
 
 namespace Drupal\shopify\Form;
 
-use Drupal\Core\Form\ConfigFormBase;
+use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\shopify\Batch\ShopifyProductBatch;
 use Drupal\shopify\Batch\ShopifyCollectionBatch;
@@ -17,7 +17,7 @@ use Drupal\shopify\Batch\ShopifyCollectionBatch;
  *
  * @package Drupal\shopify\Form
  */
-class ShopifySyncAdminForm extends ConfigFormBase {
+class ShopifySyncAdminForm extends FormBase {
 
   /**
    * {@inheritdoc}
@@ -39,7 +39,7 @@ class ShopifySyncAdminForm extends ConfigFormBase {
    * {@inheritdoc}
    */
   public function buildForm(array $form, FormStateInterface $form_state) {
-//    $config = $this->config('shopify.sync');
+    $config = $this->config('shopify.sync');
 
     $products_last_sync_time = \Drupal::state()
       ->get('shopify.sync.products_last_sync_time');
@@ -112,7 +112,35 @@ class ShopifySyncAdminForm extends ConfigFormBase {
       '#name' => 'sync_collections',
     ];
 
-    return parent::buildForm($form, $form_state);
+    $form['cron'] = array(
+      '#type' => 'details',
+      '#title' => t('Cron'),
+      '#description' => t('Settings for automatically syncing products/collections on cron run.<br /><strong>Only newly updated products/collections will be synced.</strong><br /><br />'),
+      '#tree' => TRUE,
+    );
+    $form['cron']['sync_products'] = array(
+      '#type' => 'checkbox',
+      '#title' => t('Sync products on cron run.'),
+      '#default_value' => $config->get('cron_sync_products'),
+    );
+    $form['cron']['sync_collections'] = array(
+      '#type' => 'checkbox',
+      '#title' => t('Sync collections on cron run.'),
+      '#default_value' => $config->get('cron_sync_collections'),
+    );
+    $form['cron']['sync_time'] = array(
+      '#type' => 'textfield',
+      '#title' => t('How often to sync'),
+      '#description' => t('Enter the number of seconds to wait to sync between cron runs.<br />To sync once per day, enter "86400". To sync once per hour, enter "3600".<br />Leave empty or "0" to sync on every cron run.'),
+      '#default_value' => $config->get('cron_sync_time') ?: 0,
+    );
+    $form['cron']['save_cron'] = array(
+      '#type' => 'submit',
+      '#value' => t('Save cron settings'),
+      '#name' => 'save_cron_settings',
+    );
+
+    return $form;
   }
 
   /**
@@ -133,11 +161,30 @@ class ShopifySyncAdminForm extends ConfigFormBase {
       case 'sync_collections':
         $this->batchSyncCollections($form, $form_state);
         break;
+      case 'save_cron_settings':
+        $this->saveCronSettings($form, $form_state);
+        break;
       default:
         parent::submitForm($form, $form_state);
-        $this->config('shopify.sync')
-          ->save();
     }
+  }
+
+  private function saveCronSettings(array &$form, FormStateInterface $form_state) {
+    $config = \Drupal::configFactory()->getEditable('shopify.sync');
+    $config
+      ->set('cron_sync_products', $form_state->getValue([
+        'cron',
+        'sync_products'
+      ]))
+      ->set('cron_sync_collections', $form_state->getValue([
+        'cron',
+        'sync_collections'
+      ]))
+      ->set('cron_sync_time', $form_state->getValue([
+        'cron',
+        'sync_time'
+      ]))
+      ->save();
   }
 
   private function batchSyncCollections(array &$form, FormStateInterface $form_state) {
