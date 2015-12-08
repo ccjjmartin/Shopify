@@ -151,6 +151,32 @@ function shopify_renderable_links() {
 }
 
 /**
+ * Gets store info from Shopify.
+ *
+ * @param string $key
+ *   Optional specific key to return.
+ * @param bool|FALSE $refresh
+ *   Whether store info should be refreshed from Shopify.
+ *
+ * @return string|object
+ *   Returns a specific key value or the info object.
+ */
+function shopify_shop_info($key = '', $refresh = FALSE) {
+  if ($refresh) {
+    $client = shopify_api_client();
+    $info = $client->getShopInfo();
+    \Drupal::state()->set('shopify.shop_info', $info);
+  }
+  $info = \Drupal::state()->get('shopify.shop_info', new stdClass());
+  if (!empty($key)) {
+    return $info->{$key};
+  }
+  else {
+    return $info;
+  }
+}
+
+/**
  * Sync Shopify products to the site.
  *
  * @param array $opts

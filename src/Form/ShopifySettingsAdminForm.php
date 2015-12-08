@@ -30,9 +30,8 @@ class ShopifySettingsAdminForm extends FormBase {
    * {@inheritdoc}
    */
   public function buildForm(array $form, FormStateInterface $form_state) {
-    $client = shopify_api_client();
     try {
-      $info = $client->getShopInfo();
+      $info = shopify_shop_info('', $refresh = TRUE);
     } catch (\Exception $e) {
       // Error connecting to the store.
       drupal_set_message(t('Could not connect to the Shopify store.'), 'error');
