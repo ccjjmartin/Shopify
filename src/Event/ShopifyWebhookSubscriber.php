@@ -52,7 +52,7 @@ class ShopifyWebhookSubscriber implements EventSubscriberInterface {
    * @param \stdClass $data
    */
   private function webhook_products_update(\stdClass $data) {
-    $entity = shopify_product_load_by_product_id($data->id);
+    $entity = ShopifyProduct::loadByProductId($data->id);
     if ($entity instanceof ShopifyProduct) {
       $entity->update((array) $data);
       $entity->save();
@@ -75,7 +75,7 @@ class ShopifyWebhookSubscriber implements EventSubscriberInterface {
    * @param \stdClass $data
    */
   private function webhook_products_delete(\stdClass $data) {
-    $entity = shopify_product_load_by_product_id($data->id);
+    $entity = ShopifyProduct::loadByProductId($data->id);
     if ($entity instanceof ShopifyProduct) {
       $entity->delete();
     }

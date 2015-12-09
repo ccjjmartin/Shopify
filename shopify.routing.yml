@@ -6,6 +6,13 @@ shopify.webhook:
   requirements:
     _permission: 'access content'
 
+shopify.added-to-cart:
+  path: '/shopify/added-to-cart'
+  defaults:
+    _controller: '\Drupal\shopify\Controller\ShopifyAddedToCart::displayMessage'
+  requirements:
+    _permission: 'access content'
+
 shopify.admin:
   path: '/admin/config/system/shopify'
   defaults:

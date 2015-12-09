@@ -107,6 +107,16 @@ class ShopifyProductVariant extends ContentEntityBase implements ShopifyProductV
     $this->set('id', $entity_id);
   }
 
+  public function getFormattedOptions() {
+    $options = [
+      $this->option1->value,
+      $this->option2->value,
+      $this->option3->value,
+    ];
+    $options = array_combine($options, $options);
+    return array_filter($options);
+  }
+
   /**
    * {@inheritdoc}
    */
@@ -116,6 +126,33 @@ class ShopifyProductVariant extends ContentEntityBase implements ShopifyProductV
       $this->image->delete();
     }
     parent::delete();
+  }
+
+  /**
+   * Loads a variant by it's variant_id.
+   *
+   * @param string $variant_id
+   *   Variant ID as string or int.
+   *
+   * @return ShopifyProductVariant
+   */
+  public static function loadByVariantId($variant_id) {
+    $variants = (array) self::loadByProperties(['variant_id' => $variant_id]);
+    return reset($variants);
+  }
+
+  /**
+   * Load variants by their properties.
+   *
+   * @param array $props
+   *   Key/value pair of properties to query by.
+   *
+   * @return ShopifyProductVariant[]
+   */
+  public static function loadByProperties(array $props = []) {
+    return self::entityManager()
+      ->getStorage('shopify_product_variant')
+      ->loadByProperties($props);
   }
 
   /**

@@ -10,6 +10,21 @@ use Shopify\Client;
 use  Drupal\taxonomy\Entity\Term;
 
 /**
+ * Implements hook_entity_extra_field_info().
+ */
+function shopify_entity_extra_field_info() {
+  $extra = [];
+  $extra['shopify_product']['shopify_product']['display']['add_to_cart_form'] = [
+    'label' => t('Add to cart form'),
+    'description' => t('Display variant options, quantity field, and "Add to Cart" button.'),
+    'visible' => TRUE,
+    'weight' => 100,
+    'edit' => '/test',
+  ];
+  return $extra;
+}
+
+/**
  * Implements hook_cron().
  */
 function shopify_cron() {
@@ -202,7 +217,7 @@ function shopify_sync_products(array $opts = []) {
   $result = $client->get('products', $opts);
   $synced_products = [];
   foreach ($result->products as $product) {
-    $entity = shopify_product_load_by_product_id($product->id);
+    $entity = ShopifyProduct::loadByProductId($product->id);
     if ($entity instanceof ShopifyProduct) {
       $entity->update((array) $product);
       $entity->save();
@@ -240,44 +255,6 @@ function shopify_sync_collections(array $opts = []) {
 
   // shopify_sync_deleted_collections(array('limit' => 250));
   return $synced_collections;
-}
-
-/**
- * Loads a Shopify product by it's product_id.
- *
- * @param int $product_id
- *   Shopify product ID.
- *
- * @return ShopifyProduct
- */
-function shopify_product_load_by_product_id($product_id) {
-  $query = \Drupal::entityQuery('shopify_product');
-  $query->condition('product_id', $product_id);
-  $ids = $query->execute();
-  if ($ids) {
-    $products = ShopifyProduct::loadMultiple($ids);
-    return reset($products);
-  }
-  return FALSE;
-}
-
-/**
- * Loads a Shopify variant by it's variant_id.
- *
- * @param int $variant_id
- *   Shopify product variant ID.
- *
- * @return ShopifyProductVariant
- */
-function shopify_variant_load_by_variant_id($variant_id) {
-  $query = \Drupal::entityQuery('shopify_product_variant');
-  $query->condition('variant_id', $variant_id);
-  $ids = $query->execute();
-  if ($ids) {
-    $variants = ShopifyProductVariant::loadMultiple($ids);
-    return reset($variants);
-  }
-  return FALSE;
 }
 
 /**
@@ -409,7 +386,7 @@ function shopify_collection_sync_products(\stdClass $collection) {
   $collects = $client->getResources('collects', ['query' => ['collection_id' => $collection->id]]);
   foreach ($collects as $c) {
     // Update this product information.
-    $product = shopify_product_load_by_product_id($c->product_id);
+    $product = ShopifyProduct::loadByProductId($c->product_id);
     if (!$product) {
       continue;
     }

@@ -27,7 +27,7 @@ use Drupal\user\UserInterface;
  *   id = "shopify_product",
  *   label = @Translation("Shopify product"),
  *   handlers = {
- *     "view_builder" = "Drupal\Core\Entity\EntityViewBuilder",
+ *     "view_builder" = "Drupal\shopify\ShopifyProductViewBuilder",
  *     "list_builder" = "Drupal\shopify\ShopifyProductListBuilder",
  *     "views_data" = "Drupal\shopify\Entity\ShopifyProductViewsData",
  *
@@ -122,7 +122,7 @@ class ShopifyProduct extends ContentEntityBase implements ShopifyProductInterfac
     // Format variants as entities.
     foreach ($values['variants'] as &$variant) {
       // Attempt to load this variant.
-      $entity = shopify_variant_load_by_variant_id($variant->id);
+      $entity = ShopifyProductVariant::loadByVariantId($variant->id);
       if ($entity instanceof ShopifyProductVariant) {
         $entity->update((array) $variant);
         $entity->save();
@@ -189,6 +189,47 @@ class ShopifyProduct extends ContentEntityBase implements ShopifyProductInterfac
       $variant->delete();
     }
     parent::delete();
+  }
+
+  /**
+   * Loads a product by it's product_id.
+   *
+   * @param string $product_id
+   *   Shopify product ID.
+   *
+   * @return ShopifyProduct
+   */
+  public static function loadByProductId($product_id) {
+    $products = (array) self::loadByProperties(['product_id' => $product_id]);
+    return reset($products);
+  }
+
+  /**
+   * Loads a product that has a variant with the matching variant_id.
+   *
+   * @param string $variant_id
+   *   Shopify variant ID.
+   *
+   * @return ShopifyProduct
+   */
+  public static function loadByVariantId($variant_id) {
+    $variant = ShopifyProductVariant::loadByVariantId($variant_id);
+    $products = (array) self::loadByProperties(['variants' => $variant->id()]);
+    return reset($products);
+  }
+
+  /**
+   * Load products by their properties.
+   *
+   * @param array $props
+   *   Key/value pair of properties to query by.
+   *
+   * @return ShopifyProduct[]
+   */
+  public static function loadByProperties(array $props = []) {
+    return self::entityManager()
+      ->getStorage('shopify_product')
+      ->loadByProperties($props);
   }
 
   /**

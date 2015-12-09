@@ -101,7 +101,7 @@ class ShopifyProductBatch {
     $result = $client->get('products', ['query' => $settings]);
     if (isset($result->products) && !empty($result->products)) {
       foreach ($result->products as $product) {
-        $entity = shopify_product_load_by_product_id($product->id);
+        $entity = ShopifyProduct::loadByProductId($product->id);
         if (!$entity) {
           // Need to create this product.
           $entity = ShopifyProduct::create((array) $product);
