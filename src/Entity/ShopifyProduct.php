@@ -79,6 +79,11 @@ class ShopifyProduct extends ContentEntityBase implements ShopifyProductInterfac
       unset($values['id']);
     }
 
+    $values['body_html'] = [
+      'value' => $values['body_html'],
+      'format' => 'full_html',
+    ];
+
     // Format timestamps properly.
     self::formatDatetimeAsTimestamp($values, [
       'created_at',
