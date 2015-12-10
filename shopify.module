@@ -155,7 +155,7 @@ function shopify_renderable_links() {
   $links[] = array(
     '#type' => 'link',
     '#title' => t('Visit Store'),
-    '#url' => Url::fromUri('internal:/store'),
+    '#url' => Url::fromUri('internal:/' . shopify_store_url()),
   );
   $links[] = array(
     '#type' => 'link',
@@ -193,6 +193,11 @@ function shopify_renderable_links() {
     '#type' => 'link',
     '#title' => t('API Settings'),
     '#url' => Url::fromRoute('shopify_api.admin'),
+  );
+  $links[] = array(
+    '#type' => 'link',
+    '#title' => t('Shopify Admin &rarr;'),
+    '#url' => Url::fromUri('https://' . shopify_shop_info('domain') . '/admin', ['attributes' => ['target' => '_blank']]),
   );
   return $links;
 }
