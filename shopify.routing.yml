@@ -13,6 +13,13 @@ shopify.added-to-cart:
   requirements:
     _permission: 'access content'
 
+shopify.redirect:
+  path: '/shopify/redirect'
+  defaults:
+    _controller: '\Drupal\shopify\Controller\ShopifyRedirect::handleRedirect'
+  requirements:
+    _permission: 'access content'
+
 shopify.admin:
   path: '/admin/config/system/shopify'
   defaults:

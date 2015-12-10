@@ -156,6 +156,32 @@ class ShopifyProductVariant extends ContentEntityBase implements ShopifyProductV
   }
 
   /**
+   * Returns the associated parent product.
+   *
+   * @return \Drupal\shopify\Entity\ShopifyProduct
+   */
+  public function getProduct() {
+    return ShopifyProduct::loadByVariantId($this->variant_id->value);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function url($rel = 'canonical', $options = array()) {
+    // While self::toUrl() will throw an exception if the entity has no id,
+    // the expected result for a URL is always a string.
+    if ($this->id() === NULL || !$this->hasLinkTemplate($rel)) {
+      return '';
+    }
+    // URL should point to the product page with a variant_id param set.
+    $product = $this->getProduct();
+    $options['query'] = ['variant_id' => $this->variant_id->value];
+    $uri = $product->toUrl($rel);
+    $uri->setOptions($options);
+    return $uri->toString();
+  }
+
+  /**
    * {@inheritdoc}
    */
   public function getOwner() {

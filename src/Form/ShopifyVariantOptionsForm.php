@@ -35,6 +35,21 @@ class ShopifyVariantOptionsForm extends FormBase {
 
     $variant_id = \Drupal::request()->get('variant_id', FALSE);
     $default_options = \Drupal::request()->get('options', []);
+
+    if (empty($default_options) && $variant_id) {
+      // No options set from the query.
+      // Set default options from the active variant.
+      $variant = ShopifyProductVariant::loadByVariantId($variant_id);
+      $variant_options = $variant->getFormattedOptions();
+      foreach ($options as $option) {
+        foreach ($option->values as $option_value) {
+          if (in_array($option_value, $variant_options)) {
+            $default_options[$option->id] = $option_value;
+          }
+        }
+      }
+    }
+
     $form['options']['#tree'] = TRUE;
 
     foreach ($options as $option) {

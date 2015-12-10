@@ -226,8 +226,10 @@ class ShopifyProduct extends ContentEntityBase implements ShopifyProductInterfac
    */
   public static function loadByVariantId($variant_id) {
     $variant = ShopifyProductVariant::loadByVariantId($variant_id);
-    $products = (array) self::loadByProperties(['variants' => $variant->id()]);
-    return reset($products);
+    if ($variant instanceof ShopifyProductVariant) {
+      $products = (array) self::loadByProperties(['variants' => $variant->id()]);
+      return reset($products);
+    }
   }
 
   /**
