@@ -422,8 +422,8 @@ class ShopifyProduct extends ContentEntityBase implements ShopifyProductInterfac
       ->setLabel(t('Tags'))
       ->setDescription(t('Product tags.'))
       ->setSetting('target_type', 'taxonomy_term')
-      ->setSetting('target_bundles', ['shopify_tags'])// @todo: Not working.
-      ->setSetting('handler', 'default')
+      ->setSetting('target_bundles', ['shopify_tags' => 'shopify_tags'])
+      ->setSetting('handler', 'default:taxonomy_term')
       ->setCardinality(FieldStorageDefinitionInterface::CARDINALITY_UNLIMITED)
       ->setDisplayOptions('view', array(
         'label' => 'inline',
@@ -442,8 +442,8 @@ class ShopifyProduct extends ContentEntityBase implements ShopifyProductInterfac
       ->setLabel(t('Collections'))
       ->setDescription(t('Product collections.'))
       ->setSetting('target_type', 'taxonomy_term')
-      ->setSetting('target_bundles', ['shopify_collections'])// @todo: Not working.
-      ->setSetting('handler', 'default')
+      ->setSetting('target_bundles', ['shopify_collections' => 'shopify_collections'])
+      ->setSetting('handler', 'default:taxonomy_term')
       ->setCardinality(FieldStorageDefinitionInterface::CARDINALITY_UNLIMITED)
       ->setDisplayOptions('view', array(
         'label' => 'inline',
