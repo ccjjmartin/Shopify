@@ -51,7 +51,18 @@ function shopify_entity_extra_field_info() {
     'description' => t('Display variant options, quantity field, and "Add to Cart" button.'),
     'visible' => TRUE,
     'weight' => 100,
-    'edit' => '/test',
+  ];
+  $extra['shopify_product']['shopify_product']['display']['dynamic_product_image'] = [
+    'label' => t('Dynamic product image'),
+    'description' => t('Displays the product image by default, or the variant image if one is selected.'),
+    'visible' => TRUE,
+    'weight' => 150,
+  ];
+  $extra['shopify_product']['shopify_product']['display']['active_variant'] = [
+    'label' => t('Active variant'),
+    'description' => t('Renders the active variant.'),
+    'visible' => TRUE,
+    'weight' => 200,
   ];
   return $extra;
 }
