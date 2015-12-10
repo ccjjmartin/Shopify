@@ -22,6 +22,13 @@ function shopify_theme($existing, $type, $theme, $path) {
 }
 
 /**
+ * Implements hook_views_post_render().
+ */
+function shopify_views_post_render(\Drupal\views\ViewExecutable $view, &$output, \Drupal\views\Plugin\views\cache\CachePluginBase $cache) {
+  $output['#attached']['library'][] = 'shopify/shopify.store.css';
+}
+
+/**
  * Data that should be passed into drupalSettings.
  */
 function shopify_drupal_js_data() {
@@ -38,7 +45,7 @@ function shopify_drupal_js_data() {
  */
 function shopify_store_url() {
   $view = \Drupal\views\Entity\View::load('shopify_store');
-  return $view->getDisplay('page_1')['display_options']['path'];
+  return $view->getDisplay('main')['display_options']['path'];
 }
 
 /**

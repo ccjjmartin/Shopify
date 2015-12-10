@@ -4,6 +4,12 @@ shopify.toolbar.css:
     theme:
       css/shopify.toolbar.css: {}
 
+shopify.store.css:
+  version: 1.x
+  css:
+    theme:
+      css/shopify.store.css: {}
+
 shopify.js:
   version: 1.x
   js:
