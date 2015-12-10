@@ -29,7 +29,7 @@ use Drupal\user\UserInterface;
  *   handlers = {
  *     "view_builder" = "Drupal\shopify\ShopifyProductViewBuilder",
  *     "list_builder" = "Drupal\shopify\ShopifyProductListBuilder",
- *     "views_data" = "Drupal\views\EntityViewsData",
+ *     "views_data" = "Drupal\shopify\ShopifyProductViewsData",
  *
  *     "form" = {
  *       "default" = "Drupal\shopify\Entity\Form\ShopifyProductForm",

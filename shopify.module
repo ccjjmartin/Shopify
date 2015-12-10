@@ -45,7 +45,9 @@ function shopify_drupal_js_data() {
  */
 function shopify_store_url() {
   $view = \Drupal\views\Entity\View::load('shopify_store');
-  return $view->getDisplay('main')['display_options']['path'];
+  if ($view instanceof \Drupal\views\Entity\View) {
+    return $view->getDisplay('main')['display_options']['path'];
+  }
 }
 
 /**
