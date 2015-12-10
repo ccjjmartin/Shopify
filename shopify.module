@@ -10,6 +10,30 @@ use Shopify\Client;
 use  Drupal\taxonomy\Entity\Term;
 
 /**
+ * Implements hook_theme().
+ */
+function shopify_theme($existing, $type, $theme, $path) {
+  return [
+    'shopify_cart' => [
+      'template' => 'shopify_cart',
+      'variables' => ['domain' => ''],
+    ],
+  ];
+}
+
+/**
+ * Data that should be passed into drupalSettings.
+ */
+function shopify_drupal_js_data() {
+  $info = shopify_shop_info();
+  return [
+    'shop' => [
+      'domain' => $info->domain,
+    ],
+  ];
+}
+
+/**
  * Implements hook_entity_extra_field_info().
  */
 function shopify_entity_extra_field_info() {

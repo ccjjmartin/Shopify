@@ -8,3 +8,5 @@ shopify.js:
   version: 1.x
   js:
     shopify.js: {}
+  dependencies:
+    - core/jquery
