@@ -113,8 +113,11 @@ class ShopifyProductBatch {
         }
         $context['results'][] = $entity->product_id . ' : ' . Html::escape($entity->title);
       }
+      $context['message'] = t('Syncing @products.', [
+        '@products' => \Drupal::translation()
+          ->formatPlural(count($result->products), '@count product', '@count products'),
+      ]);
     }
-    $context['message'] = t('Syncing...');
   }
 
   public static function finished($success, $results, $operations) {
