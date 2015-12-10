@@ -1,7 +1,8 @@
-uuid: 593f1ac4-5232-44c8-8701-1dc4fe32cc41
 langcode: en
 status: true
 dependencies:
+  config:
+    - core.entity_view_mode.shopify_product.store_listing
   module:
     - shopify
 id: shopify_store
@@ -77,6 +78,9 @@ display:
           row_class_custom: ''
       row:
         type: 'entity:shopify_product'
+        options:
+          relationship: none
+          view_mode: store_listing
       fields:
         operations:
           table: shopify_product
