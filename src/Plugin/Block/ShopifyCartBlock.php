@@ -8,6 +8,7 @@
 namespace Drupal\shopify\Plugin\Block;
 
 use Drupal\Core\Block\BlockBase;
+use Drupal\Core\Cache\Cache;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Render\Element;
 use Drupal\Core\Url;
@@ -26,9 +27,9 @@ class ShopifyCartBlock extends BlockBase {
    * {@inheritdoc}
    */
   public function getCacheMaxAge() {
-    // Contents of cart don't depend on the page or user or any other
-    // cache context we have available.
-    return 0;
+    // We can permanently cache this block because the content totals are
+    // updated via AJAX through Shopify.
+    return Cache::PERMANENT;
   }
 
   /**
