@@ -10,7 +10,6 @@ use Drupal\shopify\Entity\ShopifyProduct;
 use Drupal\shopify\Entity\ShopifyProductVariant;
 use Drupal\taxonomy\Entity\Term;
 use Symfony\Component\HttpFoundation\RedirectResponse;
-use Symfony\Component\HttpFoundation\Response;
 
 /**
  * Class ShopifyRedirect
@@ -28,6 +27,7 @@ class ShopifyRedirect extends ControllerBase {
       if ($variant instanceof ShopifyProductVariant) {
         return new RedirectResponse($variant->url());
       }
+      drupal_set_message(t('We\'re sorry, but that product is unavailable at this time.'), 'warning');
     }
 
     if ($request->get('product_id')) {
@@ -36,6 +36,7 @@ class ShopifyRedirect extends ControllerBase {
       if ($product instanceof ShopifyProduct) {
         return new RedirectResponse($product->url());
       }
+      drupal_set_message(t('We\'re sorry, but that product is unavailable at this time.'), 'warning');
     }
 
     if ($request->get('collection_id')) {
@@ -44,9 +45,10 @@ class ShopifyRedirect extends ControllerBase {
       if ($collection instanceof Term) {
         return new RedirectResponse($collection->url());
       }
+      drupal_set_message(t('We\'re sorry, but that collection is unavailable at this time.'), 'warning');
     }
 
-    return new Response('', Response::HTTP_NOT_FOUND);
+    return new RedirectResponse('/' . shopify_store_url());
   }
 
 }
