@@ -11,6 +11,13 @@ use Drupal\shopify\Entity\ShopifyProductVariant;
 class ShopifyProductViewBuilder extends EntityViewBuilder {
 
   protected function alterBuild(array &$build, EntityInterface $entity, EntityViewDisplayInterface $display, $view_mode) {
+    // Wrap our content.
+    $build['#prefix'] = '<div class="shopify-product shopify-product--view-' . $view_mode . '">';
+    $build['#suffix'] = '</div>';
+
+    // Include our custom css.
+    $build['#attached']['library'][] = 'shopify/shopify.product.css';
+
     if ($variant_id = \Drupal::request()->get('variant_id')) {
       $active_variant = ShopifyProductVariant::loadByVariantId($variant_id);
     }
@@ -41,7 +48,7 @@ class ShopifyProductViewBuilder extends EntityViewBuilder {
       // Display the active variant.
       if ($active_variant instanceof ShopifyProductVariant) {
         $build['active_variant'] = [
-          '#prefix' => '<div class="product-active-variant variant-display variant-display__' . $view_mode . '">',
+          '#prefix' => '<div class="product-active-variant variant-display variant-display--view-' . $view_mode . '">',
           'variant' => \Drupal::entityManager()
             ->getViewBuilder('shopify_product_variant')
             ->view($active_variant, $view_mode),

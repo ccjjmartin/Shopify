@@ -48,7 +48,6 @@ shopify.webhooks:
   options:
     _admin_route: TRUE
 
-
 entity.shopify_product.canonical:
   path: '/store/product/{shopify_product}'
   defaults:

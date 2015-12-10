@@ -10,6 +10,12 @@ shopify.store.css:
     theme:
       css/shopify.store.css: {}
 
+shopify.product.css:
+  version: 1.x
+  css:
+    theme:
+      css/shopify.product.css: {}
+
 shopify.js:
   version: 1.x
   js:
