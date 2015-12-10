@@ -100,15 +100,27 @@ class ShopifyProduct extends ContentEntityBase implements ShopifyProductInterfac
     // Format variant images as File entities.
     if (isset($values['images']) && is_array($values['images']) && !empty($values['images'])) {
       foreach ($values['images'] as $variant_image) {
-        foreach ($variant_image->variant_ids as $variant_id) {
-          foreach ($values['variants'] as &$variant) {
-            if ($variant->id == $variant_id) {
-              // Set an image for this variant.
-              $variant->image = $variant_image;
+        if (count($variant_image->variant_ids)) {
+          // Setup these images for the variant.
+          foreach ($variant_image->variant_ids as $variant_id) {
+            foreach ($values['variants'] as &$variant) {
+              if ($variant->id == $variant_id) {
+                // Set an image for this variant.
+                $variant->image = $variant_image;
+              }
             }
           }
         }
+        else {
+          // This image is not attached to a variant, it should be applied to
+          // to the extra images field.
+          $values['extra_images'][] = self::setupProductImage($variant_image->src);
+        }
       }
+    }
+
+    if (!isset($values['extra_images']) || empty($values['extra_images'])) {
+      $values['extra_images'] = [];
     }
 
     if (isset($values['tags']) && !is_array($values['tags']) && !empty($values['tags'])) {
@@ -360,6 +372,22 @@ class ShopifyProduct extends ContentEntityBase implements ShopifyProductInterfac
         'type' => 'image',
         'weight' => -40,
         'settings' => ['image_style' => '', 'image_link' => 'content'],
+      ))
+      ->setDisplayOptions('form', array(
+        'type' => 'image_image',
+        'weight' => 2,
+      ))
+      ->setDisplayConfigurable('form', TRUE)
+      ->setDisplayConfigurable('view', TRUE);
+
+    $fields['extra_images'] = BaseFieldDefinition::create('image')
+      ->setLabel(t('Extra Images'))
+      ->setDefaultValue('')
+      ->setCardinality(FieldStorageDefinitionInterface::CARDINALITY_UNLIMITED)
+      ->setDisplayOptions('view', array(
+        'label' => 'hidden',
+        'type' => 'image',
+        'weight' => -35,
       ))
       ->setDisplayOptions('form', array(
         'type' => 'image_image',
