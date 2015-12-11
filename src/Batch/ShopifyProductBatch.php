@@ -107,55 +107,13 @@ class ShopifyProductBatch {
    * Deletes products on the site that don't exist on Shopify anymore.
    */
   public static function cleanUpProducts($operation_details, &$context) {
-    // Get all Shopify product_ids and variant_ids.
-    $client = shopify_api_client();
-    $products = $client->getProducts(['query' => ['fields' => 'id,variants']]);
-    $product_count = $client->getProductsCount();
-    $product_ids = $variant_ids = [];
-
-    // Build up arrays of products and variant IDs.
-    foreach ($products as $product) {
-      $product_ids[] = $product->id;
-      foreach ($product->variants as $variant) {
-        $variant_ids[] = $variant->id;
-      }
-    }
-
-    // Sanity check to make sure we've gotten all data back from Shopify.
-    if ($product_count != count($product_ids)) {
-      // Something went wrong.
-      return;
-    }
-
-    // Go ahead and delete all rogue products.
-    $query = \Drupal::entityQuery('shopify_product');
-    $query->condition('product_id', $product_ids, 'NOT IN');
-    $result = $query->execute();
-    if ($result) {
-      $manager = \Drupal::entityManager()
-        ->getStorage('shopify_product');
-      $product_entities = $manager->loadMultiple($result);
-      $manager->delete($product_entities);
+    $count = shopify_sync_deleted_products();
+    if ($count) {
       drupal_set_message(t('Deleted @products.', [
         '@products' => \Drupal::translation()
-          ->formatPlural(count($product_entities), '@count product', '@count products'),
+          ->formatPlural($count, '@count product', '@count products'),
       ]));
       $context['message'] = $operation_details;
-    }
-
-    // Go ahead and delete all rogue variants.
-    $query = \Drupal::entityQuery('shopify_product_variant');
-    $query->condition('variant_id', $variant_ids, 'NOT IN');
-    $result = $query->execute();
-    if ($result) {
-      $manager = \Drupal::entityManager()
-        ->getStorage('shopify_product_variant');
-      $variant_entities = $manager->loadMultiple($result);
-      $manager->delete($variant_entities);
-      drupal_set_message(t('Deleted @variants.', [
-        '@variants' => \Drupal::translation()
-          ->formatPlural(count($variant_entities), '@count variant', '@count variants'),
-      ]));
     }
   }
 
@@ -163,27 +121,12 @@ class ShopifyProductBatch {
    * Product sync operation.
    */
   public static function operation(array $settings = [], $operation_details, &$context) {
-    $client = shopify_api_client();
-    $result = $client->get('products', ['query' => $settings]);
-    if (isset($result->products) && !empty($result->products)) {
-      foreach ($result->products as $product) {
-        $entity = ShopifyProduct::loadByProductId($product->id);
-        if (!$entity) {
-          // Need to create this product.
-          $entity = ShopifyProduct::create((array) $product);
-          $entity->save();
-        }
-        else {
-          $entity->update((array) $product);
-          $entity->save();
-        }
-        $context['results'][] = $entity->product_id . ' : ' . Html::escape($entity->title);
-      }
-      $context['message'] = t('Syncing @products.', [
-        '@products' => \Drupal::translation()
-          ->formatPlural(count($result->products), '@count product', '@count products'),
-      ]);
-    }
+    $synced_products = shopify_sync_products(['query' => $settings]);
+    $context['results'] = array_merge($context['results'], $synced_products);
+    $context['message'] = t('Syncing @products.', [
+      '@products' => \Drupal::translation()
+        ->formatPlural(count($synced_products), '@count product', '@count products'),
+    ]);
   }
 
   public static function finished($success, $results, $operations) {

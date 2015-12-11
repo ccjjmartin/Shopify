@@ -99,6 +99,7 @@ function shopify_cron() {
         'limit' => 250,
       ],
     ]);
+    shopify_sync_deleted_products();
     \Drupal::state()
       ->set('shopify.sync.products_last_sync_time', REQUEST_TIME);
     \Drupal::logger('shopify.cron')
@@ -117,6 +118,7 @@ function shopify_cron() {
         'limit' => 250,
       ],
     ]);
+    shopify_sync_deleted_collections();
     \Drupal::state()
       ->set('shopify.sync.collections_last_sync_time', REQUEST_TIME);
     \Drupal::logger('shopify.cron')
@@ -288,12 +290,71 @@ function shopify_sync_products(array $opts = []) {
     if ($entity instanceof ShopifyProduct) {
       $entity->update((array) $product);
       $entity->save();
-      $synced_products[] = $entity;
+    }
+    else {
+      $entity = ShopifyProduct::create((array) $product);
+      $entity->save();
+    }
+    $synced_products[] = $entity;
+  }
+  return $synced_products;
+}
+
+/**
+ * Deletes products on the site that don't exist on Shopify anymore.
+ *
+ * @param array $opts
+ *   Array of options to pass to the API call.
+ *
+ * @return int
+ *   The number of deleted products.
+ */
+function shopify_sync_deleted_products(array $opts = []) {
+  $client = shopify_api_client();
+  $opts += ['query' => ['fields' => 'id,variants']];
+
+  // Get all Shopify product_ids and variant_ids.
+  $products = $client->getProducts($opts);
+  $product_count = $client->getProductsCount();
+  $product_ids = $variant_ids = [];
+
+  // Build up arrays of products and variant IDs.
+  foreach ($products as $product) {
+    $product_ids[] = $product->id;
+    foreach ($product->variants as $variant) {
+      $variant_ids[] = $variant->id;
     }
   }
 
-  // shopify_sync_deleted_products(array('limit' => 250));
-  return $synced_products;
+  // Sanity check to make sure we've gotten all data back from Shopify.
+  if ($product_count != count($product_ids)) {
+    // Something went wrong.
+    return 0;
+  }
+
+  // Go ahead and delete all rogue products.
+  $query = \Drupal::entityQuery('shopify_product');
+  $query->condition('product_id', $product_ids, 'NOT IN');
+  $result = $query->execute();
+  if ($result) {
+    $manager = \Drupal::entityManager()
+      ->getStorage('shopify_product');
+    $product_entities = $manager->loadMultiple($result);
+    $manager->delete($product_entities);
+  }
+
+  // Go ahead and delete all rogue variants.
+  $query = \Drupal::entityQuery('shopify_product_variant');
+  $query->condition('variant_id', $variant_ids, 'NOT IN');
+  $result = $query->execute();
+  if ($result) {
+    $manager = \Drupal::entityManager()
+      ->getStorage('shopify_product_variant');
+    $variant_entities = $manager->loadMultiple($result);
+    $manager->delete($variant_entities);
+  }
+
+  return isset($product_entities) ? count($product_entities) : 0;
 }
 
 /**
@@ -319,9 +380,43 @@ function shopify_sync_collections(array $opts = []) {
     }
     $synced_collections[] = $term;
   }
-
-  // shopify_sync_deleted_collections(array('limit' => 250));
   return $synced_collections;
+}
+
+/**
+ * Deletes collections on the site that don't exist on Shopify anymore.
+ *
+ * @param array $opts
+ *   Additional options to pass to the API call.
+ *
+ * @return int
+ *   Returns the count of collections deleted.
+ */
+function shopify_sync_deleted_collections(array $opts = []) {
+  $opts += ['query' => ['fields' => 'id']];
+  $collections = shopify_api_get_collections();
+  $collection_ids = [];
+
+  // Build up array of all existing collection_ids.
+  foreach ($collections as $col) {
+    $collection_ids[] = $col->id;
+  }
+
+  // Get collections that are not on Shopify anymore.
+  $query = \Drupal::entityQuery('taxonomy_term');
+  $query->condition('vid', 'shopify_collections');
+  $query->condition('field_shopify_collection_id', $collection_ids, 'NOT IN');
+  $result = $query->execute();
+
+  // Delete these collections.
+  if ($result) {
+    $manager = \Drupal::entityManager()
+      ->getStorage('taxonomy_term');
+    $collection_entities = $manager->loadMultiple($result);
+    $manager->delete($collection_entities);
+  }
+
+  return isset($collection_entities) ? count($collection_entities) : 0;
 }
 
 /**
