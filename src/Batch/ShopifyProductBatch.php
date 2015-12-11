@@ -69,6 +69,16 @@ class ShopifyProductBatch {
       ];
     }
 
+    if (!$settings['delete_products_first']) {
+      // Setup operation to delete stale products.
+      $this->operations[] = [
+        [__CLASS__, 'cleanUpProducts'],
+        [
+          t('(Processing page @operation)', ['@operations' => $page]),
+        ]
+      ];
+    }
+
     $this->batch = array(
       'operations' => $this->operations,
       'finished' => [__CLASS__, 'finished'],
@@ -91,6 +101,61 @@ class ShopifyProductBatch {
   public static function deleteAllProducts($operation_details, &$context) {
     shopify_product_delete_all();
     $context['message'] = $operation_details;
+  }
+
+  /**
+   * Deletes products on the site that don't exist on Shopify anymore.
+   */
+  public function cleanUpProducts($operation_details, &$context) {
+    // Get all Shopify product_ids and variant_ids.
+    $client = shopify_api_client();
+    $products = $client->getProducts(['query' => ['fields' => 'id,variants']]);
+    $product_count = $client->getProductsCount();
+    $product_ids = $variant_ids = [];
+
+    // Build up arrays of products and variant IDs.
+    foreach ($products as $product) {
+      $product_ids[] = $product->id;
+      foreach ($product->variants as $variant) {
+        $variant_ids[] = $variant->id;
+      }
+    }
+
+    // Sanity check to make sure we've gotten all data back from Shopify.
+    if ($product_count != count($product_ids)) {
+      // Something went wrong.
+      return;
+    }
+
+    // Go ahead and delete all rogue products.
+    $query = \Drupal::entityQuery('shopify_product');
+    $query->condition('product_id', $product_ids, 'NOT IN');
+    $result = $query->execute();
+    if ($result) {
+      $manager = \Drupal::entityManager()
+        ->getStorage('shopify_product');
+      $product_entities = $manager->loadMultiple($result);
+      $manager->delete($product_entities);
+      drupal_set_message(t('Deleted @products.', [
+        '@products' => \Drupal::translation()
+          ->formatPlural(count($product_entities), '@count product', '@count products'),
+      ]));
+    }
+
+    // Go ahead and delete all rogue variants.
+    $query = \Drupal::entityQuery('shopify_product_variant');
+    $query->condition('variant_id', $variant_ids, 'NOT IN');
+    $result = $query->execute();
+    if ($result) {
+      $manager = \Drupal::entityManager()
+        ->getStorage('shopify_product_variant');
+      $variant_entities = $manager->loadMultiple($result);
+      $manager->delete($variant_entities);
+      drupal_set_message(t('Deleted @variants.', [
+        '@variants' => \Drupal::translation()
+          ->formatPlural(count($variant_entities), '@count variant', '@count variants'),
+      ]));
+    }
   }
 
   /**
