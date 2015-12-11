@@ -106,7 +106,7 @@ class ShopifyProductBatch {
   /**
    * Deletes products on the site that don't exist on Shopify anymore.
    */
-  public function cleanUpProducts($operation_details, &$context) {
+  public static function cleanUpProducts($operation_details, &$context) {
     // Get all Shopify product_ids and variant_ids.
     $client = shopify_api_client();
     $products = $client->getProducts(['query' => ['fields' => 'id,variants']]);
@@ -140,6 +140,7 @@ class ShopifyProductBatch {
         '@products' => \Drupal::translation()
           ->formatPlural(count($product_entities), '@count product', '@count products'),
       ]));
+      $context['message'] = $operation_details;
     }
 
     // Go ahead and delete all rogue variants.

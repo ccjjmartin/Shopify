@@ -61,13 +61,14 @@ class ShopifyCollectionBatch {
       ];
     }
 
-//    if (!$params['delete_collections']) {
-//      // Last operation to delete orphaned collections (deleted in Shopify).
-//      $operations[] = array(
-//        'shopify_sync_collections_deleted_batch_op',
-//        array(),
-//      );
-//    }
+    if (!$settings['delete_collections_first']) {
+      $this->operations[] = [
+        [__CLASS__, 'cleanUpCollections'],
+        [
+          t('(Deleting left over collections.)'),
+        ],
+      ];
+    }
 
     $this->batch = array(
       'operations' => $this->operations,
@@ -91,6 +92,38 @@ class ShopifyCollectionBatch {
   public static function deleteAllCollections($operation_details, &$context) {
     shopify_delete_all_collections();
     $context['message'] = $operation_details;
+  }
+
+  /**
+   * Deletes collections on the site that don't exist on Shopify anymore.
+   */
+  public static function cleanUpCollections($operation_details, &$context) {
+    $collections = shopify_api_get_collections(['query' => ['fields' => 'id']]);
+    $collection_ids = [];
+
+    // Build up array of all existing collection_ids.
+    foreach ($collections as $col) {
+      $collection_ids[] = $col->id;
+    }
+
+    // Get collections that are not on Shopify anymore.
+    $query = \Drupal::entityQuery('taxonomy_term');
+    $query->condition('vid', 'shopify_collections');
+    $query->condition('field_shopify_collection_id', $collection_ids, 'NOT IN');
+    $result = $query->execute();
+
+    // Delete these collections.
+    if ($result) {
+      $manager = \Drupal::entityManager()
+        ->getStorage('taxonomy_term');
+      $collection_entities = $manager->loadMultiple($result);
+      $manager->delete($collection_entities);
+      drupal_set_message(t('Deleted @collections.', [
+        '@collections' => \Drupal::translation()
+          ->formatPlural(count($collection_entities), '@count collection', '@count collections'),
+      ]));
+      $context['message'] = $operation_details;
+    }
   }
 
   /**
