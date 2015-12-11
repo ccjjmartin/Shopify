@@ -1,7 +1,7 @@
 <?php
 /**
  * @file
- * Contains controller for redirecting to specific products/variants/collections/tags.
+ * Contains controller for redirecting the user.
  */
 namespace Drupal\shopify\Controller;
 
@@ -15,10 +15,14 @@ use Symfony\Component\HttpFoundation\RedirectResponse;
 /**
  * Class ShopifyRedirect
  *
- * Provides a route to redirect user to a specific product/variant/collection/tag.
+ * Handles redirecting the user.
  */
 class ShopifyRedirect extends ControllerBase {
 
+  /**
+   * Handles redirecting the incoming user to the proper specific variant or product page.
+   * @return RedirectResponse
+   */
   public function handleRedirect() {
     $request = \Drupal::request();
 
@@ -55,7 +59,7 @@ class ShopifyRedirect extends ControllerBase {
   /**
    * Redirects the user to the admin page to add a new product.
    *
-   * @return \Symfony\Component\HttpFoundation\RedirectResponse
+   * @return TrustedRedirectResponse
    */
   public function addShopifyProduct() {
     return new TrustedRedirectResponse('https://' . shopify_shop_info('domain') . '/admin/products/new');
