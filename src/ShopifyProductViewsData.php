@@ -19,6 +19,8 @@ class ShopifyProductViewsData extends EntityViewsData {
   public function getViewsData() {
     $data = parent::getViewsData();
     // @todo: No idea what I'm doing.
+    // Something matching this setup: /core/modules/taxonomy/src/TermViewsData.php
+
 //    $data['shopify_product']['shopify_product_tags']['entity field'] = 'shopify_product_tags';
 //    $data['shopify_product']['shopify_product_tags']['help'] = t('');
 //    $data['shopify_product']['shopify_product_tags']['field']['id'] = 'field';

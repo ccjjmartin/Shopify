@@ -11,10 +11,10 @@ shopify_product.admin.structure.settings:
   parent: system.admin_structure
 
 # Shopify product variant menu items definition
-entity.shopify_product_variant.collection:
-  title: 'Shopify product variant list'
-  route_name: entity.shopify_product_variant.collection
-  description: 'List Shopify product variant entities'
+#entity.shopify_product_variant.collection:
+#  title: 'Shopify product variant list'
+#  route_name: entity.shopify_product_variant.collection
+#  description: 'List Shopify product variant entities'
 
 shopify_product_variant.admin.structure.settings:
   title: Shopify product variant settings

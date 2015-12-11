@@ -211,6 +211,16 @@ function shopify_renderable_links() {
   );
   $links[] = array(
     '#type' => 'link',
+    '#title' => t('Product Display'),
+    '#url' => Url::fromUri('internal:/admin/structure/shopify_product/display'),
+  );
+  $links[] = array(
+    '#type' => 'link',
+    '#title' => t('Variant Display'),
+    '#url' => Url::fromUri('internal:/admin/structure/shopify_product_variant/display'),
+  );
+  $links[] = array(
+    '#type' => 'link',
     '#title' => t('API Settings'),
     '#url' => Url::fromRoute('shopify_api.admin'),
   );

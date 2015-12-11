@@ -6,6 +6,7 @@
 namespace Drupal\shopify\Controller;
 
 use Drupal\Core\Controller\ControllerBase;
+use Drupal\Core\Routing\TrustedRedirectResponse;
 use Drupal\shopify\Entity\ShopifyProduct;
 use Drupal\shopify\Entity\ShopifyProductVariant;
 use Drupal\taxonomy\Entity\Term;
@@ -49,6 +50,15 @@ class ShopifyRedirect extends ControllerBase {
     }
 
     return new RedirectResponse('/' . shopify_store_url());
+  }
+
+  /**
+   * Redirects the user to the admin page to add a new product.
+   *
+   * @return \Symfony\Component\HttpFoundation\RedirectResponse
+   */
+  public function addShopifyProduct() {
+    return new TrustedRedirectResponse('https://' . shopify_shop_info('domain') . '/admin/products/new');
   }
 
 }

@@ -47,7 +47,7 @@ use Drupal\user\UserInterface;
  *     "uuid" = "uuid"
  *   },
  *   links = {
- *     "canonical" = "/admin/shopify_product/{shopify_product}",
+ *     "canonical" = "/store/product/{shopify_product}",
  *     "edit-form" = "/admin/shopify_product/{shopify_product}/edit",
  *     "delete-form" = "/admin/shopify_product/{shopify_product}/delete"
  *   },

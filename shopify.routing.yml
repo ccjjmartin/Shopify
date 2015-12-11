@@ -69,8 +69,7 @@ entity.shopify_product.collection:
 entity.shopify_product.add_form:
   path: '/admin/shopify_product/add'
   defaults:
-    _entity_form: shopify_product.add
-    _title: 'Add Shopify product'
+    _controller: '\Drupal\shopify\Controller\ShopifyRedirect::addShopifyProduct'
   requirements:
     _permission: 'add shopify product entities'
   options:
@@ -108,55 +107,55 @@ shopify_product.settings:
 
 
 # ShopifyProductVariant routing definition
-entity.shopify_product_variant.canonical:
-  path: '/admin/shopify_product_variant/{shopify_product_variant}'
-  defaults:
-    _entity_view: 'shopify_product_variant'
-    _title: 'Shopify product variant'
-  requirements:
-    _entity_access: 'shopify_product_variant.view'
-  options:
-    _admin_route: TRUE
-
-entity.shopify_product_variant.collection:
-  path: '/admin/shopify_product_variant'
-  defaults:
-    _entity_list: 'shopify_product_variant'
-    _title: 'Shopify product variant list'
-  requirements:
-    _permission: 'view shopify product variant entities'
-  options:
-    _admin_route: TRUE
-
-entity.shopify_product_variant.add_form:
-  path: '/admin/shopify_product_variant/add'
-  defaults:
-    _entity_form: shopify_product_variant.add
-    _title: 'Add Shopify product variant'
-  requirements:
-    _permission: 'add shopify product variant entities'
-  options:
-    _admin_route: TRUE
-
-entity.shopify_product_variant.edit_form:
-  path: '/admin/shopify_product_variant/{shopify_product_variant}/edit'
-  defaults:
-    _entity_form: shopify_product_variant.edit
-    _title: 'Edit Shopify product variant'
-  requirements:
-    _permission: 'edit shopify product variant entities'
-  options:
-    _admin_route: TRUE
-
-entity.shopify_product_variant.delete_form:
-  path: '/admin/shopify_product_variant/{shopify_product_variant}/delete'
-  defaults:
-    _entity_form: shopify_product_variant.delete
-    _title: 'Delete Shopify product variant'
-  requirements:
-    _permission: 'delete shopify product variant entities'
-  options:
-    _admin_route: TRUE
+#entity.shopify_product_variant.canonical:
+#  path: '/admin/shopify_product_variant/{shopify_product_variant}'
+#  defaults:
+#    _entity_view: 'shopify_product_variant'
+#    _title: 'Shopify product variant'
+#  requirements:
+#    _entity_access: 'shopify_product_variant.view'
+#  options:
+#    _admin_route: TRUE
+#
+#entity.shopify_product_variant.collection:
+#  path: '/admin/shopify_product_variant'
+#  defaults:
+#    _entity_list: 'shopify_product_variant'
+#    _title: 'Shopify product variant list'
+#  requirements:
+#    _permission: 'view shopify product variant entities'
+#  options:
+#    _admin_route: TRUE
+#
+#entity.shopify_product_variant.add_form:
+#  path: '/admin/shopify_product_variant/add'
+#  defaults:
+#    _entity_form: shopify_product_variant.add
+#    _title: 'Add Shopify product variant'
+#  requirements:
+#    _permission: 'add shopify product variant entities'
+#  options:
+#    _admin_route: TRUE
+#
+#entity.shopify_product_variant.edit_form:
+#  path: '/admin/shopify_product_variant/{shopify_product_variant}/edit'
+#  defaults:
+#    _entity_form: shopify_product_variant.edit
+#    _title: 'Edit Shopify product variant'
+#  requirements:
+#    _permission: 'edit shopify product variant entities'
+#  options:
+#    _admin_route: TRUE
+#
+#entity.shopify_product_variant.delete_form:
+#  path: '/admin/shopify_product_variant/{shopify_product_variant}/delete'
+#  defaults:
+#    _entity_form: shopify_product_variant.delete
+#    _title: 'Delete Shopify product variant'
+#  requirements:
+#    _permission: 'delete shopify product variant entities'
+#  options:
+#    _admin_route: TRUE
 
 shopify_product_variant.settings:
   path: 'admin/structure/shopify_product_variant'
