@@ -18,26 +18,19 @@ class ShopifyProductViewsData extends EntityViewsData {
    */
   public function getViewsData() {
     $data = parent::getViewsData();
-    // @todo: No idea what I'm doing.
 
     $data['shopify_product']['tags']['title'] = t('Shopify Product Tags');
     $data['shopify_product']['tags']['help'] = t('Select based on tagged term ID.');
     $data['shopify_product']['tags']['entity field'] = 'tags';
     $data['shopify_product']['tags']['field']['id'] = 'field';
+
     $data['shopify_product']['tags']['filter']['field'] = 'tags_target_id';
-    $data['shopify_product']['tags']['filter']['id'] = 'numeric';
-//    $data['shopify_product']['tags']['table']['base'] = 'shopify_product__tags';
-    $data['shopify_product']['tags']['table']['join']['shopify_product__tags'] = [
-      'left_field' => 'entity_id',
-      'field' => 'id',
-    ];
-    $data['shopify_product']['tags']['relationship'] = [
-      'base' => 'shopify_product__tags',
-      'base field' => 'entity_id',
-      'id' => 'numeric',
-      'label' => t('Tag'),
-      'title' => t('Tag'),
-    ];
+    $data['shopify_product']['tags']['filter']['id'] = 'shopify_tags_filter';
+
+    $data['shopify_product']['tags']['argument']['field'] = 'tags_target_id';
+    $data['shopify_product']['tags']['argument']['id'] = 'shopify_tags_argument';
+    $data['shopify_product']['tags']['argument']['name field'] = 'tid';
+    $data['shopify_product']['tags']['argument']['name table'] = 'taxonomy_term_field_data';
 
     return $data;
   }
