@@ -38,6 +38,16 @@ shopify.sync:
   options:
     _admin_route: TRUE
 
+shopify.theme_download:
+  path: '/admin/config/system/shopify/theme'
+  defaults:
+    _form: '\Drupal\shopify\Form\ShopifyThemeDownloadForm'
+    _title: 'Theme'
+  requirements:
+    _permission: 'administer shopify'
+  options:
+    _admin_route: TRUE
+
 shopify.webhooks:
   path: '/admin/config/shopify/webhooks'
   defaults:

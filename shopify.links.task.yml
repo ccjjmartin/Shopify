@@ -9,6 +9,11 @@ shopify.sync_tab:
   base_route: shopify.admin
   route_name: shopify.sync
 
+shopify.theme_tab:
+  title: 'Theme'
+  base_route: shopify.admin
+  route_name: shopify.theme_download
+
 shopify.webhooks_tab:
   title: 'Webhooks'
   base_route: shopify.admin
