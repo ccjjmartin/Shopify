@@ -25,16 +25,28 @@ class ShopifyTermRedirectSubscriber implements EventSubscriberInterface {
    * @todo: Not sure this is the best way of doing things.
    */
   public function checkForRedirection(GetResponseEvent $event) {
-    if ($term = $event->getRequest()->get('taxonomy_term')) {
-      if ($term instanceof Term && $term->bundle() == ShopifyProduct::SHOPIFY_TAGS_VID) {
+    if (!($term = $event->getRequest()->get('taxonomy_term'))) {
+      return;
+    }
+
+    if (!$term instanceof Term) {
+      return;
+    }
+
+    $route_params = $event->getRequest()->get('_route_params');
+    if (!isset($route_params['view_id']) || $route_params['view_id'] !== 'taxonomy_term') {
+      return;
+    }
+
+    switch ($term->bundle()) {
+      case ShopifyProduct::SHOPIFY_TAGS_VID:
         $event->setResponse(new RedirectResponse('/' . shopify_store_url() . '/tag/' . $term->id()));
-      }
-    }
-    if ($term = $event->getRequest()->get('taxonomy_term')) {
-      if ($term instanceof Term && $term->bundle() == ShopifyProduct::SHOPIFY_COLLECTIONS_VID) {
+        break;
+      case ShopifyProduct::SHOPIFY_COLLECTIONS_VID:
         $event->setResponse(new RedirectResponse('/' . shopify_store_url() . '/collection/' . $term->id()));
-      }
+        break;
     }
+
   }
 
   /**
