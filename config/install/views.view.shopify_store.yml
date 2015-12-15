@@ -3,6 +3,8 @@ status: true
 dependencies:
   config:
     - core.entity_view_mode.shopify_product.store_listing
+    - taxonomy.vocabulary.shopify_collections
+    - taxonomy.vocabulary.shopify_tags
   module:
     - shopify
 id: shopify_store
@@ -165,6 +167,9 @@ display:
       relationships: {  }
       arguments: {  }
       display_extenders: {  }
+      filter_groups:
+        operator: AND
+        groups: {  }
     cache_metadata:
       max-age: -1
       contexts:
@@ -175,11 +180,12 @@ display:
   main:
     display_plugin: page
     id: main
-    display_title: Page
+    display_title: Storefront
     position: 1
     display_options:
       display_extenders: {  }
       path: store
+      display_description: ''
     cache_metadata:
       max-age: -1
       contexts:
@@ -187,21 +193,69 @@ display:
         - 'languages:language_interface'
         - url.query_args
       tags: {  }
-  tag:
+  page_collection:
     display_plugin: page
-    id: tag
-    display_title: Tag
+    id: page_collection
+    display_title: Collection
     position: 2
     display_options:
       display_extenders: {  }
       display_description: ''
-      path: store/tag/%
       defaults:
         style: true
         row: true
         arguments: false
         fields: false
-      arguments: {  }
+        filters: false
+        filter_groups: false
+        header: false
+      arguments:
+        collections:
+          id: collections
+          table: shopify_product
+          field: collections
+          relationship: none
+          group_type: group
+          admin_label: ''
+          default_action: default
+          exception:
+            value: all
+            title_enable: false
+            title: All
+          title_enable: true
+          title: '{{ arguments.collections }}'
+          default_argument_type: taxonomy_tid
+          default_argument_options:
+            term_page: '1'
+            anyall: ','
+            node: false
+            limit: false
+            vids: {  }
+          default_argument_skip_url: false
+          summary_options:
+            base_path: ''
+            count: true
+            items_per_page: 25
+            override: false
+          summary:
+            sort_order: asc
+            number_of_records: 0
+            format: default_summary
+          specify_validation: true
+          validate:
+            type: 'entity:taxonomy_term'
+            fail: 'not found'
+          validate_options:
+            bundles:
+              shopify_collections: shopify_collections
+            operation: view
+            multiple: 0
+            access: false
+          break_phrase: false
+          not: 0
+          entity_type: shopify_product
+          entity_field: collections
+          plugin_id: shopify_collections_argument
       fields:
         title:
           id: title
@@ -268,10 +322,173 @@ display:
           entity_type: shopify_product
           entity_field: title
           plugin_id: field
+      filters: {  }
+      filter_groups:
+        operator: AND
+        groups: {  }
+      path: store/collection/%
+      header:
+        entity_taxonomy_term:
+          id: entity_taxonomy_term
+          table: views
+          field: entity_taxonomy_term
+          relationship: none
+          group_type: group
+          admin_label: ''
+          empty: false
+          tokenize: true
+          target: '{{ raw_arguments.collections }}'
+          view_mode: full
+          bypass_access: false
+          plugin_id: entity
     cache_metadata:
       max-age: -1
       contexts:
         - 'languages:language_content'
         - 'languages:language_interface'
+        - url
+        - url.query_args
+      tags: {  }
+  page_tag:
+    display_plugin: page
+    id: page_tag
+    display_title: Tag
+    position: 2
+    display_options:
+      display_extenders: {  }
+      display_description: ''
+      defaults:
+        style: true
+        row: true
+        arguments: false
+        fields: false
+        filters: false
+        filter_groups: false
+        header: false
+      arguments:
+        tags:
+          id: tags
+          table: shopify_product
+          field: tags
+          relationship: none
+          group_type: group
+          admin_label: ''
+          default_action: default
+          exception:
+            value: all
+            title_enable: false
+            title: All
+          title_enable: true
+          title: '{{ arguments.tags}}'
+          default_argument_type: taxonomy_tid
+          default_argument_options:
+            term_page: '1'
+            anyall: ','
+            node: false
+            limit: false
+            vids: {  }
+          default_argument_skip_url: false
+          summary_options:
+            base_path: ''
+            count: true
+            items_per_page: 25
+            override: false
+          summary:
+            sort_order: asc
+            number_of_records: 0
+            format: default_summary
+          specify_validation: true
+          validate:
+            type: 'entity:taxonomy_term'
+            fail: 'not found'
+          validate_options:
+            bundles:
+              shopify_tags: shopify_tags
+            operation: view
+            multiple: 0
+            access: false
+          break_phrase: false
+          not: 0
+          entity_type: shopify_product
+          entity_field: tags
+          plugin_id: shopify_tags_argument
+      fields:
+        title:
+          id: title
+          table: shopify_product
+          field: title
+          relationship: none
+          group_type: group
+          admin_label: ''
+          label: ''
+          exclude: false
+          alter:
+            alter_text: false
+            text: ''
+            make_link: false
+            path: ''
+            absolute: false
+            external: false
+            replace_spaces: false
+            path_case: none
+            trim_whitespace: false
+            alt: ''
+            rel: ''
+            link_class: ''
+            prefix: ''
+            suffix: ''
+            target: ''
+            nl2br: false
+            max_length: 0
+            word_boundary: true
+            ellipsis: true
+            more_link: false
+            more_link_text: ''
+            more_link_path: ''
+            strip_tags: false
+            trim: false
+            preserve_tags: ''
+            html: false
+          element_type: ''
+          element_class: ''
+          element_label_type: ''
+          element_label_class: ''
+          element_label_colon: false
+          element_wrapper_type: ''
+          element_wrapper_class: ''
+          element_default_classes: true
+          empty: ''
+          hide_empty: false
+          empty_zero: false
+          hide_alter_empty: true
+          click_sort_column: value
+          type: string
+          settings:
+            link_to_entity: false
+          group_column: value
+          group_columns: {  }
+          group_rows: true
+          delta_limit: 0
+          delta_offset: 0
+          delta_reversed: false
+          delta_first_last: false
+          multi_type: separator
+          separator: ', '
+          field_api_classes: false
+          entity_type: shopify_product
+          entity_field: title
+          plugin_id: field
+      filters: {  }
+      filter_groups:
+        operator: AND
+        groups: {  }
+      path: store/tag/%
+      header: {  }
+    cache_metadata:
+      max-age: -1
+      contexts:
+        - 'languages:language_content'
+        - 'languages:language_interface'
+        - url
         - url.query_args
       tags: {  }

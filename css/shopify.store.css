@@ -28,6 +28,11 @@
   margin-right: 0;
 }
 
+/* Hides the taxonomy term link title. */
+.view-id-shopify_store.view-display-id-page_collection .view-header h2 {
+  display: none;
+}
+
 @media screen and (max-width: 850px) {
   .view-id-shopify_store .views-row {
     width: 100%;
