@@ -502,7 +502,10 @@ function shopify_collection_create(\stdClass $collection, $sync_products = FALSE
   $term = Term::create(array(
     'vid' => ShopifyProduct::SHOPIFY_COLLECTIONS_VID,
     'name' => $collection->title,
-    'description' => $collection->body_html,
+    'description' => [
+      'value' => $collection->body_html,
+      'format' => 'full_html',
+    ],
     'field_shopify_collection_id' => $collection->id,
     'field_shopify_collection_pub' => $date ? $date : 0,
   ));
@@ -583,7 +586,10 @@ function shopify_collection_update(\stdClass $collection, $sync_products = FALSE
   $term = shopify_collection_load($collection->id);
   if ($term) {
     $term->name = $collection->title;
-    $term->description = $collection->body_html;
+    $term->description = [
+      'value' => $collection->body_html,
+      'format' => 'full_html',
+    ];
     $date = strtotime($collection->published_at);
     $term->field_shopify_collection_pub = $date ? $date : 0;
   }
