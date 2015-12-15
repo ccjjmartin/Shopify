@@ -2,7 +2,7 @@
 
 /**
  * @file
- * Contains \Drupal\shopify\Plugin\views\filter\ShopifyTagsFilter.
+ * Contains \Drupal\shopify\Plugin\views\filter\ShopifyCollectionsFilter.
  */
 
 namespace Drupal\shopify\Plugin\views\filter;
@@ -15,20 +15,20 @@ use Drupal\views\Views;
  *
  * @ingroup views_filter_handlers
  *
- * @ViewsFilter("shopify_tags_filter")
+ * @ViewsFilter("shopify_collections_filter")
  */
-class ShopifyTagsFilter extends NumericFilter {
+class ShopifyCollectionsFilter extends NumericFilter {
 
   public function query() {
     $this->ensureMyTable();
-    $field = "coll.$this->realField";
+    $field = "tag.$this->realField";
     $join = Views::pluginManager('join')->createInstance('standard', [
-      'table' => 'shopify_product__collections',
+      'table' => 'shopify_product__tags',
       'field' => 'entity_id',
       'left_table' => 'shopify_product',
       'left_field' => 'id',
     ]);
-    $this->query->addRelationship('coll', $join, 'shopify_product__collections');
+    $this->query->addRelationship('tag', $join, 'shopify_product__tags');
 
     $info = $this->operators();
     if (!empty($info[$this->operator]['method'])) {

@@ -2,7 +2,7 @@
 
 /**
  * @file
- * Contains \Drupal\shopify\Plugin\views\argument\ShopifyTagsArgument.
+ * Contains \Drupal\shopify\Plugin\views\argument\ShopifyCollectionsArgument.
  */
 
 namespace Drupal\shopify\Plugin\views\argument;
@@ -15,20 +15,20 @@ use Drupal\views\Views;
  *
  * @ingroup views_argument_handlers
  *
- * @ViewsArgument("shopify_tags_argument")
+ * @ViewsArgument("shopify_collections_argument")
  */
-class ShopifyTagsArgument extends Taxonomy {
+class ShopifyCollectionsArgument extends Taxonomy {
 
   public function query() {
     $this->ensureMyTable();
 
     $join = Views::pluginManager('join')->createInstance('standard', [
-      'table' => 'shopify_product__tags',
+      'table' => 'shopify_product__collections',
       'field' => 'entity_id',
       'left_table' => 'shopify_product',
       'left_field' => 'id',
     ]);
-    $this->query->addRelationship('tag', $join, 'shopify_product__tags');
+    $this->query->addRelationship('coll', $join, 'shopify_product__collections');
 
     if (!empty($this->options['break_phrase'])) {
       $break = static::breakString($this->argument, TRUE);
@@ -40,16 +40,16 @@ class ShopifyTagsArgument extends Taxonomy {
     }
 
     $placeholder = $this->placeholder();
-    $null_check = empty($this->options['not']) ? '' : "OR tag.$this->realField IS NULL";
+    $null_check = empty($this->options['not']) ? '' : "OR coll.$this->realField IS NULL";
 
     if (count($this->value) > 1) {
       $operator = empty($this->options['not']) ? 'IN' : 'NOT IN';
       $placeholder .= '[]';
-      $this->query->addWhereExpression(0, "tag.$this->realField $operator($placeholder) $null_check", array($placeholder => $this->value));
+      $this->query->addWhereExpression(0, "coll.$this->realField $operator($placeholder) $null_check", array($placeholder => $this->value));
     }
     else {
       $operator = empty($this->options['not']) ? '=' : '!=';
-      $this->query->addWhereExpression(0, "tag.$this->realField $operator $placeholder $null_check", array($placeholder => $this->argument));
+      $this->query->addWhereExpression(0, "coll.$this->realField $operator $placeholder $null_check", array($placeholder => $this->argument));
     }
   }
 

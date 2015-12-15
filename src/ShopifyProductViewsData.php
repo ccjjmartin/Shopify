@@ -32,6 +32,19 @@ class ShopifyProductViewsData extends EntityViewsData {
     $data['shopify_product']['tags']['argument']['name field'] = 'tid';
     $data['shopify_product']['tags']['argument']['name table'] = 'taxonomy_term_field_data';
 
+    $data['shopify_product']['collections']['title'] = t('Shopify Product collections');
+    $data['shopify_product']['collections']['help'] = t('Select based on tagged term ID.');
+    $data['shopify_product']['collections']['entity field'] = 'collections';
+    $data['shopify_product']['collections']['field']['id'] = 'field';
+
+    $data['shopify_product']['collections']['filter']['field'] = 'collections_target_id';
+    $data['shopify_product']['collections']['filter']['id'] = 'shopify_collections_filter';
+
+    $data['shopify_product']['collections']['argument']['field'] = 'collections_target_id';
+    $data['shopify_product']['collections']['argument']['id'] = 'shopify_collections_argument';
+    $data['shopify_product']['collections']['argument']['name field'] = 'tid';
+    $data['shopify_product']['collections']['argument']['name table'] = 'taxonomy_term_field_data';
+
     return $data;
   }
 
