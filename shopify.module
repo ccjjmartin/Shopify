@@ -44,14 +44,14 @@ function shopify_entity_bundle_info_alter(&$bundles) {
  * Set the route for tag terms.
  */
 function shopify_taxonomy_tag_term_uri(Term $term) {
-  return Url::fromUri('internal:' . shopify_store_url() . '/tag/' . $term->id());
+  return Url::fromUri('internal:/' . shopify_store_url() . '/tag/' . $term->id());
 }
 
 /**
  * Set the route for collection terms.
  */
 function shopify_taxonomy_collection_term_uri(Term $term) {
-  return Url::fromUri('internal:' . shopify_store_url() . '/collection/' . $term->id());
+  return Url::fromUri('internal:/' . shopify_store_url() . '/collection/' . $term->id());
 }
 
 
