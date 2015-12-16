@@ -30,6 +30,9 @@ class ShopifyAddToCartForm extends FormBase {
    * {@inheritdoc}
    */
   public function buildForm(array $form, FormStateInterface $form_state, ShopifyProduct $product = NULL) {
+    // Disable caching of this form.
+    $form['#cache']['max-age'] = 0;
+
     $form_state->set('product', $product);
 
     $variant_id = \Drupal::request()->get('variant_id', FALSE);

@@ -22,3 +22,4 @@ shopify.js:
     shopify.js: {}
   dependencies:
     - core/jquery
+    - core/drupal

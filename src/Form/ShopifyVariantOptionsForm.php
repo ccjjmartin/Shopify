@@ -30,6 +30,8 @@ class ShopifyVariantOptionsForm extends FormBase {
    * {@inheritdoc}
    */
   public function buildForm(array $form, FormStateInterface $form_state, ShopifyProduct $product = NULL) {
+    // Disable caching of this form.
+    $form['#cache']['max-age'] = 0;
     $options = $product->options->get(0)->toArray();
     $form_state->set('product', $product);
 
@@ -61,7 +63,7 @@ class ShopifyVariantOptionsForm extends FormBase {
         '#type' => 'select',
         '#options' => array_combine($option->values, $option->values),
         '#title' => t($option->name),
-        '#default_value' => $default_options[$option->id] ?: '',
+        '#default_value' => isset($default_options[$option->id]) ? $default_options[$option->id] : '',
         '#attributes' => ['onchange' => 'javascript:this.form.update_variant.click();'],
       ];
     }
