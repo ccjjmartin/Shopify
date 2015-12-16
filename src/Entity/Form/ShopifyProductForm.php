@@ -10,6 +10,7 @@ namespace Drupal\shopify\Entity\Form;
 use Drupal\Core\Entity\ContentEntityForm;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Language\Language;
+use Drupal\Core\Url;
 
 /**
  * Form controller for Shopify product edit forms.
@@ -25,8 +26,14 @@ class ShopifyProductForm extends ContentEntityForm {
     $form = parent::buildForm($form, $form_state);
     $entity = $this->entity;
 
-    // User cannot alter the 'name' field.
-//    $this->setDisabled($form, ['name', 'product_id','body_html','handle','product_type','published_scope','vendor','barcode','fulfillment_service','inventory_management','inventory_policy','sku','weight_unit','published']);
+    // Add edit on Shopify link.
+    $form['edit_shopify'] = [
+      '#type' => 'link',
+      '#title' => t('Edit on Shopify'),
+      '#url' => Url::fromUri('https://' . shopify_shop_info('domain') . '/admin/products/' . $entity->product_id->value),
+      '#attributes' => ['target' => '_blank'],
+      '#suffix' => t('<br /><strong>Modifications to Shopify products should be done on Shopify and synced to the Drupal site.</strong>'),
+    ];
 
     $form['langcode'] = array(
       '#title' => $this->t('Language'),
@@ -36,12 +43,6 @@ class ShopifyProductForm extends ContentEntityForm {
     );
 
     return $form;
-  }
-
-  private function setDisabled(array &$form, array $fields) {
-    foreach ($fields as $name) {
-      $form[$name]['#disabled'] = TRUE;
-    }
   }
 
   /**
