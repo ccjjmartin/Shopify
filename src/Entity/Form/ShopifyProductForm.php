@@ -35,12 +35,12 @@ class ShopifyProductForm extends ContentEntityForm {
       '#suffix' => t('<br /><strong>Modifications to Shopify products should be done on Shopify and synced to the Drupal site.</strong>'),
     ];
 
-    $form['langcode'] = array(
+    $form['langcode'] = [
       '#title' => $this->t('Language'),
       '#type' => 'language_select',
       '#default_value' => $entity->langcode->value,
       '#languages' => Language::STATE_ALL,
-    );
+    ];
 
     return $form;
   }

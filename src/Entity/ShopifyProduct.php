@@ -67,9 +67,9 @@ class ShopifyProduct extends ContentEntityBase implements ShopifyProductInterfac
   public static function preCreate(EntityStorageInterface $storage, array &$values) {
     $values = self::formatValues($values);
     parent::preCreate($storage, $values);
-    $values += array(
+    $values += [
       'user_id' => \Drupal::currentUser()->id(),
-    );
+    ];
   }
 
   private static function formatValues(array $values) {
@@ -299,20 +299,20 @@ class ShopifyProduct extends ContentEntityBase implements ShopifyProductInterfac
       ->setLabel(t('Title'))
       ->setDescription(t('The title of the Shopify product entity.'))
       ->setRequired(TRUE)
-      ->setSettings(array(
+      ->setSettings([
         'max_length' => 50,
         'text_processing' => 0,
-      ))
+      ])
       ->setDefaultValue('')
-      ->setDisplayOptions('view', array(
+      ->setDisplayOptions('view', [
         'label' => 'hidden',
         'type' => 'string',
         'weight' => -50,
-      ))
-      ->setDisplayOptions('form', array(
+      ])
+      ->setDisplayOptions('form', [
         'type' => 'string_textfield',
         'weight' => -50,
-      ))
+      ])
       ->setDisplayConfigurable('form', TRUE)
       ->setDisplayConfigurable('view', TRUE);
 
@@ -325,16 +325,16 @@ class ShopifyProduct extends ContentEntityBase implements ShopifyProductInterfac
       ->setDefaultValueCallback('Drupal\node\Entity\Node::getCurrentUserId')
       ->setTranslatable(TRUE)
 //      ->setDisplayOptions('view', FALSE)
-      ->setDisplayOptions('form', array(
+      ->setDisplayOptions('form', [
         'type' => 'entity_reference_autocomplete',
         'weight' => -25,
-        'settings' => array(
+        'settings' => [
           'match_operator' => 'CONTAINS',
           'size' => '60',
           'autocomplete_type' => 'tags',
           'placeholder' => '',
-        ),
-      ))
+        ],
+      ])
       ->setDisplayConfigurable('form', TRUE)
       ->setDisplayConfigurable('view', TRUE);
 
@@ -348,42 +348,42 @@ class ShopifyProduct extends ContentEntityBase implements ShopifyProductInterfac
       ->setSetting('target_type', 'shopify_product_variant')
       ->setSetting('handler', 'default')
       ->setCardinality(FieldStorageDefinitionInterface::CARDINALITY_UNLIMITED)
-      ->setDisplayOptions('form', array(
+      ->setDisplayOptions('form', [
 //        'type' => 'inline_entity_form_complex', // @todo: Would prefer to use inline entity form, but it's buggy, not working...
         'type' => 'entity_reference_autocomplete_tags',
         'weight' => -25,
-        'settings' => array(
+        'settings' => [
 //          'match_operator' => 'CONTAINS',
 //          'autocomplete_type' => 'tags',
 //          'placeholder' => '',
-        ),
-      ))
+        ],
+      ])
       ->setDisplayConfigurable('form', TRUE)
       ->setDisplayConfigurable('view', TRUE);
 
     $fields['product_id'] = BaseFieldDefinition::create('string')
       ->setLabel(t('Product ID'))
       ->setDefaultValue('')
-      ->setDisplayOptions('form', array(
+      ->setDisplayOptions('form', [
         'type' => 'string_textfield',
         'weight' => 5,
-      ))
+      ])
       ->setDisplayConfigurable('form', TRUE)
       ->setDisplayConfigurable('view', TRUE);
 
     $fields['image'] = BaseFieldDefinition::create('image')
       ->setLabel(t('Image'))
       ->setDefaultValue('')
-      ->setDisplayOptions('view', array(
+      ->setDisplayOptions('view', [
         'label' => 'hidden',
         'type' => 'image',
         'weight' => -40,
         'settings' => ['image_style' => '', 'image_link' => 'content'],
-      ))
-      ->setDisplayOptions('form', array(
+      ])
+      ->setDisplayOptions('form', [
         'type' => 'image_image',
         'weight' => 2,
-      ))
+      ])
       ->setDisplayConfigurable('form', TRUE)
       ->setDisplayConfigurable('view', TRUE);
 
@@ -391,30 +391,30 @@ class ShopifyProduct extends ContentEntityBase implements ShopifyProductInterfac
       ->setLabel(t('Extra Images'))
       ->setDefaultValue('')
       ->setCardinality(FieldStorageDefinitionInterface::CARDINALITY_UNLIMITED)
-      ->setDisplayOptions('view', array(
+      ->setDisplayOptions('view', [
         'label' => 'hidden',
         'type' => 'image',
         'weight' => -35,
-      ))
-      ->setDisplayOptions('form', array(
+      ])
+      ->setDisplayOptions('form', [
         'type' => 'image_image',
         'weight' => 2,
-      ))
+      ])
       ->setDisplayConfigurable('form', TRUE)
       ->setDisplayConfigurable('view', TRUE);
 
     $fields['body_html'] = BaseFieldDefinition::create('text_long')
       ->setLabel(t('Body HTML'))
       ->setDefaultValue('')
-      ->setDisplayOptions('view', array(
+      ->setDisplayOptions('view', [
         'label' => 'hidden',
         'type' => 'text_default',
         'weight' => -30,
-      ))
-      ->setDisplayOptions('form', array(
+      ])
+      ->setDisplayOptions('form', [
         'type' => 'text_textfield',
         'weight' => -2,
-      ))
+      ])
       ->setDisplayConfigurable('form', TRUE)
       ->setDisplayConfigurable('view', TRUE);
 
@@ -425,16 +425,16 @@ class ShopifyProduct extends ContentEntityBase implements ShopifyProductInterfac
       ->setSetting('target_bundles', ['shopify_tags' => 'shopify_tags'])
       ->setSetting('handler', 'default:taxonomy_term')
       ->setCardinality(FieldStorageDefinitionInterface::CARDINALITY_UNLIMITED)
-      ->setDisplayOptions('view', array(
+      ->setDisplayOptions('view', [
         'label' => 'inline',
         'type' => 'entity_reference_label',
         'weight' => -20,
         'settings' => ['link' => TRUE],
-      ))
-      ->setDisplayOptions('form', array(
+      ])
+      ->setDisplayOptions('form', [
         'type' => 'entity_reference_autocomplete_tags',
         'weight' => -25,
-      ))
+      ])
       ->setDisplayConfigurable('form', TRUE)
       ->setDisplayConfigurable('view', TRUE);
 
@@ -445,66 +445,66 @@ class ShopifyProduct extends ContentEntityBase implements ShopifyProductInterfac
       ->setSetting('target_bundles', ['shopify_collections' => 'shopify_collections'])
       ->setSetting('handler', 'default:taxonomy_term')
       ->setCardinality(FieldStorageDefinitionInterface::CARDINALITY_UNLIMITED)
-      ->setDisplayOptions('view', array(
+      ->setDisplayOptions('view', [
         'label' => 'inline',
         'type' => 'entity_reference_label',
         'weight' => -10,
         'settings' => ['link' => TRUE],
-      ))
-      ->setDisplayOptions('form', array(
+      ])
+      ->setDisplayOptions('form', [
         'type' => 'entity_reference_autocomplete_tags',
         'weight' => -25,
-      ))
+      ])
       ->setDisplayConfigurable('form', TRUE)
       ->setDisplayConfigurable('view', TRUE);
 
     $fields['handle'] = BaseFieldDefinition::create('string')
       ->setLabel(t('Handle'))
       ->setDefaultValue('')
-      ->setDisplayOptions('form', array(
+      ->setDisplayOptions('form', [
         'type' => 'string_textfield',
         'weight' => -1,
-      ))
+      ])
       ->setDisplayConfigurable('form', TRUE)
       ->setDisplayConfigurable('view', TRUE);
 
     $fields['product_type'] = BaseFieldDefinition::create('string')
       ->setLabel(t('Product type'))
       ->setDefaultValue('')
-      ->setDisplayOptions('form', array(
+      ->setDisplayOptions('form', [
         'type' => 'string_textfield',
         'weight' => 0,
-      ))
+      ])
       ->setDisplayConfigurable('form', TRUE)
       ->setDisplayConfigurable('view', TRUE);
 
     $fields['published_scope'] = BaseFieldDefinition::create('string')
       ->setLabel(t('Published scope'))
       ->setDefaultValue('')
-      ->setDisplayOptions('form', array(
+      ->setDisplayOptions('form', [
         'type' => 'string_textfield',
         'weight' => 1,
-      ))
+      ])
       ->setDisplayConfigurable('form', TRUE)
       ->setDisplayConfigurable('view', TRUE);
 
     $fields['vendor'] = BaseFieldDefinition::create('string')
       ->setLabel(t('Vendor'))
       ->setDefaultValue('')
-      ->setDisplayOptions('form', array(
+      ->setDisplayOptions('form', [
         'type' => 'string_textfield',
         'weight' => 2,
-      ))
+      ])
       ->setDisplayConfigurable('form', TRUE)
       ->setDisplayConfigurable('view', TRUE);
 
     $fields['options'] = BaseFieldDefinition::create('map')
       ->setLabel(t('Options'))
       ->setDefaultValue('')
-      ->setDisplayOptions('form', array(
+      ->setDisplayOptions('form', [
         'type' => 'map',
         'weight' => 2,
-      ))
+      ])
       ->setDisplayConfigurable('form', TRUE)
       ->setDisplayConfigurable('view', TRUE);
 

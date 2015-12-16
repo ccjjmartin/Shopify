@@ -69,26 +69,26 @@ class ShopifySyncAdminForm extends FormBase {
         '@time' => $products_last_sync_time_formatted,
       ]),
     ];
-    $form['products']['num_per_batch'] = array(
+    $form['products']['num_per_batch'] = [
       '#type' => 'select',
       '#title' => 'Choose how many products to sync per batch operation (not per batch).',
-      '#options' => array(
+      '#options' => [
         '1' => t('1 at a time'),
         '10' => t('10 at a time'),
         '50' => t('50 at a time'),
         '100' => t('100 at a time'),
         '250' => t('250 (Max API limit)'),
-      ),
+      ],
       '#default_value' => 250,
-    );
-    $form['products']['delete_products_first'] = array(
+    ];
+    $form['products']['delete_products_first'] = [
       '#type' => 'checkbox',
       '#title' => t('Delete all products then re-import fresh.') . '<br /><strong>' . t('CAUTION: Product entities will be completely deleted then re-imported. Custom field data will be erased, comments deleted, etc.') . '</strong>',
-    );
-    $form['products']['force_update'] = array(
+    ];
+    $form['products']['force_update'] = [
       '#type' => 'checkbox',
       '#title' => t('Update all products regardless of last sync time. Product entities will be updated, not deleted.'),
-    );
+    ];
     $form['products']['sync'] = [
       '#type' => 'submit',
       '#value' => t('Sync Products'),
@@ -102,43 +102,43 @@ class ShopifySyncAdminForm extends FormBase {
         '@time' => $collections_last_sync_time_formatted,
       ]),
     ];
-    $form['collections']['delete_collections_first'] = array(
+    $form['collections']['delete_collections_first'] = [
       '#type' => 'checkbox',
       '#title' => t('Delete all collections then re-import fresh.') . '<br /><strong>' . t('CAUTION: Collection terms will be completely deleted then re-imported. Custom field data will be erased.') . '</strong>',
-    );
+    ];
     $form['collections']['sync'] = [
       '#type' => 'submit',
       '#value' => t('Sync Collections'),
       '#name' => 'sync_collections',
     ];
 
-    $form['cron'] = array(
+    $form['cron'] = [
       '#type' => 'details',
       '#title' => t('Cron'),
       '#description' => t('Settings for automatically syncing products/collections on cron run.<br /><strong>Only newly updated products/collections will be synced.</strong><br /><br />'),
       '#tree' => TRUE,
-    );
-    $form['cron']['sync_products'] = array(
+    ];
+    $form['cron']['sync_products'] = [
       '#type' => 'checkbox',
       '#title' => t('Sync products on cron run.'),
       '#default_value' => $config->get('cron_sync_products'),
-    );
-    $form['cron']['sync_collections'] = array(
+    ];
+    $form['cron']['sync_collections'] = [
       '#type' => 'checkbox',
       '#title' => t('Sync collections on cron run.'),
       '#default_value' => $config->get('cron_sync_collections'),
-    );
-    $form['cron']['sync_time'] = array(
+    ];
+    $form['cron']['sync_time'] = [
       '#type' => 'textfield',
       '#title' => t('How often to sync'),
       '#description' => t('Enter the number of seconds to wait to sync between cron runs.<br />To sync once per day, enter "86400". To sync once per hour, enter "3600".<br />Leave empty or "0" to sync on every cron run.'),
       '#default_value' => $config->get('cron_sync_time') ?: 0,
-    );
-    $form['cron']['save_cron'] = array(
+    ];
+    $form['cron']['save_cron'] = [
       '#type' => 'submit',
       '#value' => t('Save cron settings'),
       '#name' => 'save_cron_settings',
-    );
+    ];
 
     return $form;
   }

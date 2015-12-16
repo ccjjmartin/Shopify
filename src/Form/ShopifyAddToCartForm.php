@@ -53,16 +53,16 @@ class ShopifyAddToCartForm extends FormBase {
     $form['#attributes']['data-variant-id'] = $variant_id;
 
     // Variant ID to add to the Shopify cart.
-    $form['id'] = array(
+    $form['id'] = [
       '#type' => 'hidden',
       '#value' => $variant_id,
-    );
+    ];
 
     // Send user back to the site.
-    $form['return_to'] = array(
+    $form['return_to'] = [
       '#type' => 'hidden',
       '#value' => 'back',
-    );
+    ];
 
     // Send the quantity value.
     $form['quantity'] = [

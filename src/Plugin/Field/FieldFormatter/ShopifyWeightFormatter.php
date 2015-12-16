@@ -34,11 +34,11 @@ class ShopifyWeightFormatter extends NumericFormatterBase {
    * {@inheritdoc}
    */
   public function viewElements(FieldItemListInterface $items, $langcode) {
-    $elements = array();
+    $elements = [];
     foreach ($items as $delta => $item) {
       $entity = $item->getEntity();
       $output = $this->numberFormat($item->value, $entity->weight_unit->value);
-      $elements[$delta] = array('#markup' => $output);
+      $elements[$delta] = ['#markup' => $output];
     }
     return $elements;
   }

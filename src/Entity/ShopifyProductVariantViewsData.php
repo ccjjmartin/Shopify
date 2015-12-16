@@ -20,11 +20,11 @@ class ShopifyProductVariantViewsData extends EntityViewsData implements EntityVi
   public function getViewsData() {
     $data = parent::getViewsData();
 
-    $data['shopify_product_variant']['table']['base'] = array(
+    $data['shopify_product_variant']['table']['base'] = [
       'field' => 'id',
       'title' => $this->t('Shopify product variant'),
       'help' => $this->t('The Shopify product variant ID.'),
-    );
+    ];
 
     return $data;
   }

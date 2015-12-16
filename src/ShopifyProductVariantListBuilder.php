@@ -37,9 +37,9 @@ class ShopifyProductVariantListBuilder extends EntityListBuilder {
     $row['name'] = $this->l(
       $this->getLabel($entity),
       new Url(
-        'entity.shopify_product_variant.edit_form', array(
+        'entity.shopify_product_variant.edit_form', [
           'shopify_product_variant' => $entity->id(),
-        )
+        ]
       )
     );
     return $row + parent::buildRow($entity);

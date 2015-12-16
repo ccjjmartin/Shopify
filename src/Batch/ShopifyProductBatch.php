@@ -79,10 +79,10 @@ class ShopifyProductBatch {
       ];
     }
 
-    $this->batch = array(
+    $this->batch = [
       'operations' => $this->operations,
       'finished' => [__CLASS__, 'finished'],
-    );
+    ];
 
     return $this;
   }

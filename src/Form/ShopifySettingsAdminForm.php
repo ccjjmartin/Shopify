@@ -37,14 +37,14 @@ class ShopifySettingsAdminForm extends FormBase {
       drupal_set_message(t('Could not connect to the Shopify store.'), 'error');
       return [];
     }
-    $store_info = array(
+    $store_info = [
       'My Store Admin' => \Drupal::l($info->domain, Url::fromUri('https://' . $info->domain . '/admin', ['attributes' => ['target' => '_blank']])),
       'Owned By' => $info->shop_owner . ' &lt;<a href="mailto:' . $info->email . '">' . $info->email . '</a>&gt;',
       'Address' => $info->address1,
       'City' => $info->city,
       'State/Province' => $info->province,
       'Zip' => $info->zip,
-    );
+    ];
     foreach ($store_info as $label => $data) {
       $form[$label] = [
         '#type' => 'item',

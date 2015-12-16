@@ -20,11 +20,11 @@ class ShopifyProductViewsData extends EntityViewsData implements EntityViewsData
   public function getViewsData() {
     $data = parent::getViewsData();
 
-    $data['shopify_product']['table']['base'] = array(
+    $data['shopify_product']['table']['base'] = [
       'field' => 'id',
       'title' => $this->t('Shopify product'),
       'help' => $this->t('The Shopify product ID.'),
-    );
+    ];
 
     return $data;
   }

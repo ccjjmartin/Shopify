@@ -44,39 +44,39 @@ class ShopifyThemeDownloadForm extends FormBase {
    * {@inheritdoc}
    */
   public function buildForm(array $form, FormStateInterface $form_state, ShopifyProduct $product = NULL) {
-    $form['download'] = array(
+    $form['download'] = [
       '#type' => 'details',
       '#title' => t('Shopify Theme'),
-      '#description' => t('Download this starter Shopify theme then upload it manually to your <a target="_blank" href="@shopify_store_link">Shopify store</a>, or use the "Upload and Publish Automatically" feature. <span style="color: red">Automatic upload requires this website be publicly accessible from the internet.</span><br /><br />This theme will disable most Shopify store features except for the shopping cart and customer login area, and will redirect the user to your store on your Drupal site if they attempt to access areas covered by this module like products, tags, or collections.<br /><br />We <strong>highly recommend</strong> using this theme generator as a starting point for your Shopify theme. Once uploaded you may use the Shopify theme GUI to match your site\'s colors, fonts, etc.', array(
+      '#description' => t('Download this starter Shopify theme then upload it manually to your <a target="_blank" href="@shopify_store_link">Shopify store</a>, or use the "Upload and Publish Automatically" feature. <span style="color: red">Automatic upload requires this website be publicly accessible from the internet.</span><br /><br />This theme will disable most Shopify store features except for the shopping cart and customer login area, and will redirect the user to your store on your Drupal site if they attempt to access areas covered by this module like products, tags, or collections.<br /><br />We <strong>highly recommend</strong> using this theme generator as a starting point for your Shopify theme. Once uploaded you may use the Shopify theme GUI to match your site\'s colors, fonts, etc.', [
         '@shopify_store_link' => 'https://' . shopify_shop_info('domain') . '/admin/themes',
-      )),
+      ]),
       '#open' => TRUE,
-    );
-    $form['download']['actions'] = array(
+    ];
+    $form['download']['actions'] = [
       '#type' => 'actions',
-      'download' => array(
+      'download' => [
         '#type' => 'submit',
         '#value' => t('Download Only'),
         '#name' => 'download',
-      ),
-      'upload' => array(
+      ],
+      'upload' => [
         '#type' => 'submit',
         '#value' => t('Upload and Publish Automatically'),
         '#description' => t('Will be automatically uploaded to your Shopify account and set as the active theme.'),
         '#name' => 'upload',
-      ),
-    );
+      ],
+    ];
 
     $protocol = stripos($_SERVER['SERVER_PROTOCOL'], 'https') === TRUE ? 'https://' : 'http://';
     $fqdn = $protocol . "$_SERVER[HTTP_HOST]";
-    $form['download']['hostname'] = array(
+    $form['download']['hostname'] = [
       '#type' => 'textfield',
       '#title' => t('Hostname'),
       '#default_value' => $fqdn,
       '#size' => 60,
       '#required' => TRUE,
       '#description' => t('What hostname should the Shopify theme link back to?'),
-    );
+    ];
     return $form;
   }
 
@@ -116,7 +116,7 @@ class ShopifyThemeDownloadForm extends FormBase {
       $url = Url::fromUri($fqdn, ['absolute' => TRUE]);
       $this->findAndReplace($unzipped . '*', '{{ drupal.site.url }}', $url->toUriString());
     } catch (\Exception $e) {
-      drupal_set_message(t('Could not find and replace placeholder text: @error', array('@error' => $e->getMessage())), 'error');
+      drupal_set_message(t('Could not find and replace placeholder text: @error', ['@error' => $e->getMessage()]), 'error');
     }
 
     // Modify the {{ replace }} contents within theme files.
@@ -124,14 +124,14 @@ class ShopifyThemeDownloadForm extends FormBase {
       $url = Url::fromUri($fqdn . shopify_store_url(), ['absolute' => TRUE]);
       $this->findAndReplace($unzipped . '*', '{{ drupal.store.url }}', $url->toUriString());
     } catch (\Exception $e) {
-      drupal_set_message(t('Could not find and replace placeholder text: @error', array('@error' => $e->getMessage())), 'error');
+      drupal_set_message(t('Could not find and replace placeholder text: @error', ['@error' => $e->getMessage()]), 'error');
     }
 
     // Zip the theme folder.
     try {
       $zipped = $this->zipFolder($unzipped);
     } catch (\Exception $e) {
-      drupal_set_message(t('Could not ZIP the default_shopify_theme folder: @error', array('@error' => $e->getMessage())), 'error');
+      drupal_set_message(t('Could not ZIP the default_shopify_theme folder: @error', ['@error' => $e->getMessage()]), 'error');
     }
 
     switch ($form_state->getTriggeringElement()['#name']) {
@@ -141,18 +141,18 @@ class ShopifyThemeDownloadForm extends FormBase {
           $download = ShopifyThemeDownload::downloadTheme($zipped);
           $form_state->setResponse($download);
         } catch (\Exception $e) {
-          drupal_set_message(t('Could not download the ZIP folder: @error', array('@error' => $e->getMessage())), 'error');
+          drupal_set_message(t('Could not download the ZIP folder: @error', ['@error' => $e->getMessage()]), 'error');
         }
         break;
       case 'upload':
         // Upload the file to Shopify directly.
         try {
           $this->uploadTheme($zipped);
-          drupal_set_message(t('Drupal Shopify Theme was uploaded to your store. !link.', array(
-            '!link' => \Drupal::l(t('View now'), Url::fromUri('https://' . shopify_shop_info('domain') . '/admin/themes', array('attributes' => array('target' => '_blank')))),
-          )));
+          drupal_set_message(t('Drupal Shopify Theme was uploaded to your store. !link.', [
+            '!link' => \Drupal::l(t('View now'), Url::fromUri('https://' . shopify_shop_info('domain') . '/admin/themes', ['attributes' => ['target' => '_blank']])),
+          ]));
         } catch (\Exception $e) {
-          drupal_set_message(t('Could not upload the ZIP folder: @error', array('@error' => $e->getMessage())), 'error');
+          drupal_set_message(t('Could not upload the ZIP folder: @error', ['@error' => $e->getMessage()]), 'error');
         }
         break;
     }
@@ -177,14 +177,14 @@ class ShopifyThemeDownloadForm extends FormBase {
       'timestamp' => $timestamp,
       'sig' => $sig,
       'file' => 'default_shopify_theme.zip',
-    ], array('absolute' => TRUE));
-    $client->createResource('themes', array(
-      'theme' => array(
+    ], ['absolute' => TRUE]);
+    $client->createResource('themes', [
+      'theme' => [
         'name' => 'Drupal Shopify Theme',
         'src' => $url->toString(),
         'role' => 'main',
-      ),
-    ));
+      ],
+    ]);
   }
 
   /**

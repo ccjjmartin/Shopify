@@ -40,9 +40,9 @@ class ShopifyProductListBuilder extends EntityListBuilder {
     $row['name'] = $this->l(
       $this->getLabel($entity),
       new Url(
-        'entity.shopify_product.canonical', array(
+        'entity.shopify_product.canonical', [
           'shopify_product' => $entity->id(),
-        )
+        ]
       )
     );
     return $row + parent::buildRow($entity);
