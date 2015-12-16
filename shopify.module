@@ -1,13 +1,9 @@
 <?php
 
-//namespace Drupal\shopify;
-
-use Drupal\Core\Cache\Cache;
 use Drupal\Core\Url;
 use Drupal\shopify\Entity\ShopifyProduct;
-use Drupal\shopify\Entity\ShopifyProductVariant;
-use Shopify\Client;
-use  Drupal\taxonomy\Entity\Term;
+use Drupal\taxonomy\Entity\Term;
+use Drupal\Core\Form\FormStateInterface;
 
 /**
  * Implements hook_theme().
@@ -26,6 +22,27 @@ function shopify_theme($existing, $type, $theme, $path) {
  */
 function shopify_views_post_render(\Drupal\views\ViewExecutable $view, &$output, \Drupal\views\Plugin\views\cache\CachePluginBase $cache) {
   $output['#attached']['library'][] = 'shopify/shopify.store.css';
+}
+
+/**
+ * Implements hook_form_FORM_ID_alter().
+ *
+ * Adds "edit on shopify" link to the term operations for collections.
+ */
+function shopify_form_taxonomy_overview_terms_alter(array &$form, FormStateInterface $form_state) {
+  $vocab = $form_state->get(['taxonomy', 'vocabulary']);
+  if ($vocab->id() == ShopifyProduct::SHOPIFY_COLLECTIONS_VID) {
+    foreach (\Drupal\Core\Render\Element::children($form['terms']) as $key) {
+      $term = $form['terms'][$key]['#term'];
+      $form['terms'][$key]['operations']['#links']['edit_on_shopify'] = [
+        'title' => t('Edit on Shopify'),
+        'url' => Url::fromUri('https://' . shopify_shop_info('domain') . '/admin/collections/' . $term->field_shopify_collection_id->value),
+        'attributes' => ['target' => '_blank'],
+      ];
+      ksort($form['terms'][$key]['operations']['#links']);
+      $form['terms'][$key]['operations']['#links'] = array_reverse($form['terms'][$key]['operations']['#links']);
+    }
+  }
 }
 
 /**
