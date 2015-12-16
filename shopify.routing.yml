@@ -6,6 +6,14 @@ shopify.webhook:
   requirements:
     _permission: 'access content'
 
+shopify.download_theme:
+  path: '/shopify/theme/download/{timestamp}/{sig}/{file}'
+  defaults:
+    _controller: '\Drupal\shopify\Controller\ShopifyThemeDownload::download'
+  requirements:
+    _permission: 'access content'
+    _custom_access: '\Drupal\shopify\Controller\ShopifyThemeDownload::access'
+
 shopify.added-to-cart:
   path: '/shopify/added-to-cart'
   defaults:

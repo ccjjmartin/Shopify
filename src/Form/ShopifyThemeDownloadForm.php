@@ -10,6 +10,7 @@ namespace Drupal\shopify\Form;
 use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Url;
+use Drupal\shopify\Controller\ShopifyThemeDownload;
 use Drupal\shopify\Entity\ShopifyProduct;
 use ZipArchive;
 use RecursiveIteratorIterator;
@@ -53,12 +54,12 @@ class ShopifyThemeDownloadForm extends FormBase {
         '#value' => t('Download Only'),
         '#name' => 'download',
       ),
-//      'upload' => array(
-//        '#type' => 'submit',
-//        '#value' => t('Upload and Publish Automatically'),
-//        '#description' => t('Will be automatically uploaded to your Shopify account and set as the active theme.'),
-//        '#name' => 'upload',
-//      ),
+      'upload' => array(
+        '#type' => 'submit',
+        '#value' => t('Upload and Publish Automatically'),
+        '#description' => t('Will be automatically uploaded to your Shopify account and set as the active theme.'),
+        '#name' => 'upload',
+      ),
     );
 
     $protocol = stripos($_SERVER['SERVER_PROTOCOL'], 'https') === TRUE ? 'https://' : 'http://';
@@ -125,7 +126,8 @@ class ShopifyThemeDownloadForm extends FormBase {
       case 'download':
         // Download the file to the user's browser.
         try {
-          $this->downloadTheme($zipped);
+          $download = ShopifyThemeDownload::downloadTheme($zipped);
+          $form_state->setResponse($download);
         } catch (\Exception $e) {
           drupal_set_message(t('Could not download the ZIP folder: @error', array('@error' => $e->getMessage())), 'error');
         }
@@ -145,28 +147,6 @@ class ShopifyThemeDownloadForm extends FormBase {
   }
 
   /**
-   * Downloads the theme files to the local client.
-   *
-   * @param string $filename
-   *   Filename.
-   */
-  public static function downloadTheme($filepath) {
-    // Reset any previous headers.
-    header("Pragma: public");
-    header("Expires: 0");
-    header("Cache-Control: must-revalidate, post-check=0, pre-check=0");
-    header("Cache-Control: public");
-    header("Content-Description: File Transfer");
-    header("Content-type: application/octet-stream");
-    $datetime = date('Y-m-d.H-i-s');
-    header('Content-Disposition: attachment; filename="default_shopify_theme_' . $datetime . '.zip"');
-    header("Content-Transfer-Encoding: binary");
-    header("Content-Length: " . filesize($filepath));
-    @readfile($filepath);
-    ob_end_flush();
-  }
-
-  /**
    * Uploads the theme archive to Shopify.
    *
    * @param string $path
@@ -175,12 +155,21 @@ class ShopifyThemeDownloadForm extends FormBase {
    * @throws \Exception
    */
   public static function uploadTheme($path) {
+    // Get the timestamp from the folder path.
+    $timestamp = substr($path, strpos($path, '/shopify_default_theme_') + 23, 10);
+    $config = \Drupal::config('shopify_api.settings');
+    $client = shopify_api_client();
     // Create a secure URL.
-    $sig = hash_hmac('sha256', REQUEST_TIME . 'default_shopify_theme.zip', variable_get('shopify_api_secret'));
-    shopify_api_call('POST', 'themes', array(
+    $sig = hash_hmac('sha256', $timestamp . 'default_shopify_theme.zip', $config->get('shared_secret'));
+    $url = Url::fromRoute('shopify.download_theme', [
+      'timestamp' => $timestamp,
+      'sig' => $sig,
+      'file' => 'default_shopify_theme.zip',
+    ], array('absolute' => TRUE));
+    $client->createResource('themes', array(
       'theme' => array(
         'name' => 'Drupal Shopify Theme',
-        'src' => url('shopify/theme/download/' . REQUEST_TIME . '/' . $sig . '/default_shopify_theme.zip', array('absolute' => TRUE)),
+        'src' => $url->toString(),
         'role' => 'main',
       ),
     ));
