@@ -7,6 +7,7 @@ dependencies:
     - taxonomy.vocabulary.shopify_tags
   module:
     - shopify
+    - user
 id: shopify_store
 label: Store
 module: views
@@ -23,8 +24,9 @@ display:
     position: 0
     display_options:
       access:
-        type: none
-        options: {  }
+        type: perm
+        options:
+          perm: 'view shopify product entities'
       cache:
         type: tag
         options: {  }
@@ -176,6 +178,7 @@ display:
         - 'languages:language_content'
         - 'languages:language_interface'
         - url.query_args
+        - user.permissions
       tags: {  }
   main:
     display_plugin: page
@@ -192,6 +195,7 @@ display:
         - 'languages:language_content'
         - 'languages:language_interface'
         - url.query_args
+        - user.permissions
       tags: {  }
   page_collection:
     display_plugin: page
@@ -348,6 +352,7 @@ display:
         - 'languages:language_interface'
         - url
         - url.query_args
+        - user.permissions
       tags: {  }
   page_tag:
     display_plugin: page
@@ -491,4 +496,5 @@ display:
         - 'languages:language_interface'
         - url
         - url.query_args
+        - user.permissions
       tags: {  }

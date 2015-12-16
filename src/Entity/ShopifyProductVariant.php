@@ -150,7 +150,7 @@ class ShopifyProductVariant extends ContentEntityBase implements ShopifyProductV
    * @return ShopifyProductVariant[]
    */
   public static function loadByProperties(array $props = []) {
-    return self::entityManager()
+    return \Drupal::entityManager()
       ->getStorage('shopify_product_variant')
       ->loadByProperties($props);
   }
