@@ -29,6 +29,11 @@ class ShopifyThemeDownloadForm extends FormBase {
   const REMOTE_DOWNLOAD_URL = 'https://www.drupal.org/files/default_shopify_theme.zip';
 
   /**
+   * The remote file checksum that will validate we have downloaded the exact right copy of the theme archive.
+   */
+  const REMOTE_DOWNLOAD_SHASUM = 'b920626bd8963783e54e4191fedf7f81cfe896a4';
+
+  /**
    * {@inheritdoc}
    */
   public function getFormId() {
@@ -95,9 +100,16 @@ class ShopifyThemeDownloadForm extends FormBase {
     // Download from Drupal.org.
     $zip = $this->downloadRemoteCopy();
 
+    if (!$zip) {
+      return;
+    }
+
     // Unzip the temp archive so we can modify it.
     $unzipped = $this->unzipArchive($zip);
 
+    if (!$unzipped) {
+      return;
+    }
 
     // Modify the {{ replace }} contents within theme files.
     try {
@@ -274,7 +286,12 @@ class ShopifyThemeDownloadForm extends FormBase {
    *   Returns the destination file path.
    */
   public static function downloadRemoteCopy($download_url = '') {
-    return system_retrieve_file($download_url ?: self::REMOTE_DOWNLOAD_URL, file_directory_temp() . '/shopify_default_theme_' . REQUEST_TIME . '.zip', $managed = FALSE, FILE_EXISTS_REPLACE);
+    $file_path = system_retrieve_file($download_url ?: self::REMOTE_DOWNLOAD_URL, file_directory_temp() . '/shopify_default_theme_' . REQUEST_TIME . '.zip', $managed = FALSE, FILE_EXISTS_REPLACE);
+    if (sha1_file($file_path) !== self::REMOTE_DOWNLOAD_SHASUM) {
+      drupal_set_message(t('Checksum failed. Could not verify the downloaded file. You may need to upgrade this module.'), 'error');
+      return FALSE;
+    }
+    return $file_path;
   }
 
 }
