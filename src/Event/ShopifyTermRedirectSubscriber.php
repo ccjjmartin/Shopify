@@ -40,10 +40,10 @@ class ShopifyTermRedirectSubscriber implements EventSubscriberInterface {
 
     switch ($term->bundle()) {
       case ShopifyProduct::SHOPIFY_TAGS_VID:
-        $event->setResponse(new RedirectResponse('/' . shopify_store_url() . '/tag/' . $term->id()));
+        $event->setResponse(new RedirectResponse('/' . shopify_store_url('page_tag', $term->id())));
         break;
       case ShopifyProduct::SHOPIFY_COLLECTIONS_VID:
-        $event->setResponse(new RedirectResponse('/' . shopify_store_url() . '/collection/' . $term->id()));
+        $event->setResponse(new RedirectResponse('/' . shopify_store_url('page_collection', $term->id())));
         break;
     }
 

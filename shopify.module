@@ -44,16 +44,15 @@ function shopify_entity_bundle_info_alter(&$bundles) {
  * Set the route for tag terms.
  */
 function shopify_taxonomy_tag_term_uri(Term $term) {
-  return Url::fromUri('internal:/' . shopify_store_url() . '/tag/' . $term->id());
+  return Url::fromUri('internal:/' . shopify_store_url('page_tag', $term->id()));
 }
 
 /**
  * Set the route for collection terms.
  */
 function shopify_taxonomy_collection_term_uri(Term $term) {
-  return Url::fromUri('internal:/' . shopify_store_url() . '/collection/' . $term->id());
+  return Url::fromUri('internal:/' . shopify_store_url('page_collection', $term->id()));
 }
-
 
 /**
  * Data that should be passed into drupalSettings.
@@ -70,10 +69,14 @@ function shopify_drupal_js_data() {
 /**
  * Pulls the dynamic Shopify store URL from the View.
  */
-function shopify_store_url($display = 'main') {
+function shopify_store_url($display = 'main', $arg = NULL) {
   $view = \Drupal\views\Entity\View::load('shopify_store');
   if ($view instanceof \Drupal\views\Entity\View) {
-    return $view->getDisplay($display)['display_options']['path'];
+    $path = $view->getDisplay($display)['display_options']['path'];
+    if ($arg) {
+      return strtr($path, ['%' => $arg]);
+    }
+    return $path;
   }
 }
 

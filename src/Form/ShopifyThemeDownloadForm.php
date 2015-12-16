@@ -17,7 +17,7 @@ use RecursiveIteratorIterator;
 use RecursiveDirectoryIterator;
 
 /**
- * Class ShopifyAddToCartForm.
+ * Class ShopifyThemeDownloadForm.
  *
  * @package Drupal\shopify\Form
  */
