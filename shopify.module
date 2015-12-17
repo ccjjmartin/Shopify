@@ -104,19 +104,19 @@ function shopify_entity_extra_field_info() {
   $extra = [];
   $extra['shopify_product']['shopify_product']['display']['add_to_cart_form'] = [
     'label' => t('Add to cart form'),
-    'description' => t('Display variant options, quantity field, and "Add to Cart" button . '),
+    'description' => t('Display variant options, quantity field, and "Add to Cart" button.'),
     'visible' => TRUE,
     'weight' => 100,
   ];
   $extra['shopify_product']['shopify_product']['display']['dynamic_product_image'] = [
     'label' => t('Dynamic product image'),
-    'description' => t('Displays the product image by default, or the variant image if one is selected . '),
+    'description' => t('Displays the product image by default, or the variant image if one is selected.'),
     'visible' => TRUE,
     'weight' => 150,
   ];
   $extra['shopify_product']['shopify_product']['display']['active_variant'] = [
     'label' => t('Active variant'),
-    'description' => t('Renders the active variant . '),
+    'description' => t('Renders the active variant.'),
     'visible' => TRUE,
     'weight' => 200,
   ];
@@ -127,9 +127,9 @@ function shopify_entity_extra_field_info() {
  * Implements hook_cron().
  */
 function shopify_cron() {
-  $config = \Drupal::config('shopify . sync');
+  $config = \Drupal::config('shopify.sync');
   $shopify_cron_sync_time = $config->get('cron_sync_time') ?: 0;
-  $cron_last = \Drupal::state()->get('system . cron_last') ?: 0;
+  $cron_last = \Drupal::state()->get('system.cron_last') ?: 0;
 
   // Check last cron run time vs. the cron speed setting.
   if ($cron_last + $shopify_cron_sync_time > REQUEST_TIME) {
@@ -142,15 +142,15 @@ function shopify_cron() {
     $synced_products = shopify_sync_products([
       'query' => [
         'updated_at_min' => date(DATE_ISO8601, \Drupal::state()
-          ->get('shopify . sync . products_last_sync_time')),
+          ->get('shopify.sync.products_last_sync_time')),
         'limit' => 250,
       ],
     ]);
     shopify_sync_deleted_products();
     \Drupal::state()
-      ->set('shopify . sync . products_last_sync_time', REQUEST_TIME);
-    \Drupal::logger('shopify . cron')
-      ->info(t('Synced @count on cron run . ', [
+      ->set('shopify.sync.products_last_sync_time', REQUEST_TIME);
+    \Drupal::logger('shopify.cron')
+      ->info(t('Synced @count on cron run.', [
         '@count' => \Drupal::translation()
           ->formatPlural(count($synced_products), '@count product', '@count products')
       ]));
@@ -161,15 +161,15 @@ function shopify_cron() {
     $synced_collections = shopify_sync_collections([
       'query' => [
         'updated_at_min' => date(DATE_ISO8601, \Drupal::state()
-          ->get('shopify . sync . collections_last_sync_time')),
+          ->get('shopify.sync.collections_last_sync_time')),
         'limit' => 250,
       ],
     ]);
     shopify_sync_deleted_collections();
     \Drupal::state()
-      ->set('shopify . sync . collections_last_sync_time', REQUEST_TIME);
-    \Drupal::logger('shopify . cron')
-      ->info(t('Synced @count on cron run . ', [
+      ->set('shopify.sync.collections_last_sync_time', REQUEST_TIME);
+    \Drupal::logger('shopify.cron')
+      ->info(t('Synced @count on cron run.', [
         '@count' => \Drupal::translation()
           ->formatPlural(count($synced_collections), '@count collection', '@count collections')
       ]));
