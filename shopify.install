@@ -1,1 +1,46 @@
 <?php
+
+use Drupal\Core\Url;
+
+/**
+ * Implements hook_requirements().
+ */
+function shopify_requirements($phase) {
+  $requirements = [];
+
+  if ($phase == 'install') {
+
+    if (!class_exists('\Shopify\PrivateApp')) {
+      $requirements['shopify'] = [
+        'title' => t('Shopify Client library not available.'),
+        'description' => t('Could not load the Shopify\Client class file.'),
+        'severity' => REQUIREMENT_ERROR,
+      ];
+    }
+
+    $client = shopify_api_client();
+    if (!$client) {
+      $shopify_api_admin = Url::fromRoute('shopify_api.admin');
+      $requirements['shopify'] = [
+        'title' => t('Shopify API settings are not setup.'),
+        'description' => t('Shopify API settings must be configured before enabling the Shopify module. <a href=":link">Setup API Credentials</a>.', [
+          ':link' => $shopify_api_admin->toString(),
+        ]),
+        'severity' => REQUIREMENT_ERROR,
+      ];
+    }
+
+    // Need to populate shop info early on.
+    $info = shopify_shop_info(NULL, $refresh = TRUE);
+    if (empty($info)) {
+      $requirements['shopify'] = [
+        'title' => t('Shopify API settings are not correct.'),
+        'description' => t('Shopify API settings are not correct.'),
+        'severity' => REQUIREMENT_ERROR,
+      ];
+    }
+
+  }
+
+  return $requirements;
+}
