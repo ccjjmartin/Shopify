@@ -184,34 +184,34 @@ function shopify_toolbar() {
   $links = shopify_renderable_links();
   // @todo: Need caching per user setup.
   // @todo: Need better permission checking.
-  $items['shopify'] = array(
+  $items['shopify'] = [
     '#type' => 'toolbar_item',
-    'tab' => array(
+    'tab' => [
       '#type' => 'link',
       '#title' => t('Shopify'),
       '#url' => Url::fromRoute('shopify.admin'),
-      '#attributes' => array(
+      '#attributes' => [
         'title' => t('Shopify'),
-        'class' => array('toolbar-icon', 'toolbar-icon-shopify'),
-      ),
-    ),
-    'tray' => array(
+        'class' => ['toolbar-icon', 'toolbar-icon-shopify'],
+      ],
+    ],
+    'tray' => [
       '#heading' => t('Shopify admin pages'),
-      'shopify_links' => array(
+      'shopify_links' => [
         '#theme' => 'item_list',
         '#items' => $links,
-        '#attributes' => array(
-          'class' => array('toolbar-menu'),
-        ),
-        '#attached' => array(
-          'library' => array(
+        '#attributes' => [
+          'class' => ['toolbar-menu'],
+        ],
+        '#attached' => [
+          'library' => [
             'shopify/shopify.toolbar.css',
-          ),
-        ),
-      ),
-    ),
+          ],
+        ],
+      ],
+    ],
     '#weight' => -5,
-  );
+  ];
 
   return $items;
 }
@@ -221,63 +221,63 @@ function shopify_toolbar() {
  */
 function shopify_renderable_links() {
   // @todo: Need better permission checking.
-  $links[] = array(
+  $links[] = [
     '#type' => 'link',
     '#title' => t('Visit Store'),
     '#url' => Url::fromUri('internal:/' . shopify_store_url()),
-  );
-  $links[] = array(
+  ];
+  $links[] = [
     '#type' => 'link',
     '#title' => t('Overview'),
     '#url' => Url::fromRoute('shopify.admin'),
-  );
-  $links[] = array(
+  ];
+  $links[] = [
     '#type' => 'link',
     '#title' => t('Sync'),
     '#url' => Url::fromRoute('shopify.sync'),
-  );
-  $links[] = array(
+  ];
+  $links[] = [
     '#type' => 'link',
     '#title' => t('Webhooks'),
     '#url' => Url::fromRoute('shopify.webhooks'),
-  );
-  $links[] = array(
+  ];
+  $links[] = [
     '#type' => 'link',
     '#title' => t('View Products'),
     '#url' => Url::fromRoute('entity.shopify_product.collection'),
-  );
-  $links[] = array(
+  ];
+  $links[] = [
     '#type' => 'link',
     '#title' => t('View Collections'),
     '#url' => Url::fromUri('internal:/admin/structure/taxonomy/manage/shopify_collections/overview'),
     // @todo: Make more dynamic.
-  );
-  $links[] = array(
+  ];
+  $links[] = [
     '#type' => 'link',
     '#title' => t('View Tags'),
     '#url' => Url::fromUri('internal:/admin/structure/taxonomy/manage/shopify_tags/overview'),
     // @todo: Make more dynamic.
-  );
-  $links[] = array(
+  ];
+  $links[] = [
     '#type' => 'link',
     '#title' => t('Product Display'),
     '#url' => Url::fromUri('internal:/admin/structure/shopify_product/display'),
-  );
-  $links[] = array(
+  ];
+  $links[] = [
     '#type' => 'link',
     '#title' => t('Variant Display'),
     '#url' => Url::fromUri('internal:/admin/structure/shopify_product_variant/display'),
-  );
-  $links[] = array(
+  ];
+  $links[] = [
     '#type' => 'link',
     '#title' => t('API Settings'),
     '#url' => Url::fromRoute('shopify_api.admin'),
-  );
-  $links[] = array(
+  ];
+  $links[] = [
     '#type' => 'link',
     '#title' => t('Shopify Admin &rarr;'),
     '#url' => Url::fromUri('https://' . shopify_shop_info('domain') . '/admin', ['attributes' => ['target' => '_blank']]),
-  );
+  ];
   return $links;
 }
 
@@ -488,7 +488,7 @@ function shopify_product_load_all_ids() {
   if ($ids) {
     return $ids;
   }
-  return array();
+  return [];
 }
 
 /**
@@ -546,7 +546,7 @@ function shopify_collection_load($collection_id) {
  */
 function shopify_collection_create(\stdClass $collection, $sync_products = FALSE) {
   $date = strtotime($collection->published_at);
-  $term = Term::create(array(
+  $term = Term::create([
     'vid' => ShopifyProduct::SHOPIFY_COLLECTIONS_VID,
     'name' => $collection->title,
     'description' => [
@@ -555,7 +555,7 @@ function shopify_collection_create(\stdClass $collection, $sync_products = FALSE
     ],
     'field_shopify_collection_id' => $collection->id,
     'field_shopify_collection_pub' => $date ? $date : 0,
-  ));
+  ]);
   if ($term->save() && isset($collection->image->src)) {
     // Save the image for this term.
     shopify_collection_save_image($term, $collection->image->src);
@@ -674,7 +674,7 @@ function shopify_collection_load_all_ids() {
   if ($ids) {
     return $ids;
   }
-  return array();
+  return [];
 }
 
 
