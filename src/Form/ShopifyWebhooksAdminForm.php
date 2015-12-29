@@ -39,8 +39,15 @@ class ShopifyWebhooksAdminForm extends ConfigFormBase {
    * {@inheritdoc}
    */
   public function buildForm(array $form, FormStateInterface $form_state) {
-    $client = shopify_api_client();
-    $webhooks = $client->getResources('webhooks');
+    try {
+      $client = shopify_api_client();
+      $webhooks = $client->getResources('webhooks');
+    } catch (\Exception $e) {
+      // Error connecting to the store.
+      drupal_set_message(t('Could not connect to the Shopify store.'), 'error');
+      return [];
+    }
+
     $config = $this->config('shopify.webhooks');
 
     $form['#tree'] = TRUE;
