@@ -300,7 +300,6 @@ class ShopifyProduct extends ContentEntityBase implements ShopifyProductInterfac
       ->setDescription(t('The title of the Shopify product entity.'))
       ->setRequired(TRUE)
       ->setSettings([
-        'max_length' => 50,
         'text_processing' => 0,
       ])
       ->setDefaultValue('')

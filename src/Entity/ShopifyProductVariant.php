@@ -256,7 +256,6 @@ class ShopifyProductVariant extends ContentEntityBase implements ShopifyProductV
       ->setDescription(t('The title of the Shopify product variant entity.'))
       ->setRequired(TRUE)
       ->setSettings([
-        'max_length' => 50,
         'text_processing' => 0,
       ])
       ->setDefaultValue('')

@@ -60,6 +60,7 @@ class ShopifyProductBatch {
     }
 
     for ($page = 1; $page <= $num_operations; $page++) {
+      $params['page'] = $page;
       $this->operations[] = [
         [__CLASS__, 'operation'],
         [
