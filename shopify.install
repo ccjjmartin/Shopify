@@ -18,6 +18,15 @@ function shopify_requirements($phase) {
       ];
     }
 
+    if (!function_exists('shopify_api_client')) {
+      $requirements['shopify'] = [
+        'title' => t('Shopify API module is not enabled.'),
+        'description' => t('Please enable the Shopify API module before installing the Shopify eCommerce module.'),
+        'severity' => REQUIREMENT_ERROR,
+      ];
+      return $requirements;
+    }
+
     $client = shopify_api_client();
     if (!$client) {
       $shopify_api_admin = Url::fromRoute('shopify_api.admin');
@@ -30,17 +39,15 @@ function shopify_requirements($phase) {
       ];
     }
 
-    // Need to populate shop info early on.
-    $info = shopify_shop_info(NULL, $refresh = TRUE);
-    if (empty($info)) {
-      $requirements['shopify'] = [
-        'title' => t('Shopify API settings are not correct.'),
-        'description' => t('Shopify API settings are not correct.'),
-        'severity' => REQUIREMENT_ERROR,
-      ];
-    }
-
   }
 
   return $requirements;
+}
+
+/**
+ * Implements hook_install().
+ */
+function shopify_install() {
+  // Upon install, setup shop info.
+  shopify_shop_info(NULL, $refresh = TRUE);
 }
