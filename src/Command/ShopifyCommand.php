@@ -24,6 +24,11 @@ class ShopifyCommand extends ContainerAwareCommand {
     $client = shopify_api_client();
     $opts = $input->getArgument('opts');
     parse_str($opts, $opts);
+
+    if (in_array($input->getArgument('method'), ['post', 'put'])) {
+      $opts['form_params'] = $opts;
+    }
+
     $response = $client->request($input->getArgument('method'), $input->getArgument('resource'), (array) $opts);
     if ($response instanceof Response) {
       $output->write($response->getBody()->getContents(), TRUE);
