@@ -37,11 +37,11 @@ class ShopifyAddedToCart extends ControllerBase {
     }
 
     $title = $variant->label() == 'Default Title' ? '' : '- ' . $variant->label();
-    drupal_set_message(t('@quantity x @parent @title (@price) added to !cart_link.', [
+    drupal_set_message(t('@quantity x @parent @title (@price) added to @cart_link.', [
       '@parent' => $product->label(),
       '@title' => $title,
       '@price' => shopify_currency_format($variant->price->value),
-      '!cart_link' => \Drupal::l(t('your cart'), Url::fromUri('https://' . shopify_shop_info('domain') . '/cart', ['attributes' => ['target' => '_blank']])),
+      '@cart_link' => \Drupal::l(t('your cart'), Url::fromUri('https://' . shopify_shop_info('domain') . '/cart', ['attributes' => ['target' => '_blank']])),
       '@quantity' => $quantity,
     ]));
     return new Response('okay', Response::HTTP_OK);
