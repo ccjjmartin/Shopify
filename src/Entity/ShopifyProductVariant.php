@@ -93,6 +93,13 @@ class ShopifyProductVariant extends ContentEntityBase implements ShopifyProductV
     else {
       $values['image'] = NULL;
     }
+
+    // Ensure inventory_quantity is not a negative number.
+    if ($values['inventory_quantity'] < 0) {
+      // Inventory tracking is disabled, just set quantity to 1.
+      $values['inventory_quantity'] = 1;
+    }
+
     return $values;
   }
 
