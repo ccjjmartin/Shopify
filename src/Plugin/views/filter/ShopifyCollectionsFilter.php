@@ -21,14 +21,14 @@ class ShopifyCollectionsFilter extends NumericFilter {
 
   public function query() {
     $this->ensureMyTable();
-    $field = "tag.$this->realField";
+    $field = "coll.$this->realField";
     $join = Views::pluginManager('join')->createInstance('standard', [
-      'table' => 'shopify_product__tags',
+      'table' => 'shopify_product__collections',
       'field' => 'entity_id',
       'left_table' => 'shopify_product',
       'left_field' => 'id',
     ]);
-    $this->query->addRelationship('tag', $join, 'shopify_product__tags');
+    $this->query->addRelationship('coll', $join, 'shopify_product__collections');
 
     $info = $this->operators();
     if (!empty($info[$this->operator]['method'])) {
