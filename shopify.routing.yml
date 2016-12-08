@@ -70,7 +70,7 @@ entity.shopify_product.canonical:
   path: '/store/product/{shopify_product}'
   defaults:
     _entity_view: 'shopify_product'
-    _title: 'Shopify product'
+    _title_callback: 'Entity::label'
   requirements:
     _entity_access: 'shopify_product.view'
 
