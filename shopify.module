@@ -332,17 +332,23 @@ function shopify_sync_products(array $opts = []) {
   $client = shopify_api_client();
   $result = $client->get('products', $opts);
   $synced_products = [];
+
   foreach ($result->products as $product) {
-    $entity = ShopifyProduct::loadByProductId($product->id);
-    if ($entity instanceof ShopifyProduct) {
-      $entity->update((array) $product);
-      $entity->save();
+    try {
+      $entity = ShopifyProduct::loadByProductId($product->id);
+      if ($entity instanceof ShopifyProduct) {
+        $entity->update((array) $product);
+        $entity->save();
+      }
+      else {
+        $entity = ShopifyProduct::create((array) $product);
+        $entity->save();
+      }
+      $synced_products[] = $entity;
     }
-    else {
-      $entity = ShopifyProduct::create((array) $product);
-      $entity->save();
+    catch (Exception $e) {
+      \Drupal::logger('shopify')->error("Failed to sync product id: %id", array('%id' => $product->id));
     }
-    $synced_products[] = $entity;
   }
   return $synced_products;
 }
