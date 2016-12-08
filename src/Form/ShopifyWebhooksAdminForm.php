@@ -10,7 +10,6 @@ namespace Drupal\shopify\Form;
 use Drupal\Component\Utility\Html;
 use Drupal\Core\Form\ConfigFormBase;
 use Drupal\Core\Form\FormStateInterface;
-use Drupal\Core\Url;
 
 /**
  * Class ShopifyWebhooksAdminForm.
