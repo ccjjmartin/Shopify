@@ -44,6 +44,14 @@ class ShopifyThemeDownloadForm extends FormBase {
    * {@inheritdoc}
    */
   public function buildForm(array $form, FormStateInterface $form_state, ShopifyProduct $product = NULL) {
+    // Check to see if we can ZIP the folder contents.
+    $zip_enabled = class_exists('ZipArchive');
+    if (!$zip_enabled) {
+      drupal_set_message(t('Class <strong>ZipArchive</strong> not found. You will be unable to download or upload the Shopify Theme automatically.<br/>For help with setting up ZipArchive, <a href="@url">view the documentation on php.net</a>.', array(
+        '@url' => 'http://php.net/manual/en/zip.setup.php',
+      )), 'warning');
+    }
+
     $form['download'] = [
       '#type' => 'details',
       '#title' => t('Shopify Theme'),
@@ -58,12 +66,14 @@ class ShopifyThemeDownloadForm extends FormBase {
         '#type' => 'submit',
         '#value' => t('Download Only'),
         '#name' => 'download',
+        '#disabled' => !$zip_enabled,
       ],
       'upload' => [
         '#type' => 'submit',
         '#value' => t('Upload and Publish Automatically'),
         '#description' => t('Will be automatically uploaded to your Shopify account and set as the active theme.'),
         '#name' => 'upload',
+        '#disabled' => !$zip_enabled,
       ],
     ];
 
