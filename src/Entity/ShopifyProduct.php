@@ -81,7 +81,7 @@ class ShopifyProduct extends ContentEntityBase implements ShopifyProductInterfac
 
     $values['body_html'] = [
       'value' => $values['body_html'],
-      'format' => 'full_html',
+      'format' => filter_default_format(),
     ];
 
     // Format timestamps properly.

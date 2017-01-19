@@ -557,7 +557,7 @@ function shopify_collection_create(\stdClass $collection, $sync_products = FALSE
     'name' => $collection->title,
     'description' => [
       'value' => $collection->body_html,
-      'format' => 'full_html',
+      'format' => filter_default_format(),
     ],
     'field_shopify_collection_id' => $collection->id,
     'field_shopify_collection_pub' => $date ? $date : 0,
@@ -641,7 +641,7 @@ function shopify_collection_update(\stdClass $collection, $sync_products = FALSE
     $term->name = $collection->title;
     $term->description = [
       'value' => $collection->body_html,
-      'format' => 'full_html',
+      'format' => filter_default_format(),
     ];
     $date = strtotime($collection->published_at);
     $term->field_shopify_collection_pub = $date ? $date : 0;
