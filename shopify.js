@@ -29,25 +29,19 @@
    * Displays the Shopify cart total if available.
    */
   Drupal.shopify.displayCartTotal = function ($ctx) {
-    var $cart_blocks = $ctx.find('.block-shopify-cart');
-    if (!$cart_blocks.length) {
-      // No carts on the page.
-      return;
-    }
-    $cart_blocks.each(function (i, el) {
-      $.ajax({
-        type: 'GET',
-        url: '//' + drupalSettings.shopify.shop.domain + '/cart.json',
-        dataType: 'jsonp',
-        success: function (data) {
-          var total = 0;
-          for (var i = 0; i < data.items.length; i++) {
-            total += data.items[i].quantity;
+    var $cartBlocks = $ctx.find('.shopify-cart-total');
+    if ($cartBlocks.length) {
+      $cartBlocks.each(function (i, el) {
+        $.ajax({
+          type: 'GET',
+          url: '//' + drupalSettings.shopify.shop.domain + '/cart.json',
+          dataType: 'jsonp',
+          success: function (data) {
+            $(el).text(data.item_count);
           }
-          $(el).find('.shopify-cart-total').text(total);
-        }
+        });
       });
-    });
+    }
   };
 
   /**
