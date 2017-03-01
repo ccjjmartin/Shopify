@@ -21,7 +21,9 @@ function shopify_theme($existing, $type, $theme, $path) {
  * Implements hook_views_post_render().
  */
 function shopify_views_post_render(\Drupal\views\ViewExecutable $view, &$output, \Drupal\views\Plugin\views\cache\CachePluginBase $cache) {
-  $output['#attached']['library'][] = 'shopify/shopify.store.css';
+  if ($view->id() === 'shopify_store') {
+    $output['#attached']['library'][] = 'shopify/shopify.store.css';
+  }
 }
 
 /**
