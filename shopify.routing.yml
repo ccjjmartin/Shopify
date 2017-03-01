@@ -80,7 +80,7 @@ entity.shopify_product.collection:
     _entity_list: 'shopify_product'
     _title: 'Shopify product list'
   requirements:
-    _permission: 'view shopify product entities'
+    _permission: 'administer shopify'
   options:
     _admin_route: TRUE
 
