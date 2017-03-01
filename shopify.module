@@ -55,8 +55,12 @@ function shopify_form_taxonomy_overview_terms_alter(array &$form, FormStateInter
  * @see Drupal\Core\Entity\Entity::toUrl()
  */
 function shopify_entity_bundle_info_alter(&$bundles) {
-  $bundles['taxonomy_term']['shopify_tags']['uri_callback'] = 'shopify_taxonomy_tag_term_uri';
-  $bundles['taxonomy_term']['shopify_collections']['uri_callback'] = 'shopify_taxonomy_collection_term_uri';
+  if (isset($bundles['taxonomy_term']['shopify_tags'])) {
+    $bundles['taxonomy_term']['shopify_tags']['uri_callback'] = 'shopify_taxonomy_tag_term_uri';
+  }
+  if (isset($bundles['taxonomy_term']['shopify_collections'])) {
+    $bundles['taxonomy_term']['shopify_collections']['uri_callback'] = 'shopify_taxonomy_collection_term_uri';
+  }
 }
 
 /**
