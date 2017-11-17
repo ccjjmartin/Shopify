@@ -45,7 +45,7 @@ class ShopifyProductViewBuilder extends EntityViewBuilder {
       if ($active_variant instanceof ShopifyProductVariant) {
         $build['active_variant'] = [
           '#prefix' => '<div class="product-active-variant variant-display variant-display--view-' . $view_mode . '">',
-          'variant' => \Drupal::entityManager()
+          'variant' => \Drupal::entityTypeManager()
             ->getViewBuilder('shopify_product_variant')
             ->view($active_variant, $view_mode),
           '#suffix' => '</div>',

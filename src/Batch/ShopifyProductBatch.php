@@ -132,7 +132,7 @@ class ShopifyProductBatch {
 
   public static function finished($success, $results, $operations) {
     // Update the product sync time.
-    \Drupal::state()->set('shopify.sync.products_last_sync_time', REQUEST_TIME);
+    \Drupal::state()->set('shopify.sync.products_last_sync_time', \Drupal::time()->getRequestTime());
     drupal_set_message(t('Synced @count.', [
       '@count' => \Drupal::translation()
         ->formatPlural(count($results), '@count product', '@count products')

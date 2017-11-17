@@ -144,7 +144,7 @@ function shopify_cron() {
   $cron_last = \Drupal::state()->get('system.cron_last') ?: 0;
 
   // Check last cron run time vs. the cron speed setting.
-  if ($cron_last + $shopify_cron_sync_time > REQUEST_TIME) {
+  if ($cron_last + $shopify_cron_sync_time > \Drupal::time()->getRequestTime()) {
     // No need to sync yet.
     return FALSE;
   }
@@ -160,7 +160,7 @@ function shopify_cron() {
     ]);
     shopify_sync_deleted_products();
     \Drupal::state()
-      ->set('shopify.sync.products_last_sync_time', REQUEST_TIME);
+      ->set('shopify.sync.products_last_sync_time', \Drupal::time()->getRequestTime());
     \Drupal::logger('shopify.cron')
       ->info(t('Synced @count on cron run.', [
         '@count' => \Drupal::translation()
@@ -179,7 +179,7 @@ function shopify_cron() {
     ]);
     shopify_sync_deleted_collections();
     \Drupal::state()
-      ->set('shopify.sync.collections_last_sync_time', REQUEST_TIME);
+      ->set('shopify.sync.collections_last_sync_time', \Drupal::time()->getRequestTime());
     \Drupal::logger('shopify.cron')
       ->info(t('Synced @count on cron run.', [
         '@count' => \Drupal::translation()
@@ -402,7 +402,7 @@ function shopify_sync_deleted_products(array $opts = []) {
   $query->condition('product_id', $product_ids, 'NOT IN');
   $result = $query->execute();
   if ($result) {
-    $manager = \Drupal::entityManager()
+    $manager = \Drupal::entityTypeManager()
       ->getStorage('shopify_product');
     $product_entities = $manager->loadMultiple($result);
     $manager->delete($product_entities);
@@ -413,7 +413,7 @@ function shopify_sync_deleted_products(array $opts = []) {
   $query->condition('variant_id', $variant_ids, 'NOT IN');
   $result = $query->execute();
   if ($result) {
-    $manager = \Drupal::entityManager()
+    $manager = \Drupal::entityTypeManager()
       ->getStorage('shopify_product_variant');
     $variant_entities = $manager->loadMultiple($result);
     $manager->delete($variant_entities);
@@ -475,7 +475,7 @@ function shopify_sync_deleted_collections(array $opts = []) {
 
   // Delete these collections.
   if ($result) {
-    $manager = \Drupal::entityManager()
+    $manager = \Drupal::entityTypeManager()
       ->getStorage('taxonomy_term');
     $collection_entities = $manager->loadMultiple($result);
     $manager->delete($collection_entities);

@@ -252,7 +252,7 @@ class ShopifyProduct extends ContentEntityBase implements ShopifyProductInterfac
    * @return ShopifyProduct[]
    */
   public static function loadByProperties(array $props = []) {
-    return \Drupal::entityManager()
+    return \Drupal::entityTypeManager()
       ->getStorage('shopify_product')
       ->loadByProperties($props);
   }

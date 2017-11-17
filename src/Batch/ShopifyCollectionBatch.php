@@ -129,7 +129,7 @@ class ShopifyCollectionBatch {
   public static function finished($success, $results, $operations) {
     // Update the collections sync time.
     \Drupal::state()
-      ->set('shopify.sync.collections_last_sync_time', REQUEST_TIME);
+      ->set('shopify.sync.collections_last_sync_time', \Drupal::time()->getRequestTime());
     drupal_set_message(t('Synced @count.', [
       '@count' => \Drupal::translation()
         ->formatPlural(count($results), '@count collection', '@count collections')

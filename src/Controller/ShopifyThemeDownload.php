@@ -58,7 +58,7 @@ class ShopifyThemeDownload extends ControllerBase {
       // Someone doesn't have the right sig here.
       return new AccessResultForbidden();
     }
-    if (REQUEST_TIME > $timestamp + 500) {
+    if (\Drupal::time()->getRequestTime() > $timestamp + 500) {
       // The link has expired.
       return new AccessResultForbidden();
     }

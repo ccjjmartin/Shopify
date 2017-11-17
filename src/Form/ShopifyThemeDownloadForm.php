@@ -275,7 +275,7 @@ class ShopifyThemeDownloadForm extends FormBase {
   public static function unzipArchive($path) {
     // Get real path for our folder
     $root_path = realpath($path);
-    $output_folder = file_directory_temp() . '/shopify_default_theme_' . REQUEST_TIME . '/';
+    $output_folder = file_directory_temp() . '/shopify_default_theme_' . \Drupal::time()->getRequestTime() . '/';
 
     // Initialize archive object
     $zip = new ZipArchive();
@@ -296,7 +296,7 @@ class ShopifyThemeDownloadForm extends FormBase {
    *   Returns the destination file path.
    */
   public static function downloadRemoteCopy($download_url = '') {
-    $file_path = system_retrieve_file($download_url ?: self::REMOTE_DOWNLOAD_URL, file_directory_temp() . '/shopify_default_theme_' . REQUEST_TIME . '.zip', $managed = FALSE, FILE_EXISTS_REPLACE);
+    $file_path = system_retrieve_file($download_url ?: self::REMOTE_DOWNLOAD_URL, file_directory_temp() . '/shopify_default_theme_' . \Drupal::time()->getRequestTime() . '.zip', $managed = FALSE, FILE_EXISTS_REPLACE);
     if (sha1_file($file_path) !== self::REMOTE_DOWNLOAD_SHASUM) {
       drupal_set_message(t('Checksum failed. Could not verify the downloaded file. You may need to upgrade this module.'), 'error');
       return FALSE;

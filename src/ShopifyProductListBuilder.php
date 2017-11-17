@@ -9,7 +9,7 @@ namespace Drupal\shopify;
 
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\EntityListBuilder;
-use Drupal\Core\Routing\LinkGeneratorTrait;
+use Drupal\Core\Link;
 use Drupal\Core\Url;
 
 /**
@@ -18,7 +18,6 @@ use Drupal\Core\Url;
  * @ingroup shopify
  */
 class ShopifyProductListBuilder extends EntityListBuilder {
-  use LinkGeneratorTrait;
 
   /**
    * {@inheritdoc}
@@ -37,14 +36,7 @@ class ShopifyProductListBuilder extends EntityListBuilder {
     /* @var $entity \Drupal\shopify\Entity\ShopifyProduct */
     $row['id'] = $entity->id();
     $row['product_id'] = $entity->product_id->value;
-    $row['name'] = $this->l(
-      $this->getLabel($entity),
-      new Url(
-        'entity.shopify_product.canonical', [
-          'shopify_product' => $entity->id(),
-        ]
-      )
-    );
+    $row['name'] = Link::createFromRoute($entity->label(), 'entity.shopify_product.canonical', ['shopify_product' => $entity->id()]);
     return $row + parent::buildRow($entity);
   }
 
