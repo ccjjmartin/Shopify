@@ -79,10 +79,12 @@ class ShopifyProduct extends ContentEntityBase implements ShopifyProductInterfac
       unset($values['id']);
     }
 
-    $values['body_html'] = [
-      'value' => $values['body_html'],
-      'format' => filter_default_format(),
-    ];
+    if (isset($values['body_html'])) {
+      $values['body_html'] = [
+        'value' => $values['body_html'],
+        'format' => filter_default_format(),
+      ];
+    }
 
     // Format timestamps properly.
     self::formatDatetimeAsTimestamp($values, [
@@ -137,21 +139,25 @@ class ShopifyProduct extends ContentEntityBase implements ShopifyProductInterfac
     }
 
     // Format variants as entities.
-    foreach ($values['variants'] as &$variant) {
-      // Attempt to load this variant.
-      $entity = ShopifyProductVariant::loadByVariantId($variant->id);
-      if ($entity instanceof ShopifyProductVariant) {
-        $entity->update((array) $variant);
-        $entity->save();
-        $variant = $entity;
-      }
-      elseif (is_object($variant)) {
-        $variant = ShopifyProductVariant::create((array) $variant);
+    if (isset($values['variants']) && is_array($values['variants'])) {
+      foreach ($values['variants'] as &$variant) {
+        // Attempt to load this variant.
+        $entity = ShopifyProductVariant::loadByVariantId($variant->id);
+        if ($entity instanceof ShopifyProductVariant) {
+          $entity->update((array) $variant);
+          $entity->save();
+          $variant = $entity;
+        }
+        elseif (is_object($variant)) {
+          $variant = ShopifyProductVariant::create((array) $variant);
+        }
       }
     }
 
     // Convert options.
-    $values['options'] = serialize($values['options']);
+    if (isset($values['options'])) {
+      $values['options'] = serialize($values['options']);
+    }
     return $values;
   }
 
