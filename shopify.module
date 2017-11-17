@@ -10,6 +10,12 @@ use Drupal\Core\Form\FormStateInterface;
  */
 function shopify_theme($existing, $type, $theme, $path) {
   return [
+    'shopify_product' => [
+      'render element' => 'elements',
+    ],
+    'shopify_product_variant' => [
+      'render element' => 'elements',
+    ],
     'shopify_cart' => [
       'template' => 'shopify_cart',
       'variables' => ['domain' => ''],
@@ -689,18 +695,45 @@ function shopify_collection_load_all_ids() {
   return [];
 }
 
+/**
+ * Prepares variables for shopify product templates.
+ *
+ * Default template: shopify-product.html.twig.
+ *
+ * @param array $variables
+ *   An associative array containing:
+ *   - elements: An array of elements to display in view mode.
+ *   - shopify_product: The shopify product object.
+ *   - view_mode: View mode; e.g., 'full', 'store_listing', etc.
+ */
+function template_preprocess_shopify_product(&$variables) {
+  $variables['view_mode'] = $variables['elements']['#view_mode'];
+  $variables['shopify_product'] = $variables['elements']['#shopify_product'];
 
+  // Helpful $content variable for templates.
+  $variables += ['content' => []];
+  foreach (\Drupal\Core\Render\Element::children($variables['elements']) as $key) {
+    $variables['content'][$key] = $variables['elements'][$key];
+  }
+}
 
-
-
-
-
-
-
-
-
-
-
-
-
-
+/**
+ * Prepares variables for shopify product variant templates.
+ *
+ * Default template: shopify-product-variant.html.twig.
+ *
+ * @param array $variables
+ *   An associative array containing:
+ *   - elements: An array of elements to display in view mode.
+ *   - shopify_product_variant: The shopify product variant object.
+ *   - view_mode: View mode; e.g., 'full', 'store_listing', etc.
+ */
+function template_preprocess_shopify_product_variant(&$variables) {
+  $variables['view_mode'] = $variables['elements']['#view_mode'];
+  $variables['shopify_product_variant'] = $variables['elements']['#shopify_product_variant'];
+  // Helpful $content variable for templates.
+  $variables += array('content' => array());
+  foreach (\Drupal\Core\Render\Element::children($variables['elements']) as $key) {
+    $variables['content'][$key] = $variables['elements'][$key];
+  }
+}

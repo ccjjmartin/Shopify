@@ -11,10 +11,6 @@ use Drupal\shopify\Entity\ShopifyProductVariant;
 class ShopifyProductViewBuilder extends EntityViewBuilder {
 
   protected function alterBuild(array &$build, EntityInterface $entity, EntityViewDisplayInterface $display, $view_mode) {
-    // Wrap our content.
-    $build['#prefix'] = '<div class="shopify-product shopify-product--view-' . $view_mode . '">';
-    $build['#suffix'] = '</div>';
-
     // Include our custom css.
     $build['#attached']['library'][] = 'shopify/shopify.product.css';
 
