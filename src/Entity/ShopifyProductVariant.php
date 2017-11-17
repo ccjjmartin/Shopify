@@ -182,10 +182,14 @@ class ShopifyProductVariant extends ContentEntityBase implements ShopifyProductV
     }
     // URL should point to the product page with a variant_id param set.
     $product = $this->getProduct();
-    $options['query'] = ['variant_id' => $this->variant_id->value];
-    $uri = $product->toUrl($rel);
-    $uri->setOptions($options);
-    return $uri->toString();
+    if ($product instanceof ShopifyProduct) {
+      $options['query'] = ['variant_id' => $this->variant_id->value];
+      $uri = $product->toUrl($rel);
+      $uri->setOptions($options);
+      return $uri->toString();
+    } else {
+      return '';
+    }
   }
 
   /**
