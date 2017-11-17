@@ -121,7 +121,7 @@ class ShopifyProductVariant extends ContentEntityBase implements ShopifyProductV
       $this->option3->value,
     ];
     $options = array_combine($options, $options);
-    return array_filter($options);
+    return array_filter($options, 'strlen');
   }
 
   /**
