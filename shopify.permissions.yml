@@ -26,3 +26,7 @@ edit shopify product variant entities:
 
 view shopify product variant entities:
   title: 'View Shopify product variant entities'
+
+administer shopify:
+  title: 'Administer Shopify'
+  description: 'Allow to access the Shopify administration pages.'
