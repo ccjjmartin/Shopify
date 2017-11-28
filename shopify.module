@@ -347,6 +347,17 @@ function shopify_sync_products(array $opts = []) {
 
   foreach ($result->products as $product) {
     try {
+      // Fetch alt data for product image.
+      if (!empty($product->image)) {
+        $product->image->alt = shopify_fetch_alt($client, $product->image->id);
+      }
+      // Fetch alt data for product images.
+      if (!empty($product->images)) {
+        foreach ($product->images as $img_key => $image) {
+          $product->images[$img_key]->alt = shopify_fetch_alt($client, $image->id);
+        }
+      }
+
       $entity = ShopifyProduct::loadByProductId($product->id);
       if ($entity instanceof ShopifyProduct) {
         $entity->update((array) $product);
@@ -363,6 +374,33 @@ function shopify_sync_products(array $opts = []) {
     }
   }
   return $synced_products;
+}
+
+/**
+ * Fetch image alt data.
+ *
+ * @param object $client
+ *   Client object used with the initial API call.
+ *
+ * @param int $image_id
+ *   The id of the image to fetch the alt for.
+ *
+ * @return string
+ *   Alt text, or empty string.
+ */
+function shopify_fetch_alt($client, $image_id) {
+  $image_meta = $client->get('metafields', array(
+    'query' => array(
+      'metafield[owner_id]' => $image_id,
+      'metafield[owner_resource]' => 'product_image',
+    ),
+  ));
+  foreach ($image_meta->metafields as $metafield) {
+    if ($metafield->key === 'alt') {
+      return $metafield->value;
+    }
+  }
+  return '';
 }
 
 /**

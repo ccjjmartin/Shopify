@@ -87,7 +87,10 @@ class ShopifyProductVariant extends ContentEntityBase implements ShopifyProductV
     if (isset($values['image']) && !empty($values['image'])) {
       $file = self::setupProductImage($values['image']->src);
       if ($file instanceof FileInterface) {
-        $values['image'] = $file;
+        $values['image'] = array(
+          'target_id' => $file->id(),
+          'alt' => $values['image']->alt,
+        );
       }
     }
     else {
