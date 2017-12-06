@@ -1,5 +1,6 @@
 <?php
 
+use Drupal\Core\Database\Database;
 use Drupal\Core\Url;
 
 /**
@@ -60,4 +61,23 @@ function shopify_requirements($phase) {
 function shopify_install() {
   // Upon install, setup shop info.
   shopify_shop_info(NULL, $refresh = TRUE);
+}
+
+/**
+ * Changes inventory fields from unsigned to signed.
+ */
+function shopify_update_8101() {
+  $schema = Database::getConnection()->schema();
+  $entityTypeDefinition = \Drupal::entityTypeManager()->getDefinition('shopify_product_variant');
+  $spec = [
+    'type' => 'int',
+    'size' => 'normal',
+    'unsigned' => FALSE,
+    'not null' => FALSE,
+  ];
+  $schema->changeField($entityTypeDefinition->getBaseTable(), 'inventory_quantity', 'inventory_quantity', $spec);
+  $schema->changeField($entityTypeDefinition->getBaseTable(), 'old_inventory_quantity', 'old_inventory_quantity', $spec);
+
+  // Update entity definition.
+  \Drupal::service('entity.definition_update_manager')->installEntityType($entityTypeDefinition);
 }

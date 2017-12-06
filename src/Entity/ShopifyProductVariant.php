@@ -399,7 +399,7 @@ class ShopifyProductVariant extends ContentEntityBase implements ShopifyProductV
     $fields['inventory_quantity'] = BaseFieldDefinition::create('integer')
       ->setLabel(t('Inventory quantity'))
       ->setSettings([
-        'unsigned' => TRUE,
+        'unsigned' => FALSE,
       ])
       ->setDisplayOptions('view', [
         'label' => 'above',
@@ -416,7 +416,7 @@ class ShopifyProductVariant extends ContentEntityBase implements ShopifyProductV
     $fields['old_inventory_quantity'] = BaseFieldDefinition::create('integer')
       ->setLabel(t('Old inventory quantity'))
       ->setSettings([
-        'unsigned' => TRUE,
+        'unsigned' => FALSE,
       ])
       ->setDisplayOptions('view', [
         'label' => 'above',
