@@ -141,16 +141,16 @@ function shopify_entity_extra_field_info() {
 function shopify_cron() {
   $config = \Drupal::config('shopify.sync');
   $shopify_cron_sync_time = $config->get('cron_sync_time') ?: 0;
-  $cron_last = \Drupal::state()->get('system.cron_last') ?: 0;
+  $product_last = \Drupal::state()->get('shopify.sync.products_last_sync_time') ?: 0;
+  $collection_last = \Drupal::state()->get('shopify.sync.collections_last_sync_time') ?: 0;
 
-  // Check last cron run time vs. the cron speed setting.
-  if ($cron_last + $shopify_cron_sync_time > \Drupal::time()->getRequestTime()) {
-    // No need to sync yet.
-    return FALSE;
-  }
+  // Sync the products and collections if the difference between now and the
+  // last time they have been synched is greater than the cron sync time.
+  $sync_products = $config->get('cron_sync_products') && \Drupal::time()->getRequestTime() - $product_last > $shopify_cron_sync_time;
+  $sync_collections = $config->get('cron_sync_collections') && \Drupal::time()->getRequestTime() - $collection_last > $shopify_cron_sync_time;
 
   // Sync products.
-  if ($config->get('cron_sync_products')) {
+  if ($sync_products) {
     $synced_products = shopify_sync_products([
       'query' => [
         'updated_at_min' => date(DATE_ISO8601, \Drupal::state()
@@ -164,12 +164,12 @@ function shopify_cron() {
     \Drupal::logger('shopify.cron')
       ->info(t('Synced @count on cron run.', [
         '@count' => \Drupal::translation()
-          ->formatPlural(count($synced_products), '@count product', '@count products')
+          ->formatPlural(count($synced_products), '@count product', '@count products'),
       ]));
   }
 
   // Sync collections.
-  if ($config->get('cron_sync_collections')) {
+  if ($sync_collections) {
     $synced_collections = shopify_sync_collections([
       'query' => [
         'updated_at_min' => date(DATE_ISO8601, \Drupal::state()
@@ -183,7 +183,7 @@ function shopify_cron() {
     \Drupal::logger('shopify.cron')
       ->info(t('Synced @count on cron run.', [
         '@count' => \Drupal::translation()
-          ->formatPlural(count($synced_collections), '@count collection', '@count collections')
+          ->formatPlural(count($synced_collections), '@count collection', '@count collections'),
       ]));
   }
 }
