@@ -40,10 +40,13 @@ use Drupal\user\UserInterface;
  *     "access" = "Drupal\shopify\ShopifyProductAccessControlHandler",
  *   },
  *   base_table = "shopify_product",
+ *   data_table = "shopify_product_field_data",
  *   admin_permission = "administer ShopifyProduct entity",
+ *   translatable = TRUE,
  *   entity_keys = {
  *     "id" = "id",
  *     "label" = "title",
+ *     "langcode" = "langcode",
  *     "uuid" = "uuid"
  *   },
  *   links = {
