@@ -33,6 +33,7 @@ class ShopifyProductForm extends ContentEntityForm {
       '#url' => Url::fromUri('https://' . shopify_shop_info('domain') . '/admin/products/' . $entity->product_id->value),
       '#attributes' => ['target' => '_blank'],
       '#suffix' => t('<br /><strong>Modifications to Shopify products should be done on Shopify and synced to the Drupal site.</strong>'),
+      '#multilingual' => TRUE,
     ];
 
     $form['langcode'] = [
