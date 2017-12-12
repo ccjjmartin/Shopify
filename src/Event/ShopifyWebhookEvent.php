@@ -1,20 +1,18 @@
 <?php
-/**
- * @file
- * Contains the Shopify webhook event object.
- */
+
 namespace Drupal\shopify\Event;
 
 use Symfony\Component\EventDispatcher\Event;
 
 /**
- * Class ShopifyWebhookEvent
+ * Class ShopifyWebhookEvent.
  *
  * Provides the Shopify Webhook Event.
  */
 class ShopifyWebhookEvent extends Event {
 
-  public $topic, $data;
+  public $topic;
+  public $data;
 
   /**
    * Sets the default values for the event.

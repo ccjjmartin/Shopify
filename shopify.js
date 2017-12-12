@@ -2,6 +2,7 @@
  * @file
  * Defines Javascript behaviors for the Shopify module.
  */
+
 (function ($, Drupal, drupalSettings) {
 
   'use strict';

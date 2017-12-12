@@ -2,16 +2,20 @@
 
 namespace Drupal\shopify\Command;
 
-use Drupal\Component\Serialization\Json;
 use Drupal\Console\Command\ContainerAwareCommand;
 use GuzzleHttp\Psr7\Response;
-use Symfony\Component\Console\Formatter\OutputFormatter;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
+/**
+ * Class ShopifyCommand.
+ */
 class ShopifyCommand extends ContainerAwareCommand {
 
+  /**
+   * {@inheritdoc}
+   */
   protected function configure() {
     $this->setName('shopify:api')
       ->setDescription($this->trans('View/Create/Update/Delete a Shopify resource.'))
@@ -20,6 +24,9 @@ class ShopifyCommand extends ContainerAwareCommand {
       ->addArgument('opts', InputArgument::OPTIONAL, $this->trans('Options to pass to the API request.'));
   }
 
+  /**
+   * {@inheritdoc}
+   */
   protected function execute(InputInterface $input, OutputInterface $output) {
     $client = shopify_api_client();
     $opts = $input->getArgument('opts');

@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\shopify\ShopifyProductListBuilder.
- */
-
 namespace Drupal\shopify;
 
 use Drupal\Core\Entity\EntityInterface;
@@ -40,6 +35,9 @@ class ShopifyProductListBuilder extends EntityListBuilder {
     return $row + parent::buildRow($entity);
   }
 
+  /**
+   * {@inheritdoc}
+   */
   public function getOperations(EntityInterface $entity) {
     $operations = parent::getOperations($entity);
     $edit['edit_on_shopify'] = [

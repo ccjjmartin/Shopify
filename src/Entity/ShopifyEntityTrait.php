@@ -2,11 +2,15 @@
 
 namespace Drupal\shopify\Entity;
 
-use Drupal\file\Entity\File;
-
+/**
+ * Class ShopifyEntityTrait.
+ */
 trait ShopifyEntityTrait {
 
-  public static function formatDatetimeAsTimestamp(array &$values = [], array $fields) {
+  /**
+   * Format date as timestamp.
+   */
+  public static function formatDatetimeAsTimestamp(array $fields, array &$values = []) {
     foreach ($fields as $field) {
       if (isset($values[$field]) && !is_int($values[$field])) {
         $values[$field] = strtotime($values[$field]);
@@ -14,6 +18,9 @@ trait ShopifyEntityTrait {
     }
   }
 
+  /**
+   * Sets up product image.
+   */
   public static function setupProductImage($image_url) {
     $directory = file_build_uri('shopify_images');
     if (!file_prepare_directory($directory, FILE_CREATE_DIRECTORY)) {

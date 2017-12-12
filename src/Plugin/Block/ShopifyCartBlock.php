@@ -1,15 +1,9 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\shopify\Plugin\Block\ShopifyCartBlock.
- */
-
 namespace Drupal\shopify\Plugin\Block;
 
 use Drupal\Core\Block\BlockBase;
 use Drupal\Core\Cache\Cache;
-use Drupal\Core\Render\Element;
 use Drupal\Core\Url;
 
 /**

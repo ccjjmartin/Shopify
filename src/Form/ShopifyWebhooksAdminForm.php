@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\shopify\Form\ShopifyWebhooksAdminForm.
- */
-
 namespace Drupal\shopify\Form;
 
 use Drupal\Component\Utility\Html;
@@ -23,7 +18,7 @@ class ShopifyWebhooksAdminForm extends ConfigFormBase {
    */
   protected function getEditableConfigNames() {
     return [
-      'shopify.webhooks'
+      'shopify.webhooks',
     ];
   }
 
@@ -41,7 +36,8 @@ class ShopifyWebhooksAdminForm extends ConfigFormBase {
     try {
       $client = shopify_api_client();
       $webhooks = $client->getResources('webhooks');
-    } catch (\Exception $e) {
+    }
+    catch (\Exception $e) {
       // Error connecting to the store.
       drupal_set_message(t('Could not connect to the Shopify store.'), 'error');
       return [];
@@ -52,9 +48,10 @@ class ShopifyWebhooksAdminForm extends ConfigFormBase {
     $form['#tree'] = TRUE;
 
     $form['help'] = [
-      '#markup' => t('<p>It is <strong>highly recommended</strong> that you at least have webhooks registered for product and collection events to keep your store automatically in sync with Shopify. Make sure you\'ve registered all development, staging and production environment URLs.</p>'),
+      '#markup' => t("<p>It is <strong>highly recommended</strong> that you at least have webhooks registered for product and collection events to keep your store automatically in sync with Shopify. Make sure you've registered all development, staging and production environment URLs.</p>"),
     ];
 
+    // TODO: Can be changed to array of string.
     $message = '<p>Pro Tip: If you\'re developing locally and need to test webhooks ';
     $message .= 'download and install <a href="https://ngrok.com">ngrok</a> for a tunnel to your localhost. ';
     $message .= 'The service is free. Here is a command-line example: <br /><code>';
@@ -264,7 +261,8 @@ class ShopifyWebhooksAdminForm extends ConfigFormBase {
         ];
         try {
           $client->createResource('webhooks', $hook);
-        } catch (\Exception $e) {
+        }
+        catch (\Exception $e) {
           drupal_set_message(t('Could not create webhook. Error: @error.', [
             '@error' => $e->getMessage(),
           ]), 'warning');
@@ -291,6 +289,7 @@ class ShopifyWebhooksAdminForm extends ConfigFormBase {
         // Create webhooks if we need to.
         $this->createWebhooksSubmit($form, $form_state);
         break;
+
       case 'remove':
         // Removing webhooks.
         $this->removeWebhooksSubmit($form, $form_state);

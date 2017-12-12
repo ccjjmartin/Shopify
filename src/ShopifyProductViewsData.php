@@ -1,9 +1,5 @@
 <?php
 
-/**
- * @file
- */
-
 namespace Drupal\shopify;
 
 use Drupal\views\EntityViewsData;

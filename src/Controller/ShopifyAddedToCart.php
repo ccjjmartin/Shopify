@@ -1,19 +1,15 @@
 <?php
-/**
- * @file
- * Contains controller for displaying added to cart message to the user.
- */
+
 namespace Drupal\shopify\Controller;
 
 use Drupal\Core\Controller\ControllerBase;
 use Drupal\Core\Url;
 use Drupal\shopify\Entity\ShopifyProduct;
 use Drupal\shopify\Entity\ShopifyProductVariant;
-use Drupal\shopify\Event\ShopifyWebhookEvent;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
- * Class ShopifyAddedToCart
+ * Class ShopifyAddedToCart.
  *
  * Provides a route to display an added to cart message for the user.
  */

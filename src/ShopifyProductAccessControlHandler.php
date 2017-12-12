@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\shopify\ShopifyProductAccessControlHandler.
- */
-
 namespace Drupal\shopify;
 
 use Drupal\Core\Entity\EntityAccessControlHandler;
@@ -18,6 +13,7 @@ use Drupal\Core\Access\AccessResult;
  * @see \Drupal\shopify\Entity\ShopifyProduct.
  */
 class ShopifyProductAccessControlHandler extends EntityAccessControlHandler {
+
   /**
    * {@inheritdoc}
    */

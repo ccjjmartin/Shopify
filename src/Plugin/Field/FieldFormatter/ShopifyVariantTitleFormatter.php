@@ -1,9 +1,5 @@
 <?php
 
-/**
- * @file
- */
-
 namespace Drupal\shopify\Plugin\Field\FieldFormatter;
 
 use Drupal\Core\Field\Plugin\Field\FieldFormatter\BasicStringFormatter;
@@ -37,4 +33,5 @@ class ShopifyVariantTitleFormatter extends BasicStringFormatter {
 
     return $elements;
   }
+
 }

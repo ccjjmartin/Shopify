@@ -1,13 +1,7 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\shopify\Form\ShopifySettingsAdminForm.
- */
-
 namespace Drupal\shopify\Form;
 
-use Drupal\Core\Form\ConfigFormBase;
 use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Url;
@@ -32,7 +26,8 @@ class ShopifySettingsAdminForm extends FormBase {
   public function buildForm(array $form, FormStateInterface $form_state) {
     try {
       $info = shopify_shop_info('', $refresh = TRUE);
-    } catch (\Exception $e) {
+    }
+    catch (\Exception $e) {
       // Error connecting to the store.
       drupal_set_message(t('Could not connect to the Shopify store.'), 'error');
       return [];

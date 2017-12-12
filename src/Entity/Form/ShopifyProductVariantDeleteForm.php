@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\shopify\Entity\Form\ShopifyProductVariantDeleteForm.
- */
-
 namespace Drupal\shopify\Entity\Form;
 
 use Drupal\Core\Entity\ContentEntityConfirmFormBase;
@@ -17,6 +12,7 @@ use Drupal\Core\Url;
  * @ingroup shopify
  */
 class ShopifyProductVariantDeleteForm extends ContentEntityConfirmFormBase {
+
   /**
    * {@inheritdoc}
    */
@@ -45,12 +41,10 @@ class ShopifyProductVariantDeleteForm extends ContentEntityConfirmFormBase {
     $this->entity->delete();
 
     drupal_set_message(
-      $this->t('content @type: deleted @label.',
-        [
-          '@type' => $this->entity->bundle(),
-          '@label' => $this->entity->label()
-        ]
-        )
+      $this->t('content @type: deleted @label.', [
+        '@type' => $this->entity->bundle(),
+        '@label' => $this->entity->label(),
+      ])
     );
 
     $form_state->setRedirectUrl($this->getCancelUrl());

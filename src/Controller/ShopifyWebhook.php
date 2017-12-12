@@ -1,8 +1,5 @@
 <?php
-/**
- * @file
- * Contains the default webhook controller.
- */
+
 namespace Drupal\shopify\Controller;
 
 use Drupal\Core\Controller\ControllerBase;
@@ -10,7 +7,7 @@ use Drupal\shopify\Event\ShopifyWebhookEvent;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
- * Class ShopifyWebhook
+ * Class ShopifyWebhook.
  *
  * Provides the route functionality for shopify.webhook route.
  */

@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\shopify\Plugin\views\filter\ShopifyCollectionsFilter.
- */
-
 namespace Drupal\shopify\Plugin\views\filter;
 
 use Drupal\views\Plugin\views\filter\NumericFilter;
@@ -19,6 +14,9 @@ use Drupal\views\Views;
  */
 class ShopifyCollectionsFilter extends NumericFilter {
 
+  /**
+   * {@inheritdoc}
+   */
   public function query() {
     $this->ensureMyTable();
     $field = "coll.$this->realField";

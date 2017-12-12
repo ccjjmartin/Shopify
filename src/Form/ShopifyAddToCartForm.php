@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\shopify\Form\ShopifyAddToCartForm.
- */
-
 namespace Drupal\shopify\Form;
 
 use Drupal\Core\Form\FormBase;

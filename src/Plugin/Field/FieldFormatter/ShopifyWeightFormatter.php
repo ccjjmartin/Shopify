@@ -1,9 +1,5 @@
 <?php
 
-/**
- * @file
- */
-
 namespace Drupal\shopify\Plugin\Field\FieldFormatter;
 
 use Drupal\Core\Field\FieldItemListInterface;

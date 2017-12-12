@@ -1,20 +1,15 @@
 <?php
-/**
- * @file
- * Contains the theme download controller.
- */
+
 namespace Drupal\shopify\Controller;
 
 use Drupal\Core\Access\AccessResultAllowed;
 use Drupal\Core\Access\AccessResultForbidden;
-use Drupal\Core\Access\AccessResultInterface;
 use Drupal\Core\Controller\ControllerBase;
 use Drupal\Core\Session\AccountInterface;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
-use Symfony\Component\HttpFoundation\Response;
 
 /**
- * Class ShopifyThemeDownload
+ * Class ShopifyThemeDownload.
  *
  * Provides route/access/download functionality for the theme archive.
  */
@@ -30,7 +25,8 @@ class ShopifyThemeDownload extends ControllerBase {
    * @param string $file
    *   The file name.
    *
-   * @return Response
+   * @return BinaryFileResponse
+   *   BinaryFileResponse.
    */
   public function download($timestamp, $sig, $file) {
     $directory = realpath(file_directory_temp()) . '/shopify_default_theme_' . $timestamp;
@@ -49,7 +45,8 @@ class ShopifyThemeDownload extends ControllerBase {
    * @param string $file
    *   The file name.
    *
-   * @return AccessResultInterface
+   * @return \Drupal\Core\Access\AccessResultReasonInterface
+   *   AccessResult.
    */
   public function access(AccountInterface $account, $timestamp, $sig, $file) {
     $config = \Drupal::config('shopify_api.settings');
@@ -65,14 +62,14 @@ class ShopifyThemeDownload extends ControllerBase {
     return new AccessResultAllowed();
   }
 
-
   /**
    * Downloads the theme files to the local client.
    *
-   * @param string $filename
-   *   Filename.
+   * @param string $filepath
+   *   File path.
    *
    * @return BinaryFileResponse
+   *   Response.
    */
   public static function downloadTheme($filepath) {
     return new BinaryFileResponse($filepath);

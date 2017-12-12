@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\shopify\ShopifyProductVariantListBuilder.
- */
-
 namespace Drupal\shopify;
 
 use Drupal\Core\Entity\EntityInterface;

@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\shopify\Form\ShopifyVariantOptionsForm.
- */
-
 namespace Drupal\shopify\Form;
 
 use Drupal\Core\Form\FormBase;
@@ -95,16 +90,18 @@ class ShopifyVariantOptionsForm extends FormBase {
    *
    * @param array $options
    *   Options from the form_state.
-   *
    * @param \Drupal\Core\Form\FormStateInterface $form_state
+   *   Form state object.
+   *
+   *   TODO: Move $options to the end.
    */
   private function goToVariantWithOptions(array $options = [], FormStateInterface $form_state) {
-    $variant = $this->getVariantByOptions($options, $form_state);
+    $variant = $this->getVariantByOptions($form_state, $options);
     if ($variant instanceof ShopifyProductVariant) {
       // We have a matching variant we can redirect to.
       $form_state->setRedirect('entity.shopify_product.canonical', [
         'shopify_product' => $form_state->get('product')
-          ->id()
+          ->id(),
       ], [
         'query' => [
           'variant_id' => $variant->variant_id->value,
@@ -116,7 +113,7 @@ class ShopifyVariantOptionsForm extends FormBase {
       // No variant matches.
       $form_state->setRedirect('entity.shopify_product.canonical', [
         'shopify_product' => $form_state->get('product')
-          ->id()
+          ->id(),
       ], [
         'query' => [
           'variant_id' => 0,
@@ -129,13 +126,15 @@ class ShopifyVariantOptionsForm extends FormBase {
   /**
    * Gets a variant that has options matching the passed option values.
    *
+   * @param \Drupal\Core\Form\FormStateInterface $form_state
+   *   Form state object.
    * @param array $options
    *   Options from the form_state.
-   * @param \Drupal\Core\Form\FormStateInterface $form_state
    *
-   * @return \Drupal\shopify\Entity\ShopifyProductVariant|null
+   * @return \Drupal\shopify\Entity\ShopifyProductVariant
+   *   Shopify product variant.
    */
-  private function getVariantByOptions(array $options = [], FormStateInterface $form_state) {
+  private function getVariantByOptions(FormStateInterface $form_state, array $options = []) {
     $valid_variant = NULL;
     foreach ($form_state->get('product')->variants as $variant) {
       $variant = ShopifyProductVariant::load($variant->target_id);

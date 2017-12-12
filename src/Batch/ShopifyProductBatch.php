@@ -1,17 +1,9 @@
 <?php
-/**
- * @file
- * Contains code specific to the product sync batch.
- */
 
 namespace Drupal\shopify\Batch;
 
-use Drupal\shopify\Entity\ShopifyProduct;
-use Shopify\Client;
-use Drupal\Component\Utility\Html;
-
 /**
- * Class ShopifyProductBatch
+ * Class ShopifyProductBatch.
  *
  * Used for creating a product syncing batch.
  *
@@ -23,6 +15,9 @@ class ShopifyProductBatch {
   private $operations;
   private $client;
 
+  /**
+   * {@inheritdoc}
+   */
   public function __construct() {
     $this->client = shopify_api_client();
   }
@@ -66,7 +61,7 @@ class ShopifyProductBatch {
         [
           $params,
           t('(Processing page @operation)', ['@operations' => $page]),
-        ]
+        ],
       ];
     }
 
@@ -76,7 +71,7 @@ class ShopifyProductBatch {
         [__CLASS__, 'cleanUpProducts'],
         [
           t('(Processing page @operation)', ['@operations' => $page]),
-        ]
+        ],
       ];
     }
 
@@ -88,10 +83,16 @@ class ShopifyProductBatch {
     return $this;
   }
 
+  /**
+   * {@inheritdoc}
+   */
   public function set() {
     batch_set($this->batch);
   }
 
+  /**
+   * {@inheritdoc}
+   */
   public function getBatch() {
     return $this->batch;
   }
@@ -120,6 +121,8 @@ class ShopifyProductBatch {
 
   /**
    * Product sync operation.
+   *
+   * TODO: Move $settings to the end.
    */
   public static function operation(array $settings = [], $operation_details, &$context) {
     $synced_products = shopify_sync_products(['query' => $settings]);
@@ -130,12 +133,15 @@ class ShopifyProductBatch {
     ]);
   }
 
+  /**
+   * {@inheritdoc}
+   */
   public static function finished($success, $results, $operations) {
     // Update the product sync time.
     \Drupal::state()->set('shopify.sync.products_last_sync_time', \Drupal::time()->getRequestTime());
     drupal_set_message(t('Synced @count.', [
       '@count' => \Drupal::translation()
-        ->formatPlural(count($results), '@count product', '@count products')
+        ->formatPlural(count($results), '@count product', '@count products'),
     ]));
   }
 

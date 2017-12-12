@@ -1,8 +1,5 @@
 <?php
-/**
- * @file
- * Contains webhook subscriber functionality.
- */
+
 namespace Drupal\shopify\Event;
 
 use Drupal\shopify\Entity\ShopifyProduct;
@@ -10,7 +7,7 @@ use Drupal\taxonomy\Entity\Term;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
- * Class ShopifyWebhookSubscriber
+ * Class ShopifyWebhookSubscriber.
  *
  * Provides the webhook subscriber functionality.
  */
@@ -48,8 +45,6 @@ class ShopifyWebhookSubscriber implements EventSubscriberInterface {
 
   /**
    * Handle updating of products.
-   *
-   * @param \stdClass $data
    */
   private function webhook_products_update(\stdClass $data) {
     $entity = ShopifyProduct::loadByProductId($data->id);
@@ -61,8 +56,6 @@ class ShopifyWebhookSubscriber implements EventSubscriberInterface {
 
   /**
    * Handle creating of products.
-   *
-   * @param \stdClass $data
    */
   private function webhook_products_create(\stdClass $data) {
     $entity = ShopifyProduct::create((array) $data);
@@ -71,8 +64,6 @@ class ShopifyWebhookSubscriber implements EventSubscriberInterface {
 
   /**
    * Handle deleting of products.
-   *
-   * @param \stdClass $data
    */
   private function webhook_products_delete(\stdClass $data) {
     $entity = ShopifyProduct::loadByProductId($data->id);
@@ -83,8 +74,6 @@ class ShopifyWebhookSubscriber implements EventSubscriberInterface {
 
   /**
    * Handle creating of collections.
-   *
-   * @param \stdClass $data
    */
   private function webhook_collections_create(\stdClass $data) {
     shopify_collection_create($data, TRUE);
@@ -92,8 +81,6 @@ class ShopifyWebhookSubscriber implements EventSubscriberInterface {
 
   /**
    * Handle updating of collections.
-   *
-   * @param \stdClass $data
    */
   private function webhook_collections_update(\stdClass $data) {
     // Note: This does not currently get hit because of a bug in Shopify.
@@ -103,8 +90,6 @@ class ShopifyWebhookSubscriber implements EventSubscriberInterface {
 
   /**
    * Handle deleting of collections.
-   *
-   * @param \stdClass $data
    */
   private function webhook_collections_delete(\stdClass $data) {
     $entity = shopify_collection_load($data->id);

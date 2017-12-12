@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\shopify\Entity\Form\ShopifyProductForm.
- */
-
 namespace Drupal\shopify\Entity\Form;
 
 use Drupal\Core\Entity\ContentEntityForm;
@@ -18,6 +13,7 @@ use Drupal\Core\Url;
  * @ingroup shopify
  */
 class ShopifyProductForm extends ContentEntityForm {
+
   /**
    * {@inheritdoc}
    */

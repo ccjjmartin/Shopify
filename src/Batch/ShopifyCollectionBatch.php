@@ -1,17 +1,9 @@
 <?php
-/**
- * @file
- * Contains code specific to the product sync batch.
- */
 
 namespace Drupal\shopify\Batch;
 
-use Drupal\shopify\Entity\ShopifyProduct;
-use Shopify\Client;
-use Drupal\Component\Utility\Html;
-
 /**
- * Class ShopifyCollectionBatch
+ * Class ShopifyCollectionBatch.
  *
  * Used for creating a collection syncing batch.
  *
@@ -23,6 +15,9 @@ class ShopifyCollectionBatch {
   private $operations;
   private $client;
 
+  /**
+   * ShopifyCollectionBatch constructor.
+   */
   public function __construct() {
     $this->client = shopify_api_client();
   }
@@ -78,10 +73,16 @@ class ShopifyCollectionBatch {
     return $this;
   }
 
+  /**
+   * {@inheritdoc}
+   */
   public function set() {
     batch_set($this->batch);
   }
 
+  /**
+   * {@inheritdoc}
+   */
   public function getBatch() {
     return $this->batch;
   }
@@ -126,13 +127,16 @@ class ShopifyCollectionBatch {
     $context['message'] = $operation_details;
   }
 
+  /**
+   * {@inheritdoc}
+   */
   public static function finished($success, $results, $operations) {
     // Update the collections sync time.
     \Drupal::state()
       ->set('shopify.sync.collections_last_sync_time', \Drupal::time()->getRequestTime());
     drupal_set_message(t('Synced @count.', [
       '@count' => \Drupal::translation()
-        ->formatPlural(count($results), '@count collection', '@count collections')
+        ->formatPlural(count($results), '@count collection', '@count collections'),
     ]));
   }
 

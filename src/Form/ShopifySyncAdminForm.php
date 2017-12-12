@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\shopify\Form\ShopifySyncAdminForm.
- */
-
 namespace Drupal\shopify\Form;
 
 use Drupal\Core\Form\FormBase;
@@ -24,7 +19,7 @@ class ShopifySyncAdminForm extends FormBase {
    */
   protected function getEditableConfigNames() {
     return [
-      'shopify.sync'
+      'shopify.sync',
     ];
   }
 
@@ -158,35 +153,44 @@ class ShopifySyncAdminForm extends FormBase {
       case 'sync_products':
         $this->batchSyncProducts($form, $form_state);
         break;
+
       case 'sync_collections':
         $this->batchSyncCollections($form, $form_state);
         break;
+
       case 'save_cron_settings':
         $this->saveCronSettings($form, $form_state);
         break;
+
       default:
         parent::submitForm($form, $form_state);
     }
   }
 
+  /**
+   * {@inheritdoc}
+   */
   private function saveCronSettings(array &$form, FormStateInterface $form_state) {
     $config = \Drupal::configFactory()->getEditable('shopify.sync');
     $config
       ->set('cron_sync_products', $form_state->getValue([
         'cron',
-        'sync_products'
+        'sync_products',
       ]))
       ->set('cron_sync_collections', $form_state->getValue([
         'cron',
-        'sync_collections'
+        'sync_collections',
       ]))
       ->set('cron_sync_time', $form_state->getValue([
         'cron',
-        'sync_time'
+        'sync_time',
       ]))
       ->save();
   }
 
+  /**
+   * {@inheritdoc}
+   */
   private function batchSyncCollections(array &$form, FormStateInterface $form_state) {
     $batch = new ShopifyCollectionBatch();
     $batch->prepare([
@@ -194,6 +198,9 @@ class ShopifySyncAdminForm extends FormBase {
     ])->set();
   }
 
+  /**
+   * {@inheritdoc}
+   */
   private function batchSyncProducts(array &$form, FormStateInterface $form_state) {
     $batch = new ShopifyProductBatch();
 

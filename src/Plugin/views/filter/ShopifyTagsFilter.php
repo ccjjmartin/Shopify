@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\shopify\Plugin\views\filter\ShopifyTagsFilter.
- */
-
 namespace Drupal\shopify\Plugin\views\filter;
 
 use Drupal\views\Plugin\views\filter\NumericFilter;
@@ -19,6 +14,9 @@ use Drupal\views\Views;
  */
 class ShopifyTagsFilter extends NumericFilter {
 
+  /**
+   * {@inheritdoc}
+   */
   public function query() {
     $this->ensureMyTable();
     $field = "tag.$this->realField";

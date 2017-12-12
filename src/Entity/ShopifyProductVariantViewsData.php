@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\shopify\Entity\ShopifyProductVariant.
- */
-
 namespace Drupal\shopify\Entity;
 
 use Drupal\views\EntityViewsData;
@@ -14,6 +9,7 @@ use Drupal\views\EntityViewsDataInterface;
  * Provides Views data for Shopify product variant entities.
  */
 class ShopifyProductVariantViewsData extends EntityViewsData implements EntityViewsDataInterface {
+
   /**
    * {@inheritdoc}
    */

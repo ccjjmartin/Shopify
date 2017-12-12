@@ -1,8 +1,5 @@
 <?php
-/**
- * @file
- * Contains controller for redirecting the user.
- */
+
 namespace Drupal\shopify\Controller;
 
 use Drupal\Core\Controller\ControllerBase;
@@ -13,15 +10,14 @@ use Drupal\taxonomy\Entity\Term;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 
 /**
- * Class ShopifyRedirect
+ * Class ShopifyRedirect.
  *
  * Handles redirecting the user.
  */
 class ShopifyRedirect extends ControllerBase {
 
   /**
-   * Handles redirecting the incoming user to the proper specific variant or product page.
-   * @return RedirectResponse
+   * Redirects the incoming user to the proper specific variant or product page.
    */
   public function handleRedirect() {
     $request = \Drupal::request();
@@ -32,7 +28,7 @@ class ShopifyRedirect extends ControllerBase {
       if ($variant instanceof ShopifyProductVariant) {
         return new RedirectResponse($variant->url());
       }
-      drupal_set_message(t('We\'re sorry, but that product is unavailable at this time.'), 'warning');
+      drupal_set_message(t("We're sorry, but that product is unavailable at this time."), 'warning');
     }
 
     if ($request->get('product_id')) {
@@ -41,7 +37,7 @@ class ShopifyRedirect extends ControllerBase {
       if ($product instanceof ShopifyProduct) {
         return new RedirectResponse($product->url());
       }
-      drupal_set_message(t('We\'re sorry, but that product is unavailable at this time.'), 'warning');
+      drupal_set_message(t("We're sorry, but that product is unavailable at this time."), 'warning');
     }
 
     if ($request->get('collection_id')) {
@@ -50,7 +46,7 @@ class ShopifyRedirect extends ControllerBase {
       if ($collection instanceof Term) {
         return new RedirectResponse($collection->url());
       }
-      drupal_set_message(t('We\'re sorry, but that collection is unavailable at this time.'), 'warning');
+      drupal_set_message(t("We're sorry, but that collection is unavailable at this time."), 'warning');
     }
 
     return new RedirectResponse('/' . shopify_store_url());
@@ -58,8 +54,6 @@ class ShopifyRedirect extends ControllerBase {
 
   /**
    * Redirects the user to the admin page to add a new product.
-   *
-   * @return TrustedRedirectResponse
    */
   public function addShopifyProduct() {
     return new TrustedRedirectResponse('https://' . shopify_shop_info('domain') . '/admin/products/new');

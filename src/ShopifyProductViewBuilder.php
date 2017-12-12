@@ -8,8 +8,14 @@ use Drupal\Core\Entity\EntityViewBuilder;
 use Drupal\file\Entity\File;
 use Drupal\shopify\Entity\ShopifyProductVariant;
 
+/**
+ * Class ShopifyProductViewBuilder.
+ */
 class ShopifyProductViewBuilder extends EntityViewBuilder {
 
+  /**
+   * {@inheritdoc}
+   */
   protected function alterBuild(array &$build, EntityInterface $entity, EntityViewDisplayInterface $display, $view_mode) {
     // Include our custom css.
     $build['#attached']['library'][] = 'shopify/shopify.product.css';

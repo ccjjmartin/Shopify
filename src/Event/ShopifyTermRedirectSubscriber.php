@@ -1,8 +1,5 @@
 <?php
-/**
- * @file
- * Contains taxonomy term redirect subscriber functionality.
- */
+
 namespace Drupal\shopify\Event;
 
 use Drupal\shopify\Entity\ShopifyProduct;
@@ -13,7 +10,7 @@ use Symfony\Component\HttpKernel\Event\GetResponseEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
 
 /**
- * Class ShopifyWebhookSubscriber
+ * Class ShopifyWebhookSubscriber.
  *
  * Provides the webhook subscriber functionality.
  */
@@ -42,6 +39,7 @@ class ShopifyTermRedirectSubscriber implements EventSubscriberInterface {
       case ShopifyProduct::SHOPIFY_TAGS_VID:
         $event->setResponse(new RedirectResponse('/' . shopify_store_url('page_tag', $term->id())));
         break;
+
       case ShopifyProduct::SHOPIFY_COLLECTIONS_VID:
         $event->setResponse(new RedirectResponse('/' . shopify_store_url('page_collection', $term->id())));
         break;
@@ -56,6 +54,5 @@ class ShopifyTermRedirectSubscriber implements EventSubscriberInterface {
     $events[KernelEvents::REQUEST][] = ['checkForRedirection'];
     return $events;
   }
-
 
 }

@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\shopify\Form\ShopifyThemeDownloadForm.
- */
-
 namespace Drupal\shopify\Form;
 
 use Drupal\Core\Form\FormBase;
@@ -29,7 +24,9 @@ class ShopifyThemeDownloadForm extends FormBase {
   const REMOTE_DOWNLOAD_URL = 'https://www.drupal.org/files/default_shopify_theme.zip';
 
   /**
-   * The remote file checksum that will validate we have downloaded the exact right copy of the theme archive.
+   * The remote file checksum.
+   *
+   * Used to validate downloaded copy of the theme archive.
    */
   const REMOTE_DOWNLOAD_SHASUM = 'b920626bd8963783e54e4191fedf7f81cfe896a4';
 
@@ -125,7 +122,8 @@ class ShopifyThemeDownloadForm extends FormBase {
     try {
       $url = Url::fromUri($fqdn, ['absolute' => TRUE]);
       $this->findAndReplace($unzipped . '*', '{{ drupal.site.url }}', $url->toUriString());
-    } catch (\Exception $e) {
+    }
+    catch (\Exception $e) {
       drupal_set_message(t('Could not find and replace placeholder text: @error', ['@error' => $e->getMessage()]), 'error');
     }
 
@@ -133,14 +131,16 @@ class ShopifyThemeDownloadForm extends FormBase {
     try {
       $url = Url::fromUri($fqdn . shopify_store_url(), ['absolute' => TRUE]);
       $this->findAndReplace($unzipped . '*', '{{ drupal.store.url }}', $url->toUriString());
-    } catch (\Exception $e) {
+    }
+    catch (\Exception $e) {
       drupal_set_message(t('Could not find and replace placeholder text: @error', ['@error' => $e->getMessage()]), 'error');
     }
 
     // Zip the theme folder.
     try {
       $zipped = $this->zipFolder($unzipped);
-    } catch (\Exception $e) {
+    }
+    catch (\Exception $e) {
       drupal_set_message(t('Could not ZIP the default_shopify_theme folder: @error', ['@error' => $e->getMessage()]), 'error');
     }
 
@@ -150,10 +150,12 @@ class ShopifyThemeDownloadForm extends FormBase {
         try {
           $download = ShopifyThemeDownload::downloadTheme($zipped);
           $form_state->setResponse($download);
-        } catch (\Exception $e) {
+        }
+        catch (\Exception $e) {
           drupal_set_message(t('Could not download the ZIP folder: @error', ['@error' => $e->getMessage()]), 'error');
         }
         break;
+
       case 'upload':
         // Upload the file to Shopify directly.
         try {
@@ -161,7 +163,8 @@ class ShopifyThemeDownloadForm extends FormBase {
           drupal_set_message(t('Drupal Shopify Theme was uploaded to your store. !link.', [
             '!link' => \Drupal::l(t('View now'), Url::fromUri('https://' . shopify_shop_info('domain') . '/admin/themes', ['attributes' => ['target' => '_blank']])),
           ]));
-        } catch (\Exception $e) {
+        }
+        catch (\Exception $e) {
           drupal_set_message(t('Could not upload the ZIP folder: @error', ['@error' => $e->getMessage()]), 'error');
         }
         break;
@@ -204,16 +207,19 @@ class ShopifyThemeDownloadForm extends FormBase {
    *   Path to the folder.
    *
    * @link http://stackoverflow.com/questions/4914750/how-to-zip-a-whole-folder-using-php @endlink
+   *
+   * @return string
+   *   Zip folder.
    */
   public static function zipFolder($path) {
-    // Get real path for our folder
+    // Get real path for our folder.
     $root_path = realpath($path);
 
-    // Initialize archive object
+    // Initialize archive object.
     $zip = new ZipArchive();
     $zip->open($root_path . '.zip', ZipArchive::CREATE | ZipArchive::OVERWRITE);
 
-    // Create recursive directory iterator
+    // Create recursive directory iterator.
     $files = new RecursiveIteratorIterator(
       new RecursiveDirectoryIterator($root_path),
       RecursiveIteratorIterator::LEAVES_ONLY
@@ -222,16 +228,16 @@ class ShopifyThemeDownloadForm extends FormBase {
     foreach ($files as $name => $file) {
       // Skip directories (they would be added automatically)
       if (!$file->isDir()) {
-        // Get real and relative path for current file
+        // Get real and relative path for current file.
         $file_path = $file->getRealPath();
         $relative_path = substr($file_path, strlen($root_path) + 1);
 
-        // Add current file to archive
+        // Add current file to archive.
         $zip->addFile($file_path, $relative_path);
       }
     }
 
-    // Zip archive will be created only after closing object
+    // Zip archive will be created only after closing object.
     if ($zip->close()) {
       return $root_path . '.zip';
     }
@@ -273,11 +279,11 @@ class ShopifyThemeDownloadForm extends FormBase {
    *   Returns the output directory path.
    */
   public static function unzipArchive($path) {
-    // Get real path for our folder
+    // Get real path for our folder.
     $root_path = realpath($path);
     $output_folder = file_directory_temp() . '/shopify_default_theme_' . \Drupal::time()->getRequestTime() . '/';
 
-    // Initialize archive object
+    // Initialize archive object.
     $zip = new ZipArchive();
     $zip->open($root_path);
     $zip->extractTo($output_folder);

@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\shopify\Plugin\views\argument\ShopifyTagsArgument.
- */
-
 namespace Drupal\shopify\Plugin\views\argument;
 
 use Drupal\taxonomy\Plugin\views\argument\Taxonomy;
@@ -19,6 +14,9 @@ use Drupal\views\Views;
  */
 class ShopifyTagsArgument extends Taxonomy {
 
+  /**
+   * {@inheritdoc}
+   */
   public function query() {
     $this->ensureMyTable();
 

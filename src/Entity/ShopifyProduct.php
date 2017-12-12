@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\shopify\Entity\ShopifyProduct.
- */
-
 namespace Drupal\shopify\Entity;
 
 use Drupal\Core\Entity\EntityStorageInterface;
@@ -75,6 +70,9 @@ class ShopifyProduct extends ContentEntityBase implements ShopifyProductInterfac
     ];
   }
 
+  /**
+   * {@inheritdoc}
+   */
   private static function formatValues(array $values) {
     if (isset($values['id'])) {
       // We don't want to set the incoming product_id as the entity ID.
@@ -90,11 +88,11 @@ class ShopifyProduct extends ContentEntityBase implements ShopifyProductInterfac
     }
 
     // Format timestamps properly.
-    self::formatDatetimeAsTimestamp($values, [
+    self::formatDatetimeAsTimestamp([
       'created_at',
       'published_at',
       'updated_at',
-    ]);
+    ], $values);
 
     // Set the image for this product.
     if (isset($values['image']) && !empty($values['image'])) {
@@ -171,6 +169,9 @@ class ShopifyProduct extends ContentEntityBase implements ShopifyProductInterfac
     return $values;
   }
 
+  /**
+   * {@inheritdoc}
+   */
   private static function setupTags(array $tags = []) {
     $terms = [];
     foreach ($tags as $tag) {
@@ -231,6 +232,7 @@ class ShopifyProduct extends ContentEntityBase implements ShopifyProductInterfac
    *   Shopify product ID.
    *
    * @return ShopifyProduct
+   *   Product.
    */
   public static function loadByProductId($product_id) {
     $products = (array) self::loadByProperties(['product_id' => $product_id]);
@@ -244,6 +246,7 @@ class ShopifyProduct extends ContentEntityBase implements ShopifyProductInterfac
    *   Shopify variant ID.
    *
    * @return ShopifyProduct
+   *   Product.
    */
   public static function loadByVariantId($variant_id) {
     $variant = ShopifyProductVariant::loadByVariantId($variant_id);
@@ -260,6 +263,7 @@ class ShopifyProduct extends ContentEntityBase implements ShopifyProductInterfac
    *   Key/value pair of properties to query by.
    *
    * @return ShopifyProduct[]
+   *   Products.
    */
   public static function loadByProperties(array $props = []) {
     return \Drupal::entityTypeManager()
@@ -339,7 +343,6 @@ class ShopifyProduct extends ContentEntityBase implements ShopifyProductInterfac
       ->setSetting('handler', 'default')
       ->setDefaultValueCallback('Drupal\node\Entity\Node::getCurrentUserId')
       ->setTranslatable(TRUE)
-//      ->setDisplayOptions('view', FALSE)
       ->setDisplayOptions('form', [
         'type' => 'entity_reference_autocomplete',
         'weight' => -25,
@@ -364,13 +367,14 @@ class ShopifyProduct extends ContentEntityBase implements ShopifyProductInterfac
       ->setSetting('handler', 'default')
       ->setCardinality(FieldStorageDefinitionInterface::CARDINALITY_UNLIMITED)
       ->setDisplayOptions('form', [
-//        'type' => 'inline_entity_form_complex', // @todo: Would prefer to use inline entity form, but it's buggy, not working...
+        // @todo: Would prefer to use inline entity form, but it's buggy, not working...
+        // 'type' => 'inline_entity_form_complex'.
         'type' => 'entity_reference_autocomplete_tags',
         'weight' => -25,
         'settings' => [
-//          'match_operator' => 'CONTAINS',
-//          'autocomplete_type' => 'tags',
-//          'placeholder' => '',
+        // 'match_operator' => 'CONTAINS',
+        // 'autocomplete_type' => 'tags',
+        // 'placeholder' => ''.
         ],
       ])
       ->setDisplayConfigurable('form', TRUE)

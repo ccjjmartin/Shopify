@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\shopify\Entity\ShopifyProductVariant.
- */
-
 namespace Drupal\shopify\Entity;
 
 use Drupal\Core\Entity\EntityStorageInterface;
@@ -67,6 +62,9 @@ class ShopifyProductVariant extends ContentEntityBase implements ShopifyProductV
     ];
   }
 
+  /**
+   * {@inheritdoc}
+   */
   private static function formatValues(array $values) {
     if (isset($values['id'])) {
       // We don't want to set the incoming product_id as the entity ID.
@@ -78,10 +76,10 @@ class ShopifyProductVariant extends ContentEntityBase implements ShopifyProductV
     unset($values['product_id']);
 
     // Format timestamps properly.
-    self::formatDatetimeAsTimestamp($values, [
+    self::formatDatetimeAsTimestamp([
       'created_at',
       'updated_at',
-    ]);
+    ], $values);
 
     // Setup image.
     if (isset($values['image']) && !empty($values['image'])) {
@@ -106,6 +104,9 @@ class ShopifyProductVariant extends ContentEntityBase implements ShopifyProductV
     return $values;
   }
 
+  /**
+   * {@inheritdoc}
+   */
   public function update(array $values = []) {
     $entity_id = $this->id();
     $values = self::formatValues($values);
@@ -117,6 +118,9 @@ class ShopifyProductVariant extends ContentEntityBase implements ShopifyProductV
     $this->set('id', $entity_id);
   }
 
+  /**
+   * {@inheritdoc}
+   */
   public function getFormattedOptions() {
     $options = [
       $this->option1->value,
@@ -145,6 +149,7 @@ class ShopifyProductVariant extends ContentEntityBase implements ShopifyProductV
    *   Variant ID as string or int.
    *
    * @return ShopifyProductVariant
+   *   Product variant.
    */
   public static function loadByVariantId($variant_id) {
     $variants = (array) self::loadByProperties(['variant_id' => $variant_id]);
@@ -158,6 +163,7 @@ class ShopifyProductVariant extends ContentEntityBase implements ShopifyProductV
    *   Key/value pair of properties to query by.
    *
    * @return ShopifyProductVariant[]
+   *   Products.
    */
   public static function loadByProperties(array $props = []) {
     return \Drupal::entityTypeManager()
@@ -169,6 +175,7 @@ class ShopifyProductVariant extends ContentEntityBase implements ShopifyProductV
    * Returns the associated parent product.
    *
    * @return \Drupal\shopify\Entity\ShopifyProduct
+   *   Product.
    */
   public function getProduct() {
     return ShopifyProduct::loadByVariantId($this->variant_id->value);
@@ -190,7 +197,8 @@ class ShopifyProductVariant extends ContentEntityBase implements ShopifyProductV
       $uri = $product->toUrl($rel);
       $uri->setOptions($options);
       return $uri->toString();
-    } else {
+    }
+    else {
       return '';
     }
   }

@@ -1,5 +1,10 @@
 <?php
 
+/**
+ * @file
+ * Install / update hooks.
+ */
+
 use Drupal\Core\Database\Database;
 use Drupal\Core\Url;
 
@@ -9,7 +14,7 @@ use Drupal\Core\Url;
 function shopify_requirements($phase) {
   $requirements = [];
 
-  if ($phase == 'install') {
+  if ($phase === 'install') {
 
     // Check if we're running a 64-bit version of PHP.
     if (PHP_INT_SIZE === 4) {
