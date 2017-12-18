@@ -114,7 +114,7 @@ entity.shopify_product.delete_form:
     _admin_route: TRUE
 
 shopify_product.settings:
-  path: 'admin/structure/shopify_product'
+  path: '/admin/structure/shopify_product'
   defaults:
    _form: '\Drupal\shopify\Entity\Form\ShopifyProductSettingsForm'
    _title: 'Shopify product settings'
@@ -176,7 +176,7 @@ shopify_product.settings:
 #    _admin_route: TRUE
 
 shopify_product_variant.settings:
-  path: 'admin/structure/shopify_product_variant'
+  path: '/admin/structure/shopify_product_variant'
   defaults:
    _form: '\Drupal\shopify\Entity\Form\ShopifyProductVariantSettingsForm'
    _title: 'Shopify product variant settings'
