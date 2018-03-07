@@ -86,3 +86,17 @@ function shopify_update_8101() {
   // Update entity definition.
   \Drupal::service('entity.definition_update_manager')->installEntityType($entityTypeDefinition);
 }
+
+/**
+ * Changes shopify_collection_id field from signed to unsigned.
+ */
+function shopify_update_8102() {
+  $schema = Database::getConnection()->schema();
+  $spec = [
+    'type' => 'int',
+    'size' => 'normal',
+    'unsigned' => TRUE,
+    'not null' => TRUE,
+  ];
+  $schema->changeField('taxonomy_term__field_shopify_collection_id', 'field_shopify_collection_id_value', 'field_shopify_collection_id_value', $spec);
+}

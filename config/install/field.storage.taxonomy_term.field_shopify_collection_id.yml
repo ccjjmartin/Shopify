@@ -8,7 +8,7 @@ field_name: field_shopify_collection_id
 entity_type: taxonomy_term
 type: integer
 settings:
-  unsigned: false
+  unsigned: true
   size: normal
 module: core
 locked: false
