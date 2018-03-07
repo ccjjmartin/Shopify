@@ -160,8 +160,8 @@ class ShopifyThemeDownloadForm extends FormBase {
         // Upload the file to Shopify directly.
         try {
           $this->uploadTheme($zipped);
-          drupal_set_message(t('Drupal Shopify Theme was uploaded to your store. !link.', [
-            '!link' => \Drupal::l(t('View now'), Url::fromUri('https://' . shopify_shop_info('domain') . '/admin/themes', ['attributes' => ['target' => '_blank']])),
+          drupal_set_message(t('Drupal Shopify Theme was uploaded to your store. @link.', [
+            '@link' => \Drupal::l(t('View now'), Url::fromUri('https://' . shopify_shop_info('domain') . '/admin/themes', ['attributes' => ['target' => '_blank']])),
           ]));
         }
         catch (\Exception $e) {
