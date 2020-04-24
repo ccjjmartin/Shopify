@@ -111,7 +111,8 @@ class ShopifyProductBatch {
   public static function cleanUpProducts($operation_details, &$context) {
     $count = shopify_sync_deleted_products();
     if ($count) {
-      drupal_set_message(t('Deleted @products.', [
+      $messenger = \Drupal::messenger();
+      $messenger->addStatus(t('Deleted @products.', [
         '@products' => \Drupal::translation()
           ->formatPlural($count, '@count product', '@count products'),
       ]));
@@ -139,7 +140,8 @@ class ShopifyProductBatch {
   public static function finished($success, $results, $operations) {
     // Update the product sync time.
     \Drupal::state()->set('shopify.sync.products_last_sync_time', \Drupal::time()->getRequestTime());
-    drupal_set_message(t('Synced @count.', [
+    $messenger = \Drupal::messenger();
+    $messenger->addStatus(t('Synced @count.', [
       '@count' => \Drupal::translation()
         ->formatPlural(count($results), '@count product', '@count products'),
     ]));

@@ -5,6 +5,7 @@ namespace Drupal\shopify\Controller;
 use Drupal\Core\Access\AccessResultAllowed;
 use Drupal\Core\Access\AccessResultForbidden;
 use Drupal\Core\Controller\ControllerBase;
+use Drupal\Core\File\FileSystemInterface;
 use Drupal\Core\Session\AccountInterface;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
@@ -29,7 +30,7 @@ class ShopifyThemeDownload extends ControllerBase {
    *   BinaryFileResponse.
    */
   public function download($timestamp, $sig, $file) {
-    $directory = realpath(file_directory_temp()) . '/shopify_default_theme_' . $timestamp;
+    $directory = realpath(FileSystemInterface::getTempDirectory()) . '/shopify_default_theme_' . $timestamp;
     return self::downloadTheme($directory . '/' . $file);
   }
 

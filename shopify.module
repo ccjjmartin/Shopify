@@ -8,6 +8,7 @@
 use Drupal\Core\Url;
 use Drupal\shopify\Entity\ShopifyProduct;
 use Drupal\taxonomy\Entity\Term;
+use Drupal\Core\File\FileSystemInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\views\ViewExecutable;
 use Drupal\views\Plugin\views\cache\CachePluginBase;
@@ -653,7 +654,7 @@ function shopify_collection_create(\stdClass $collection, $sync_products = FALSE
  */
 function shopify_collection_save_image(Term $term, $image_url) {
   $directory = file_build_uri('shopify_images');
-  if (!file_prepare_directory($directory, FILE_CREATE_DIRECTORY)) {
+  if (!\Drupal::service('file_system')->prepareDirectory($directory, FileSystemInterface::CREATE_DIRECTORY)) {
     // If our directory doesn't exist and can't be created, use the default.
     $directory = NULL;
   }

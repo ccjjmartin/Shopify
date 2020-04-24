@@ -17,7 +17,7 @@ class ShopifyTagsArgument extends Taxonomy {
   /**
    * {@inheritdoc}
    */
-  public function query() {
+  public function query($group_by = false) {
     $this->ensureMyTable();
 
     $join = Views::pluginManager('join')->createInstance('standard', [

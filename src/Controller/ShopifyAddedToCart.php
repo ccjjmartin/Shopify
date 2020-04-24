@@ -32,8 +32,9 @@ class ShopifyAddedToCart extends ControllerBase {
       return new Response('Product not found.', Response::HTTP_NOT_FOUND);
     }
 
+    $messenger = \Drupal::messenger();
     $title = $variant->label() == 'Default Title' ? '' : '- ' . $variant->label();
-    drupal_set_message(t('@quantity x @parent @title (@price) added to @cart_link.', [
+    $messenger->addStatus(t('@quantity x @parent @title (@price) added to @cart_link.', [
       '@parent' => $product->label(),
       '@title' => $title,
       '@price' => shopify_currency_format($variant->price->value),

@@ -4,6 +4,7 @@ namespace Drupal\shopify\Form;
 
 use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Link;
 use Drupal\Core\Url;
 
 /**
@@ -28,12 +29,13 @@ class ShopifySettingsAdminForm extends FormBase {
       $info = shopify_shop_info('', $refresh = TRUE);
     }
     catch (\Exception $e) {
+      $messenger = \Drupal::messenger();
       // Error connecting to the store.
-      drupal_set_message(t('Could not connect to the Shopify store.'), 'error');
+      $messenger->addError(t('Could not connect to the Shopify store.'));
       return [];
     }
     $store_info = [
-      'My Store Admin' => \Drupal::l($info->domain, Url::fromUri('https://' . $info->domain . '/admin', ['attributes' => ['target' => '_blank']])),
+      'My Store Admin' => Link::fromTextAndUrl($info->domain, Url::fromUri('https://' . $info->domain . '/admin', ['attributes' => ['target' => '_blank']])),
       'Owned By' => $info->shop_owner . ' &lt;<a href="mailto:' . $info->email . '">' . $info->email . '</a>&gt;',
       'Address' => $info->address1,
       'City' => $info->city,

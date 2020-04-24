@@ -17,7 +17,7 @@ class ShopifyTagsFilter extends NumericFilter {
   /**
    * {@inheritdoc}
    */
-  public function query() {
+  public function query($group_by = false) {
     $this->ensureMyTable();
     $field = "tag.$this->realField";
     $join = Views::pluginManager('join')->createInstance('standard', [

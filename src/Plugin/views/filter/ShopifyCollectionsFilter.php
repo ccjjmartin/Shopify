@@ -17,7 +17,7 @@ class ShopifyCollectionsFilter extends NumericFilter {
   /**
    * {@inheritdoc}
    */
-  public function query() {
+  public function query($group_by = false) {
     $this->ensureMyTable();
     $field = "coll.$this->realField";
     $join = Views::pluginManager('join')->createInstance('standard', [

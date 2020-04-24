@@ -39,8 +39,9 @@ class ShopifyProductDeleteForm extends ContentEntityConfirmFormBase {
    */
   public function submitForm(array &$form, FormStateInterface $form_state) {
     $this->entity->delete();
+    $messenger = \Drupal::messenger();
 
-    drupal_set_message(
+    $messenger->addStatus(
       $this->t('content @type: deleted @label.', [
         '@type' => $this->entity->bundle(),
         '@label' => $this->entity->label(),

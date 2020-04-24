@@ -21,32 +21,33 @@ class ShopifyRedirect extends ControllerBase {
    */
   public function handleRedirect() {
     $request = \Drupal::request();
+    $messenger = \Drupal::messenger();
 
     if ($request->get('variant_id')) {
       // We are redirecting to a specific variant page.
       $variant = ShopifyProductVariant::loadByVariantId($request->get('variant_id'));
       if ($variant instanceof ShopifyProductVariant) {
-        return new RedirectResponse($variant->url());
+        return new RedirectResponse($variant->toUrl());
       }
-      drupal_set_message(t("We're sorry, but that product is unavailable at this time."), 'warning');
+      $messenger->addWarning(t("We're sorry, but that product is unavailable at this time."));
     }
 
     if ($request->get('product_id')) {
       // We are redirecting to a product page (no variant selected).
       $product = ShopifyProduct::loadByProductId($request->get('product_id'));
       if ($product instanceof ShopifyProduct) {
-        return new RedirectResponse($product->url());
+        return new RedirectResponse($product->toUrl());
       }
-      drupal_set_message(t("We're sorry, but that product is unavailable at this time."), 'warning');
+      $messenger->addWarning(t("We're sorry, but that product is unavailable at this time."));
     }
 
     if ($request->get('collection_id')) {
       // We are redirecting to a collection page.
       $collection = shopify_collection_load($request->get('collection_id'));
       if ($collection instanceof Term) {
-        return new RedirectResponse($collection->url());
+        return new RedirectResponse($collection->toUrl());
       }
-      drupal_set_message(t("We're sorry, but that collection is unavailable at this time."), 'warning');
+      $messenger->addWarning(t("We're sorry, but that collection is unavailable at this time."));
     }
 
     return new RedirectResponse('/' . shopify_store_url());

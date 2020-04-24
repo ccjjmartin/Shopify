@@ -38,8 +38,9 @@ class ShopifyWebhooksAdminForm extends ConfigFormBase {
       $webhooks = $client->getResources('webhooks');
     }
     catch (\Exception $e) {
+      $messenger = \Drupal::messenger();
       // Error connecting to the store.
-      drupal_set_message(t('Could not connect to the Shopify store.'), 'error');
+      $messenger->addError(t('Could not connect to the Shopify store.'));
       return [];
     }
 
@@ -263,9 +264,10 @@ class ShopifyWebhooksAdminForm extends ConfigFormBase {
           $client->createResource('webhooks', $hook);
         }
         catch (\Exception $e) {
-          drupal_set_message(t('Could not create webhook. Error: @error.', [
+          $messenger = \Drupal::messenger();
+          $messenger->addWarning(t('Could not create webhook. Error: @error.', [
             '@error' => $e->getMessage(),
-          ]), 'warning');
+          ]));
         }
       }
     }

@@ -2,8 +2,10 @@
 
 namespace Drupal\shopify\Form;
 
+use Drupal\Core\File\FileSystemInterface;
 use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Link;
 use Drupal\Core\Url;
 use Drupal\shopify\Controller\ShopifyThemeDownload;
 use Drupal\shopify\Entity\ShopifyProduct;
@@ -44,9 +46,10 @@ class ShopifyThemeDownloadForm extends FormBase {
     // Check to see if we can ZIP the folder contents.
     $zip_enabled = class_exists('ZipArchive');
     if (!$zip_enabled) {
-      drupal_set_message(t('Class <strong>ZipArchive</strong> not found. You will be unable to download or upload the Shopify Theme automatically.<br/>For help with setting up ZipArchive, <a href="@url">view the documentation on php.net</a>.', array(
+      $messenger = \Drupal::messenger();
+      $messenger->addWarning(t('Class <strong>ZipArchive</strong> not found. You will be unable to download or upload the Shopify Theme automatically.<br/>For help with setting up ZipArchive, <a href="@url">view the documentation on php.net</a>.', array(
         '@url' => 'http://php.net/manual/en/zip.setup.php',
-      )), 'warning');
+      )));
     }
 
     $form['download'] = [
@@ -102,6 +105,7 @@ class ShopifyThemeDownloadForm extends FormBase {
    * {@inheritdoc}
    */
   public function submitForm(array &$form, FormStateInterface $form_state) {
+    $messenger = \Drupal::messenger();
     $fqdn = $form_state->getValue('hostname');
 
     // Download from Drupal.org.
@@ -124,7 +128,7 @@ class ShopifyThemeDownloadForm extends FormBase {
       $this->findAndReplace($unzipped . '*', '{{ drupal.site.url }}', $url->toUriString());
     }
     catch (\Exception $e) {
-      drupal_set_message(t('Could not find and replace placeholder text: @error', ['@error' => $e->getMessage()]), 'error');
+      $messenger->addError(t('Could not find and replace placeholder text: @error', ['@error' => $e->getMessage()]));
     }
 
     // Modify the {{ replace }} contents within theme files.
@@ -133,7 +137,7 @@ class ShopifyThemeDownloadForm extends FormBase {
       $this->findAndReplace($unzipped . '*', '{{ drupal.store.url }}', $url->toUriString());
     }
     catch (\Exception $e) {
-      drupal_set_message(t('Could not find and replace placeholder text: @error', ['@error' => $e->getMessage()]), 'error');
+      $messenger->addError(t('Could not find and replace placeholder text: @error', ['@error' => $e->getMessage()]));
     }
 
     // Zip the theme folder.
@@ -141,7 +145,7 @@ class ShopifyThemeDownloadForm extends FormBase {
       $zipped = $this->zipFolder($unzipped);
     }
     catch (\Exception $e) {
-      drupal_set_message(t('Could not ZIP the default_shopify_theme folder: @error', ['@error' => $e->getMessage()]), 'error');
+      $messenger->addError(t('Could not ZIP the default_shopify_theme folder: @error', ['@error' => $e->getMessage()]));
     }
 
     switch ($form_state->getTriggeringElement()['#name']) {
@@ -152,7 +156,7 @@ class ShopifyThemeDownloadForm extends FormBase {
           $form_state->setResponse($download);
         }
         catch (\Exception $e) {
-          drupal_set_message(t('Could not download the ZIP folder: @error', ['@error' => $e->getMessage()]), 'error');
+          $messenger->addError(t('Could not download the ZIP folder: @error', ['@error' => $e->getMessage()]));
         }
         break;
 
@@ -160,12 +164,12 @@ class ShopifyThemeDownloadForm extends FormBase {
         // Upload the file to Shopify directly.
         try {
           $this->uploadTheme($zipped);
-          drupal_set_message(t('Drupal Shopify Theme was uploaded to your store. @link.', [
-            '@link' => \Drupal::l(t('View now'), Url::fromUri('https://' . shopify_shop_info('domain') . '/admin/themes', ['attributes' => ['target' => '_blank']])),
+          $messenger->addError(t('Drupal Shopify Theme was uploaded to your store. @link.', [
+            '@link' => Link::fromTextAndUrl(t('View now'), Url::fromUri('https://' . shopify_shop_info('domain') . '/admin/themes', ['attributes' => ['target' => '_blank']])),
           ]));
         }
         catch (\Exception $e) {
-          drupal_set_message(t('Could not upload the ZIP folder: @error', ['@error' => $e->getMessage()]), 'error');
+          $messenger->addError(t('Could not upload the ZIP folder: @error', ['@error' => $e->getMessage()]));
         }
         break;
     }
@@ -281,7 +285,7 @@ class ShopifyThemeDownloadForm extends FormBase {
   public static function unzipArchive($path) {
     // Get real path for our folder.
     $root_path = realpath($path);
-    $output_folder = file_directory_temp() . '/shopify_default_theme_' . \Drupal::time()->getRequestTime() . '/';
+    $output_folder = FileSystemInterface::getTempDirectory() . '/shopify_default_theme_' . \Drupal::time()->getRequestTime() . '/';
 
     // Initialize archive object.
     $zip = new ZipArchive();
@@ -302,9 +306,10 @@ class ShopifyThemeDownloadForm extends FormBase {
    *   Returns the destination file path.
    */
   public static function downloadRemoteCopy($download_url = '') {
-    $file_path = system_retrieve_file($download_url ?: self::REMOTE_DOWNLOAD_URL, file_directory_temp() . '/shopify_default_theme_' . \Drupal::time()->getRequestTime() . '.zip', $managed = FALSE, FILE_EXISTS_REPLACE);
+    $file_path = system_retrieve_file($download_url ?: self::REMOTE_DOWNLOAD_URL, FileSystemInterface::getTempDirectory() . '/shopify_default_theme_' . \Drupal::time()->getRequestTime() . '.zip', $managed = FALSE, FILE_EXISTS_REPLACE);
     if (sha1_file($file_path) !== self::REMOTE_DOWNLOAD_SHASUM) {
-      drupal_set_message(t('Checksum failed. Could not verify the downloaded file. You may need to upgrade this module.'), 'error');
+      $messenger = \Drupal::messenger();
+      $messenger->addError(t('Checksum failed. Could not verify the downloaded file. You may need to upgrade this module.'));
       return FALSE;
     }
     return $file_path;
