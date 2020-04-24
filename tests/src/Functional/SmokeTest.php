@@ -1,0 +1,65 @@
+<?php
+
+namespace Drupal\Tests\shopify\Functional;
+
+use Drupal\Tests\BrowserTestBase;
+
+/**
+ * Tests basic site functionality when the module is installed.
+ *
+ * @group shopify
+ */
+class SmokeTest extends BrowserTestBase {
+
+  /**
+   * Ignore missing schema.
+   *
+   * @var bool
+   *
+   * @see https://www.drupal.org/node/2391795
+   */
+  protected $strictConfigSchema = FALSE;
+
+  /**
+   * {@inheritdoc}
+   */
+  public static $modules = [
+    // @todo These should be listed as dependencies in the module's .info.yml
+    // file.
+    'file',
+    'image',
+    'path',
+
+    // The module.
+    'shopify',
+  ];
+
+  /**
+   * {@inheritdoc}
+   */
+  protected function setUp() {
+    // Make sure to complete the normal setup steps first.
+    parent::setUp();
+
+    // Set the front page to "node".
+    \Drupal::configFactory()
+      ->getEditable('system.site')
+      ->set('page.front', '/node')
+      ->save(TRUE);
+  }
+
+  /**
+   * Make sure the site still works. For now just check the front page.
+   */
+  public function testSiteLoads() {
+    // Load the front page.
+    $this->drupalGet('<front>');
+
+    // Confirm that the site didn't throw a server error or something else.
+    $this->assertSession()->statusCodeEquals(200);
+
+    // Confirm that the front page contains the standard text.
+    $this->assertText('Welcome to Drupal');
+  }
+
+}

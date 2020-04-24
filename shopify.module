@@ -295,11 +295,14 @@ function shopify_renderable_links() {
     '#title' => t('API Settings'),
     '#url' => Url::fromRoute('shopify_api.admin'),
   ];
-  $links[] = [
-    '#type' => 'link',
-    '#title' => t('Shopify Admin &rarr;'),
-    '#url' => Url::fromUri('https://' . shopify_shop_info('domain') . '/admin', ['attributes' => ['target' => '_blank']]),
-  ];
+  $shop_domain = shopify_shop_info('domain');
+  if (!empty($shop_domain)) {
+    $links[] = [
+      '#type' => 'link',
+      '#title' => t('Shopify Admin &rarr;'),
+      '#url' => Url::fromUri('https://' . shopify_shop_info('domain') . '/admin', ['attributes' => ['target' => '_blank']]),
+    ];
+  }
   return $links;
 }
 
@@ -317,12 +320,14 @@ function shopify_renderable_links() {
 function shopify_shop_info($key = '', $refresh = FALSE) {
   if ($refresh) {
     $client = shopify_api_client();
-    $info = $client->getShopInfo();
-    \Drupal::state()->set('shopify.shop_info', $info);
+    if (!empty($client)) {
+      $info = $client->getShopInfo();
+      \Drupal::state()->set('shopify.shop_info', $info);
+    }
   }
   $info = \Drupal::state()->get('shopify.shop_info', new stdClass());
   if (!empty($key)) {
-    return $info->{$key};
+    return isset($info->{$key}) ? $info->{$key} : '';
   }
   else {
     return $info;
