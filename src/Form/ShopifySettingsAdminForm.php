@@ -52,10 +52,19 @@ class ShopifySettingsAdminForm extends FormBase {
       '#title' => t('More info'),
     ];
     foreach ($info as $label => $data) {
+      if (is_null($data)) {
+        $data = '[EMPTY]';
+      }
+      elseif (is_bool($data)) {
+        $data = $data ? 'true' : 'false';
+      }
+      elseif (!is_scalar($data)) {
+        $data = print_r($data, TRUE);
+      }
       $form['all_info'][$label] = [
         '#type' => 'item',
         '#title' => $label,
-        '#markup' => $data ?: '[EMPTY]',
+        '#markup' => $data,
       ];
     }
     return $form;
