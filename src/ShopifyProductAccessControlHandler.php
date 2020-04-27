@@ -30,7 +30,7 @@ class ShopifyProductAccessControlHandler extends EntityAccessControlHandler {
         return AccessResult::allowedIfHasPermission($account, 'delete shopify product entities');
     }
 
-    return AccessResult::allowed();
+    return AccessResult::neutral();
   }
 
   /**

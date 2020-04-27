@@ -30,7 +30,7 @@ class ShopifyProductVariantAccessControlHandler extends EntityAccessControlHandl
         return AccessResult::allowedIfHasPermission($account, 'delete shopify product variant entities');
     }
 
-    return AccessResult::allowed();
+    return AccessResult::neutral();
   }
 
   /**
