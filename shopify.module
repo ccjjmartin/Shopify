@@ -376,12 +376,16 @@ function shopify_sync_products(array $opts = []) {
       }
 
       $entity = ShopifyProduct::loadByProductId($product->id);
+      $values = (array) $product;
+      if (isset($values['admin_graphql_api_id'])) {
+        unset($values['admin_graphql_api_id']);
+      }
       if ($entity instanceof ShopifyProduct) {
-        $entity->update((array) $product);
+        $entity->update($values);
         $entity->save();
       }
       else {
-        $entity = ShopifyProduct::create((array) $product);
+        $entity = ShopifyProduct::create($values);
         $entity->save();
       }
       $synced_products[] = $entity;

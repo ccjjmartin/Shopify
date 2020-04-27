@@ -34,7 +34,7 @@ class ShopifyProductBatch {
    * @return $this
    */
   public function prepare(array $settings = []) {
-    $params = [];
+    $params = ['since_id' => 0];
     $params['limit'] = $settings['num_per_batch'];
 
     if (!$settings['force_update'] && $settings['updated_at_min'] && !$settings['delete_products_first']) {
@@ -55,7 +55,6 @@ class ShopifyProductBatch {
     }
 
     for ($page = 1; $page <= $num_operations; $page++) {
-      $params['page'] = $page;
       $this->operations[] = [
         [__CLASS__, 'operation'],
         [
@@ -126,6 +125,12 @@ class ShopifyProductBatch {
    * TODO: Move $settings to the end.
    */
   public static function operation(array $settings = [], $operation_details, &$context) {
+    if (!empty($context['results'])) {
+      /* @var \Drupal\shopify\Entity\ShopifyProduct $last_product */
+      $last_product = end($context['results']);
+      $settings['since_id'] = $last_product->get('product_id')->value;
+    }
+    
     $synced_products = shopify_sync_products(['query' => $settings]);
     $context['results'] = array_merge($context['results'], $synced_products);
     $context['message'] = t('Syncing @products.', [
