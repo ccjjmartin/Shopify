@@ -38,7 +38,10 @@ class ShopifySettingsAdminForm extends FormBase {
     }
     $info = shopify_shop_info('', TRUE);
     $store_info = [
-      'My Store Admin' => Link::fromTextAndUrl($info->domain, Url::fromUri('https://' . $info->domain . '/admin', ['attributes' => ['target' => '_blank']])),
+      'My Store Admin' => Link::fromTextAndUrl(
+        $info->domain,
+        Url::fromUri('https://' . $info->domain . '/admin', ['attributes' => ['target' => '_blank']])
+      )->toString(),
       'Owned By' => $info->shop_owner . ' &lt;<a href="mailto:' . $info->email . '">' . $info->email . '</a>&gt;',
       'Address' => $info->address1,
       'City' => $info->city,
