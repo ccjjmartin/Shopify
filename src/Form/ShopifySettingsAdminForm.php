@@ -25,15 +25,18 @@ class ShopifySettingsAdminForm extends FormBase {
    * {@inheritdoc}
    */
   public function buildForm(array $form, FormStateInterface $form_state) {
-    try {
-      $info = shopify_shop_info('', $refresh = TRUE);
-    }
-    catch (\Exception $e) {
+    if (empty(shopify_api_client())) {
       $messenger = \Drupal::messenger();
       // Error connecting to the store.
-      $messenger->addError(t('Could not connect to the Shopify store.'));
+      $connection_link = Link::createFromRoute('API connection information', 'shopify_api.admin');
+      $messenger->addError(
+        t('Could not connect to the Shopify store. Please enter your store\'s <a href="@link_href">@link_text</a>.', [
+          '@link_href' => $connection_link->getUrl()->toString(),
+          '@link_text' => $connection_link->getText(),
+        ]));
       return [];
     }
+    $info = shopify_shop_info('', TRUE);
     $store_info = [
       'My Store Admin' => Link::fromTextAndUrl($info->domain, Url::fromUri('https://' . $info->domain . '/admin', ['attributes' => ['target' => '_blank']])),
       'Owned By' => $info->shop_owner . ' &lt;<a href="mailto:' . $info->email . '">' . $info->email . '</a>&gt;',

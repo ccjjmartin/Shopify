@@ -62,4 +62,16 @@ class SmokeTest extends BrowserTestBase {
     $this->assertText('Welcome to Drupal');
   }
 
+  /**
+   * Make sure the shop overview page still loads.
+   */
+  public function testShopOverviewLoads() {
+    $this->drupalLogin($this->drupalCreateUser([], NULL, TRUE));
+
+    $this->drupalGet('/admin/config/system/shopify');
+    $this->assertSession()->statusCodeEquals(200);
+    $this->assertText('Shopify Store Settings');
+
+  }
+
 }
