@@ -676,10 +676,10 @@ function shopify_collection_save_image(Term $term, $image_url) {
 function shopify_collection_sync_products(\stdClass $collection) {
   $term = shopify_collection_load($collection->id);
   $client = shopify_api_client();
-  $collects = $client->getResources('collects', ['query' => ['collection_id' => $collection->id]]);
+  $collects = $client->getResources("collections/{$collection->id}/products", ['query' => ['fields' => 'id']]);
   foreach ($collects as $c) {
     // Update this product information.
-    $product = ShopifyProduct::loadByProductId($c->product_id);
+    $product = ShopifyProduct::loadByProductId($c->id);
     if (!$product) {
       continue;
     }
