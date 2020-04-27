@@ -125,16 +125,16 @@ shopify_product.settings:
 
 
 # ShopifyProductVariant routing definition
-#entity.shopify_product_variant.canonical:
-#  path: '/admin/shopify_product_variant/{shopify_product_variant}'
-#  defaults:
-#    _entity_view: 'shopify_product_variant'
-#    _title: 'Shopify product variant'
-#  requirements:
-#    _entity_access: 'shopify_product_variant.view'
-#  options:
-#    _admin_route: TRUE
-#
+entity.shopify_product_variant.canonical:
+ path: '/admin/shopify_product_variant/{shopify_product_variant}'
+ defaults:
+   _entity_view: 'shopify_product_variant'
+   _title: 'Shopify product variant'
+ requirements:
+   _entity_access: 'shopify_product_variant.view'
+ options:
+   _admin_route: TRUE
+
 #entity.shopify_product_variant.collection:
 #  path: '/admin/shopify_product_variant'
 #  defaults:

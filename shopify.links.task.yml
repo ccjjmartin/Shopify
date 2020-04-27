@@ -46,11 +46,11 @@ shopify_product_variant.settings_tab:
   title: 'Settings'
   base_route: shopify_product_variant.settings
 
-#entity.shopify_product_variant.canonical:
-#  route_name: entity.shopify_product_variant.canonical
-#  base_route: entity.shopify_product_variant.canonical
-#  title: 'View'
-#
+entity.shopify_product_variant.canonical:
+ route_name: entity.shopify_product_variant.canonical
+ base_route: entity.shopify_product_variant.canonical
+ title: 'View'
+
 #entity.shopify_product_variant.edit_form:
 #  route_name: entity.shopify_product_variant.edit_form
 #  base_route: entity.shopify_product_variant.canonical
