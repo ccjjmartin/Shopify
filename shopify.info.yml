@@ -7,6 +7,9 @@ core: 8.x
 
 dependencies:
   - shopify_api:shopify_api
+  - drupal:file
+  - drupal:image
+  - drupal:path
   - drupal:views
   - drupal:taxonomy
 

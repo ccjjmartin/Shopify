@@ -23,16 +23,7 @@ class SmokeTest extends BrowserTestBase {
   /**
    * {@inheritdoc}
    */
-  public static $modules = [
-    // @todo These should be listed as dependencies in the module's .info.yml
-    // file.
-    'file',
-    'image',
-    'path',
-
-    // The module.
-    'shopify',
-  ];
+  public static $modules = ['shopify'];
 
   /**
    * {@inheritdoc}
