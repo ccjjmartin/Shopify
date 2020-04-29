@@ -34,18 +34,9 @@ function shopify_requirements($phase) {
       ];
     }
 
-    if (!function_exists('shopify_api_client')) {
-      $requirements['shopify'] = [
-        'title' => t('Shopify API module is not enabled.'),
-        'description' => t('Please enable the Shopify API module before installing the Shopify eCommerce module.'),
-        'severity' => REQUIREMENT_ERROR,
-      ];
-      return $requirements;
-    }
-
-    $client = shopify_api_client();
+    $client = shopify_get_api_client();
     if (!$client) {
-      $shopify_api_admin = Url::fromRoute('shopify_api.admin');
+      $shopify_api_admin = Url::fromRoute('shopify.api.admin');
       $requirements['shopify'] = [
         'title' => t('Shopify API settings are not setup.'),
         'description' => t('Shopify API settings must be configured before enabling the Shopify module. <a href=":link">Setup API Credentials</a>.', [

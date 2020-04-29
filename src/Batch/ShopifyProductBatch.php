@@ -19,7 +19,7 @@ class ShopifyProductBatch {
    * {@inheritdoc}
    */
   public function __construct() {
-    $this->client = shopify_api_client();
+    $this->client = shopify_get_api_client();
   }
 
   /**
@@ -130,7 +130,7 @@ class ShopifyProductBatch {
       $last_product = end($context['results']);
       $settings['since_id'] = $last_product->get('product_id')->value;
     }
-    
+
     $synced_products = shopify_sync_products(['query' => $settings]);
     $context['results'] = array_merge($context['results'], $synced_products);
     $context['message'] = t('Syncing @products.', [

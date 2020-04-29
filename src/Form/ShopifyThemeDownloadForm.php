@@ -186,10 +186,10 @@ class ShopifyThemeDownloadForm extends FormBase {
   public static function uploadTheme($path) {
     // Get the timestamp from the folder path.
     $timestamp = substr($path, strpos($path, '/shopify_default_theme_') + 23, 10);
-    $config = \Drupal::config('shopify_api.settings');
-    $client = shopify_api_client();
+    $config = \Drupal::config('shopify.settings');
+    $client = shopify_get_api_client();
     // Create a secure URL.
-    $sig = hash_hmac('sha256', $timestamp . 'default_shopify_theme.zip', $config->get('shared_secret'));
+    $sig = hash_hmac('sha256', $timestamp . 'default_shopify_theme.zip', $config->get('api.secret'));
     $url = Url::fromRoute('shopify.download_theme', [
       'timestamp' => $timestamp,
       'sig' => $sig,

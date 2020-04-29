@@ -34,7 +34,7 @@ class ShopifyWebhooksAdminForm extends ConfigFormBase {
    */
   public function buildForm(array $form, FormStateInterface $form_state) {
     try {
-      $client = shopify_api_client();
+      $client = shopify_get_api_client();
       $webhooks = $client->getResources('webhooks');
     }
     catch (\Exception $e) {
@@ -227,7 +227,7 @@ class ShopifyWebhooksAdminForm extends ConfigFormBase {
    * Removing webhooks form submit handler.
    */
   public function removeWebhooksSubmit(array &$form, FormStateInterface $form_state) {
-    $client = shopify_api_client();
+    $client = shopify_get_api_client();
     $values = $form_state->getValues();
     unset($values['registered']['remove_submit']);
     foreach ((array) $values['registered'] as $host => $values) {
@@ -243,7 +243,7 @@ class ShopifyWebhooksAdminForm extends ConfigFormBase {
    * Create webhooks for a given host.
    */
   public function createWebhooksSubmit(array &$form, FormStateInterface $form_state) {
-    $client = shopify_api_client();
+    $client = shopify_get_api_client();
     $values = $form_state->getValues();
     $hostname = $values['register']['hostname'];
     unset($values['register']['hostname']);

@@ -185,3 +185,10 @@ shopify_product_variant.settings:
   options:
     _admin_route: TRUE
 
+shopify.api.admin:
+  path: '/admin/config/system/shopify_api'
+  defaults:
+    _form: '\Drupal\shopify\Form\ShopifyApiAdminForm'
+    _title: 'Shopify API Settings'
+  requirements:
+    _permission: 'administer shopify api'

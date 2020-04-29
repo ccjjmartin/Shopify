@@ -25,10 +25,10 @@ class ShopifySettingsAdminForm extends FormBase {
    * {@inheritdoc}
    */
   public function buildForm(array $form, FormStateInterface $form_state) {
-    if (empty(shopify_api_client())) {
+    if (empty(shopify_get_api_client())) {
       $messenger = \Drupal::messenger();
       // Error connecting to the store.
-      $connection_link = Link::createFromRoute('API connection information', 'shopify_api.admin');
+      $connection_link = Link::createFromRoute('API connection information', 'shopify.api.admin');
       $messenger->addError(
         t('Could not connect to the Shopify store. Please enter your store\'s <a href="@link_href">@link_text</a>.', [
           '@link_href' => $connection_link->getUrl()->toString(),

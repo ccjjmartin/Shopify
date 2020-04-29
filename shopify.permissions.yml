@@ -30,3 +30,7 @@ view shopify product variant entities:
 administer shopify:
   title: 'Administer Shopify'
   description: 'Allow to access the Shopify administration pages.'
+
+administer shopify api:
+  title: 'Administer Shopify API'
+

@@ -28,7 +28,7 @@ class ShopifyCommand extends ContainerAwareCommand {
    * {@inheritdoc}
    */
   protected function execute(InputInterface $input, OutputInterface $output) {
-    $client = shopify_api_client();
+    $client = shopify_get_api_client();
     $opts = $input->getArgument('opts');
     parse_str($opts, $opts);
 

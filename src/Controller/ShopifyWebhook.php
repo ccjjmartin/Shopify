@@ -17,7 +17,7 @@ class ShopifyWebhook extends ControllerBase {
    * Captures the incoming webhook request.
    */
   public function handleIncomingWebhook() {
-    $client = shopify_api_client();
+    $client = shopify_get_api_client();
     $data = $client->getIncomingWebhook($validate = TRUE);
     $topic = \Drupal::request()->headers->get('x-shopify-topic');
 

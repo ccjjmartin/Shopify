@@ -50,8 +50,8 @@ class ShopifyThemeDownload extends ControllerBase {
    *   AccessResult.
    */
   public function access(AccountInterface $account, $timestamp, $sig, $file) {
-    $config = \Drupal::config('shopify_api.settings');
-    $compare = hash_hmac('sha256', $timestamp . $file, $config->get('shared_secret'));
+    $config = \Drupal::config('shopify.settings');
+    $compare = hash_hmac('sha256', $timestamp . $file, $config->get('api.secret'));
     if ($compare !== $sig) {
       // Someone doesn't have the right sig here.
       return new AccessResultForbidden();

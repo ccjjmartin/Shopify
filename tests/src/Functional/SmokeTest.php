@@ -65,4 +65,16 @@ class SmokeTest extends BrowserTestBase {
 
   }
 
+  /**
+   * Make sure the API settings form is accessible.
+   */
+  public function testSpiSettingsFormLoads() {
+    $this->drupalLogin($this->drupalCreateUser([], NULL, TRUE));
+
+    $this->drupalGet('/admin/config/system/shopify_api');
+    $this->assertSession()->statusCodeEquals(200);
+    $this->assertText('Shopify API Settings');
+
+  }
+
 }

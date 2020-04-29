@@ -19,7 +19,7 @@ class ShopifyCollectionBatch {
    * ShopifyCollectionBatch constructor.
    */
   public function __construct() {
-    $this->client = shopify_api_client();
+    $this->client = shopify_get_api_client();
   }
 
   /**

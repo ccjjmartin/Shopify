@@ -27,3 +27,10 @@ shopify.admin:
   description: 'View and modify store settings, sync products, create webhooks, etc.'
   parent: system.admin_config_system
   route_name: shopify.admin
+
+shopify.api.admin:
+  title: 'Shopify API'
+  description: 'Configure the Shopify API integration.'
+  parent: system.admin_config_system
+  route_name: shopify.api.admin
+
