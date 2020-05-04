@@ -91,3 +91,18 @@ function shopify_update_8102() {
   ];
   $schema->changeField('taxonomy_term__field_shopify_collection_id', 'field_shopify_collection_id_value', 'field_shopify_collection_id_value', $spec);
 }
+
+/**
+ * Convert the field_shopify_collection_id to unsigned bigint.
+ */
+function shopify_update_8103(&$sandbox) {
+  $updateManager = \Drupal::entityDefinitionUpdateManager();
+
+  /** @var \Drupal\Core\Entity\EntityLastInstalledSchemaRepositoryInterface $last_installed_schema_repository */
+  $last_installed_schema_repository = \Drupal::service('entity.last_installed_schema.repository');
+  $entity_type = $updateManager->getEntityType('taxonomy_term');
+  $field_storage_definitions = $last_installed_schema_repository->getLastInstalledFieldStorageDefinitions('taxonomy_term');
+  $field_storage_definitions['field_shopify_collection_id']->setSetting('unsigned', TRUE);
+  $field_storage_definitions['field_shopify_collection_id']->setSetting('size', 'big');
+  $updateManager->updateFieldableEntityType($entity_type, $field_storage_definitions, $sandbox);
+}

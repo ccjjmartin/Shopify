@@ -8,17 +8,21 @@
 use Drupal\shopify\Batch\ShopifyProductBatch;
 
 /**
- * Convert the field_shopify_collection_id to bigint.
+ * Update field_shopify_collection_id field storage settings.
  */
-function shopify_post_update_field_collection_id_bigint(&$sandbox) {
-  $updateManager = \Drupal::entityDefinitionUpdateManager();
+function shopify_post_update_field_collection_id_field_storage_settings(&$sandbox) {
+  $update_manager = \Drupal::entityDefinitionUpdateManager();
+  $field_storage_original = $update_manager->getFieldStorageDefinition('field_shopify_collection_id', 'taxonomy_term');
+  $field_storage_config_manager = \Drupal::entityTypeManager()->getStorage('field_storage_config');
 
-  /** @var \Drupal\Core\Entity\EntityLastInstalledSchemaRepositoryInterface $last_installed_schema_repository */
-  $last_installed_schema_repository = \Drupal::service('entity.last_installed_schema.repository');
-  $entity_type = $updateManager->getEntityType('taxonomy_term');
-  $field_storage_definitions = $last_installed_schema_repository->getLastInstalledFieldStorageDefinitions('taxonomy_term');
-  $field_storage_definitions['field_shopify_collection_id']->setSetting('size', 'big');
-  $updateManager->updateFieldableEntityType($entity_type, $field_storage_definitions, $sandbox);
+  // Override settings to match updated database storage.
+  // @see https://www.drupal.org/node/2535476#s-updating-field-storage-config-items
+  $field_storage_original->getSetting('size', 'big');
+  $field_storage_original->getSetting('unsigned', TRUE);
+  $field_storage_updated = $field_storage_config_manager->create($field_storage_original->toArray());
+  $field_storage_updated->original = $field_storage_updated;
+  $field_storage_updated->enforceIsNew(FALSE);
+  $field_storage_updated->save();
 }
 
 /**
