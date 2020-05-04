@@ -27,7 +27,7 @@ class ShopifyVariantOptionsForm extends FormBase {
   public function buildForm(array $form, FormStateInterface $form_state, ShopifyProduct $product = NULL) {
     // Disable caching of this form.
     $form['#cache']['max-age'] = 0;
-    $options = $product->options->get(0)->toArray();
+    $options = $product->options->getValue();
     $form_state->set('product', $product);
 
     $variant_id = \Drupal::request()->get('variant_id', FALSE);
@@ -39,9 +39,9 @@ class ShopifyVariantOptionsForm extends FormBase {
       $variant = ShopifyProductVariant::loadByVariantId($variant_id);
       $variant_options = $variant->getFormattedOptions();
       foreach ($options as $option) {
-        foreach ($option->values as $option_value) {
+        foreach ($option['values'] as $option_value) {
           if (in_array($option_value, $variant_options)) {
-            $default_options[$option->id] = $option_value;
+            $default_options[$option['id']] = $option_value;
           }
         }
       }
@@ -50,15 +50,15 @@ class ShopifyVariantOptionsForm extends FormBase {
     $form['options']['#tree'] = TRUE;
 
     foreach ($options as $option) {
-      if ($option->values[0] == 'Default Title') {
+      if ($option['values'][0] == 'Default Title') {
         // Skip variant options that don't really need options.
         continue;
       }
-      $form['options'][$option->id] = [
+      $form['options'][$option['id']] = [
         '#type' => 'select',
-        '#options' => array_combine($option->values, $option->values),
-        '#title' => t($option->name),
-        '#default_value' => isset($default_options[$option->id]) ? $default_options[$option->id] : '',
+        '#options' => array_combine($option['values'], $option['values']),
+        '#title' => t('@name', ['@name' => $option['name']]),
+        '#default_value' => isset($default_options[$option['id']]) ? $default_options[$option['id']] : '',
         '#attributes' => ['onchange' => 'javascript:this.form.update_variant.click();'],
       ];
     }

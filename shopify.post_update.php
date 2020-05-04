@@ -5,6 +5,8 @@
  * Post update functions for Shopify.
  */
 
+use Drupal\shopify\Batch\ShopifyProductBatch;
+
 /**
  * Convert the field_shopify_collection_id to bigint.
  */
@@ -38,4 +40,46 @@ function shopify_post_update_remove_shopify_api_dependency(&$sandbox) {
 
   // Disable the shopify_api module.
   \Drupal::service('module_installer')->uninstall(['shopify_api']);
+}
+
+/**
+ * Resync Shopify product options.
+ */
+function shopify_post_update_resync_product_options(&$sandbox) {
+
+  if (!isset($sandbox['completed_operations'])) {
+    $batch_handler = new ShopifyProductBatch();
+    $batch = $batch_handler->prepare([
+      'force_update' => TRUE,
+      'delete_products_first' => FALSE,
+      'num_per_batch' => 10,
+    ])->getBatch();
+
+    $sandbox['operations'] = $batch['operations'];
+    $sandbox['completed_operations'] = 0;
+    $sandbox['total_operations'] = count($sandbox['operations']);
+    $sandbox['results'] = [];
+    $sandbox['#finished'] = 0;
+  }
+
+  // Get the current operation and its settings.
+  $operation = $sandbox['operations'][$sandbox['completed_operations']];
+  $operation_method = $operation[0][1];
+  $operation_settings = $operation[1][0];
+
+  // All but the final operation will be the syncing operation.
+  if ($operation_method === 'operation') {
+    ShopifyProductBatch::operation($operation_settings, NULL, $sandbox);
+  }
+  else {
+    ShopifyProductBatch::cleanUpProducts('', []);
+  }
+
+  $sandbox['completed_operations']++;
+  $sandbox['#finished'] = $sandbox['completed_operations'] / ($sandbox['total_operations'] - 1);
+
+  if ($sandbox['#finished'] >= 1) {
+    ShopifyProductBatch::finished(TRUE, $sandbox['results'], NULL);
+  }
+
 }

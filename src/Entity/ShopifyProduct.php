@@ -162,7 +162,18 @@ class ShopifyProduct extends ContentEntityBase implements ShopifyProductInterfac
 
     // Convert options.
     if (isset($values['options'])) {
-      $values['options'] = serialize($values['options']);
+      $options = $values['options'];
+      $stored_options = [];
+      foreach ($options as $option_object) {
+        $stored_options[] = [
+          'id' => $option_object->id,
+          'product_id' => $option_object->product_id,
+          'name' => $option_object->name,
+          'position' => $option_object->position,
+          'values' => $option_object->values,
+        ];
+      }
+      $values['options'] = $stored_options;
     }
     return $values;
   }
@@ -517,7 +528,6 @@ class ShopifyProduct extends ContentEntityBase implements ShopifyProductInterfac
 
     $fields['options'] = BaseFieldDefinition::create('map')
       ->setLabel(t('Options'))
-      ->setDefaultValue('')
       ->setDisplayOptions('form', [
         'type' => 'map',
         'weight' => 2,
