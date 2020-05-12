@@ -39,7 +39,6 @@ use Drupal\user\UserInterface;
  *   entity_keys = {
  *     "id" = "id",
  *     "label" = "title",
- *     "langcode" = "langcode",
  *     "uuid" = "uuid"
  *   },
  *   links = {
