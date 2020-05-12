@@ -19,27 +19,23 @@ function shopify_requirements($phase) {
     // Check if we're running a 64-bit version of PHP.
     if (PHP_INT_SIZE === 4) {
       $requirements['shopify'] = [
-        'title' => t('Shopify eCommerce'),
-        'description' => t('Unable to install Shopify eCommerce. Your server is running the 32-bit version of PHP. A 64-bit version is required.'),
+        'title' => t('Shopify'),
+        'value' => t('Incompatible'),
+        'description' => t('Unable to install Shopify. Your server is running the 32-bit version of PHP. A 64-bit version is required.'),
         'severity' => REQUIREMENT_ERROR,
       ];
-      return $requirements;
     }
+  }
 
-    if (!class_exists('\Shopify\PrivateApp')) {
-      $requirements['shopify'] = [
-        'title' => t('Shopify Client library not available.'),
-        'description' => t('Could not load the Shopify\Client class file.'),
-        'severity' => REQUIREMENT_ERROR,
-      ];
-    }
+  if ($phase === 'runtime') {
 
     $client = shopify_get_api_client();
     if (!$client) {
       $shopify_api_admin = Url::fromRoute('shopify.api.admin');
       $requirements['shopify'] = [
-        'title' => t('Shopify API settings are not setup.'),
-        'description' => t('Shopify API settings must be configured before enabling the Shopify module. <a href=":link">Setup API Credentials</a>.', [
+        'title' => t('Shopify (API)'),
+        'value' => t('Unreachable'),
+        'description' => t('The Shopify store could not be reached. <a href=":link">Set up API Credentials</a>.', [
           ':link' => $shopify_api_admin->toString(),
         ]),
         'severity' => REQUIREMENT_ERROR,
