@@ -88,13 +88,14 @@ class ShopifyVariantOptionsForm extends FormBase {
   /**
    * Redirects the page to the product with a variant selected.
    *
-   * @param array $options
-   *   Options from the form_state.
    * @param \Drupal\Core\Form\FormStateInterface $form_state
    *   Form state object.
+   * @param array $options
+   *   Options from the form_state.
    *
-   *   TODO: Move $options to the end.
+   * @todo Move $options to the end.
    */
+  // @codingStandardsIgnoreLine
   private function goToVariantWithOptions(array $options = [], FormStateInterface $form_state) {
     $variant = $this->getVariantByOptions($form_state, $options);
     if ($variant instanceof ShopifyProductVariant) {

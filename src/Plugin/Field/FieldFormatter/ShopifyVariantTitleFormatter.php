@@ -29,7 +29,13 @@ class ShopifyVariantTitleFormatter extends BasicStringFormatter {
     // product title, and build the full product name with variation.
     $variant_title = ($elements[0]['#context']['value'] == 'Default Title') ? '' : ' - ' . $elements[0]['#context']['value'];
     $parent_title = $items->getParent()->getValue('entity')->getProduct()->title->value;
-    $elements[0]['#context']['value'] = $this->t($parent_title . $variant_title);
+    $elements[0]['#context']['value'] =
+      $this->t('@parent_title@variant_title',
+        [
+          '@parent_title' => $parent_title,
+          '@variant_title' => $variant_title,
+        ]
+      );
 
     return $elements;
   }

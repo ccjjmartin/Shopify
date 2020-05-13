@@ -11,8 +11,25 @@ namespace Drupal\shopify\Batch;
  */
 class ShopifyCollectionBatch {
 
+  /**
+   * Batch definition.
+   *
+   * @var array
+   */
   private $batch;
+
+  /**
+   * Batch operations.
+   *
+   * @var array
+   */
   private $operations;
+
+  /**
+   * Shopify client class.
+   *
+   * @var Shopify\Client
+   */
   private $client;
 
   /**

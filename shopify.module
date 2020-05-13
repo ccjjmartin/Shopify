@@ -355,7 +355,7 @@ function shopify_currency_format($amount) {
  * @param array $opts
  *   Array of options to pass the API call.
  *
- * @return ShopifyProduct[]
+ * @return \Drupal\shopify\Entity\ShopifyProduct[]
  *   Returns the products that were updated/created.
  */
 function shopify_sync_products(array $opts = []) {
@@ -392,7 +392,7 @@ function shopify_sync_products(array $opts = []) {
       $synced_products[] = $entity;
     }
     catch (Exception $e) {
-      \Drupal::logger('shopify')->error('Failed to sync product id: %id', array('%id' => $product->id));
+      \Drupal::logger('shopify')->error('Failed to sync product id: %id', ['%id' => $product->id]);
     }
   }
   return $synced_products;
@@ -410,12 +410,12 @@ function shopify_sync_products(array $opts = []) {
  *   Alt text, or empty string.
  */
 function shopify_fetch_alt($client, $image_id) {
-  $image_meta = $client->get('metafields', array(
-    'query' => array(
+  $image_meta = $client->get('metafields', [
+    'query' => [
       'metafield[owner_id]' => $image_id,
       'metafield[owner_resource]' => 'product_image',
-    ),
-  ));
+    ],
+  ]);
   foreach ($image_meta->metafields as $metafield) {
     if ($metafield->key === 'alt') {
       return $metafield->value;
@@ -487,7 +487,7 @@ function shopify_sync_deleted_products(array $opts = []) {
  * @param array $opts
  *   Array of options to pass the API call.
  *
- * @return Term[]
+ * @return \Drupal\taxonomy\Entity\Term[]
  *   Returns the collections that were updated/created.
  */
 function shopify_sync_collections(array $opts = []) {
@@ -627,7 +627,7 @@ function shopify_api_get_collections(array $opts = [], $type = 'both') {
  * @param int $collection_id
  *   Shopify collection ID.
  *
- * @return Term
+ * @return \Drupal\taxonomy\Entity\Term
  *   Shopify collection.
  */
 function shopify_collection_load($collection_id) {
@@ -644,12 +644,12 @@ function shopify_collection_load($collection_id) {
 /**
  * Create a new collection in the system and sync products.
  *
- * @param \stdClass $collection
+ * @param object $collection
  *   Shopify collection.
  * @param bool $sync_products
  *   Whether or not to sync product information during creation.
  *
- * @return Term
+ * @return \Drupal\taxonomy\Entity\Term
  *   Shopify collection.
  */
 function shopify_collection_create(\stdClass $collection, $sync_products = FALSE) {
@@ -678,7 +678,7 @@ function shopify_collection_create(\stdClass $collection, $sync_products = FALSE
 /**
  * Saves an image for a Shopify collection.
  *
- * @param Term $term
+ * @param \Drupal\taxonomy\Entity\Term $term
  *   Taxonomy term entity.
  * @param string $image_url
  *   Remote image URL for the collection image.
@@ -697,7 +697,7 @@ function shopify_collection_save_image(Term $term, $image_url) {
 /**
  * Sync product collect information for a given collection.
  *
- * @param \stdClass $collection
+ * @param object $collection
  *   Shopify collection.
  */
 function shopify_collection_sync_products(\stdClass $collection) {
@@ -732,12 +732,12 @@ function shopify_collection_sync_products(\stdClass $collection) {
 /**
  * Update a Shopify collection with new information.
  *
- * @param \stdClass $collection
+ * @param object $collection
  *   Shopify collection.
  * @param bool $sync_products
  *   Whether or not to sync product information during update.
  *
- * @return Term
+ * @return \Drupal\taxonomy\Entity\Term
  *   Shopify collection.
  */
 function shopify_collection_update(\stdClass $collection, $sync_products = FALSE) {
@@ -800,7 +800,7 @@ function shopify_collection_load_all_ids() {
  *   - shopify_product: The shopify product object.
  *   - view_mode: View mode; e.g., 'full', 'store_listing', etc.
  */
-function template_preprocess_shopify_product(&$variables) {
+function template_preprocess_shopify_product(array &$variables) {
   $variables['view_mode'] = $variables['elements']['#view_mode'];
   $variables['shopify_product'] = $variables['elements']['#shopify_product'];
 
@@ -822,12 +822,12 @@ function template_preprocess_shopify_product(&$variables) {
  *   - shopify_product_variant: The shopify product variant object.
  *   - view_mode: View mode; e.g., 'full', 'store_listing', etc.
  */
-function template_preprocess_shopify_product_variant(&$variables) {
+function template_preprocess_shopify_product_variant(array &$variables) {
   $variables['view_mode'] = $variables['elements']['#view_mode'];
   $variables['shopify_product_variant'] = $variables['elements']['#shopify_product_variant'];
 
   // Helpful $content variable for templates.
-  $variables += array('content' => array());
+  $variables += ['content' => []];
   foreach (Element::children($variables['elements']) as $key) {
     $variables['content'][$key] = $variables['elements'][$key];
   }

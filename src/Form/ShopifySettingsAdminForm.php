@@ -80,14 +80,13 @@ class ShopifySettingsAdminForm extends FormBase {
 
   /**
    * {@inheritdoc}
+   *
+   * This form has no submission logic because it only displays shop
+   * information.
+   *
+   * @todo Update implementation to be a controller rather than a form.
    */
-  public function validateForm(array &$form, FormStateInterface $form_state) {
-    parent::validateForm($form, $form_state);
-  }
-
-  /**
-   * {@inheritdoc}
-   */
+  // @codingStandardsIgnoreLine
   public function submitForm(array &$form, FormStateInterface $form_state) {
     parent::submitForm($form, $form_state);
   }

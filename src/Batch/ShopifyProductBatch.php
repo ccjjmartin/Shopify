@@ -11,8 +11,25 @@ namespace Drupal\shopify\Batch;
  */
 class ShopifyProductBatch {
 
+  /**
+   * Batch definition.
+   *
+   * @var array
+   */
   private $batch;
+
+  /**
+   * Batch operations.
+   *
+   * @var array
+   */
   private $operations;
+
+  /**
+   * Shopify client class.
+   *
+   * @var Shopify\Client
+   */
   private $client;
 
   /**
@@ -122,8 +139,9 @@ class ShopifyProductBatch {
   /**
    * Product sync operation.
    *
-   * TODO: Move $settings to the end.
+   * @todo Move $settings to the end.
    */
+  // @codingStandardsIgnoreLine
   public static function operation(array $settings = [], $operation_details, &$context) {
     if (!empty($context['results'])) {
       /* @var \Drupal\shopify\Entity\ShopifyProduct $last_product */

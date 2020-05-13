@@ -26,7 +26,7 @@ class ShopifyThemeDownload extends ControllerBase {
    * @param string $file
    *   The file name.
    *
-   * @return BinaryFileResponse
+   * @return \Symfony\Component\HttpFoundation\BinaryFileResponse
    *   BinaryFileResponse.
    */
   public function download($timestamp, $sig, $file) {
@@ -69,7 +69,7 @@ class ShopifyThemeDownload extends ControllerBase {
    * @param string $filepath
    *   File path.
    *
-   * @return BinaryFileResponse
+   * @return \Symfony\Component\HttpFoundation\BinaryFileResponse
    *   Response.
    */
   public static function downloadTheme($filepath) {

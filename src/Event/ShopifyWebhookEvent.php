@@ -11,7 +11,18 @@ use Symfony\Component\EventDispatcher\Event;
  */
 class ShopifyWebhookEvent extends Event {
 
+  /**
+   * Webhook topic (event name).
+   *
+   * @var string
+   */
   public $topic;
+
+  /**
+   * Webhook event data.
+   *
+   * @var object
+   */
   public $data;
 
   /**
@@ -19,7 +30,7 @@ class ShopifyWebhookEvent extends Event {
    *
    * @param string $topic
    *   Webhook topic (event name).
-   * @param \stdClass $data
+   * @param object $data
    *   Webhook event data.
    */
   public function __construct($topic, \stdClass $data) {

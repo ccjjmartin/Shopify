@@ -47,9 +47,9 @@ class ShopifyThemeDownloadForm extends FormBase {
     $zip_enabled = class_exists('ZipArchive');
     if (!$zip_enabled) {
       $messenger = \Drupal::messenger();
-      $messenger->addWarning(t('Class <strong>ZipArchive</strong> not found. You will be unable to download or upload the Shopify Theme automatically.<br/>For help with setting up ZipArchive, <a href="@url">view the documentation on php.net</a>.', array(
+      $messenger->addWarning(t('Class <strong>ZipArchive</strong> not found. You will be unable to download or upload the Shopify Theme automatically.<br/>For help with setting up ZipArchive, <a href="@url">view the documentation on php.net</a>.', [
         '@url' => 'http://php.net/manual/en/zip.setup.php',
-      )));
+      ]));
     }
 
     $form['download'] = [
@@ -210,10 +210,10 @@ class ShopifyThemeDownloadForm extends FormBase {
    * @param string $path
    *   Path to the folder.
    *
-   * @link http://stackoverflow.com/questions/4914750/how-to-zip-a-whole-folder-using-php @endlink
-   *
    * @return string
    *   Zip folder.
+   *
+   * @see http://stackoverflow.com/questions/4914750/how-to-zip-a-whole-folder-using-php
    */
   public static function zipFolder($path) {
     // Get real path for our folder.

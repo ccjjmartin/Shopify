@@ -85,10 +85,10 @@ class ShopifyProductVariant extends ContentEntityBase implements ShopifyProductV
     if (isset($values['image']) && !empty($values['image'])) {
       $file = self::setupProductImage($values['image']->src);
       if ($file instanceof FileInterface) {
-        $values['image'] = array(
+        $values['image'] = [
           'target_id' => $file->id(),
           'alt' => $values['image']->alt,
-        );
+        ];
       }
     }
     else {
@@ -620,7 +620,6 @@ class ShopifyProductVariant extends ContentEntityBase implements ShopifyProductV
       ->setDisplayConfigurable('form', TRUE)
       ->setDisplayConfigurable('view', TRUE);
 
-
     $fields['changed'] = BaseFieldDefinition::create('changed')
       ->setLabel(t('Changed'))
       ->setDescription(t('The time that the entity was last udpated.'));
@@ -634,7 +633,6 @@ class ShopifyProductVariant extends ContentEntityBase implements ShopifyProductV
       ->setDescription(t('The time that the product was last updated.'));
 
     // @todo: option_values.
-
     return $fields;
   }
 

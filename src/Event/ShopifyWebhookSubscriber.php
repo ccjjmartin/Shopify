@@ -16,7 +16,7 @@ class ShopifyWebhookSubscriber implements EventSubscriberInterface {
   /**
    * {@inheritdoc}
    */
-  static function getSubscribedEvents() {
+  public static function getSubscribedEvents() {
     $events['shopify.webhook'][] = ['onIncomingWebhook'];
     return $events;
   }
@@ -45,7 +45,11 @@ class ShopifyWebhookSubscriber implements EventSubscriberInterface {
 
   /**
    * Handle updating of products.
+   *
+   * Overriding coding standards because current functionality depends on
+   * current method names.
    */
+  //@codingStandardsIgnoreLine
   private function webhook_products_update(\stdClass $data) {
     $entity = ShopifyProduct::loadByProductId($data->id);
     if ($entity instanceof ShopifyProduct) {
@@ -56,7 +60,11 @@ class ShopifyWebhookSubscriber implements EventSubscriberInterface {
 
   /**
    * Handle creating of products.
+   *
+   * Overriding coding standards because current functionality depends on
+   * current method names.
    */
+  //@codingStandardsIgnoreLine
   private function webhook_products_create(\stdClass $data) {
     $entity = ShopifyProduct::create((array) $data);
     $entity->save();
@@ -64,7 +72,11 @@ class ShopifyWebhookSubscriber implements EventSubscriberInterface {
 
   /**
    * Handle deleting of products.
+   *
+   * Overriding coding standards because current functionality depends on
+   * current method names.
    */
+  //@codingStandardsIgnoreLine
   private function webhook_products_delete(\stdClass $data) {
     $entity = ShopifyProduct::loadByProductId($data->id);
     if ($entity instanceof ShopifyProduct) {
@@ -74,14 +86,22 @@ class ShopifyWebhookSubscriber implements EventSubscriberInterface {
 
   /**
    * Handle creating of collections.
+   *
+   * Overriding coding standards because current functionality depends on
+   * current method names.
    */
+  //@codingStandardsIgnoreLine
   private function webhook_collections_create(\stdClass $data) {
     shopify_collection_create($data, TRUE);
   }
 
   /**
    * Handle updating of collections.
+   *
+   * Overriding coding standards because current functionality depends on
+   * current method names.
    */
+  //@codingStandardsIgnoreLine
   private function webhook_collections_update(\stdClass $data) {
     // Note: This does not currently get hit because of a bug in Shopify.
     // See this issue for updates: https://www.drupal.org/node/2481105
@@ -90,7 +110,11 @@ class ShopifyWebhookSubscriber implements EventSubscriberInterface {
 
   /**
    * Handle deleting of collections.
+   *
+   * Overriding coding standards because current functionality depends on
+   * current method names.
    */
+  //@codingStandardsIgnoreLine
   private function webhook_collections_delete(\stdClass $data) {
     $entity = shopify_collection_load($data->id);
     if ($entity instanceof Term) {

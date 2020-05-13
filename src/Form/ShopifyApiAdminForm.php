@@ -6,12 +6,15 @@ use Drupal\Core\Form\ConfigFormBase;
 use Drupal\Core\Form\FormStateInterface;
 use Shopify\PrivateApp;
 
+/**
+ * Form for Shopify API connection settings.
+ */
 class ShopifyApiAdminForm extends ConfigFormBase {
 
   /**
    * {@inheritdoc}
    */
-  public function getFormID() {
+  public function getFormId() {
     return 'shopify_api_admin_form';
   }
 
@@ -31,22 +34,22 @@ class ShopifyApiAdminForm extends ConfigFormBase {
 
     $config = $this->config('shopify.settings');
 
-    // Connection
-    $form['connection'] = array(
+    // Connection.
+    $form['connection'] = [
       '#type' => 'details',
       '#title' => t('Connection'),
       '#open' => TRUE,
-    );
-    $form['connection']['help'] = array(
+    ];
+    $form['connection']['help'] = [
       '#type' => 'details',
       '#title' => t('Help'),
       '#collapsible' => TRUE,
       '#collapsed' => TRUE,
-    );
-    $form['connection']['help']['list'] = array(
+    ];
+    $form['connection']['help']['list'] = [
       '#theme' => 'item_list',
       '#type' => 'ol',
-      '#items' => array(
+      '#items' => [
         t('Log in to your Shopify store in order to access the administration section.'),
         t('Click on "Apps" on the left-side menu.'),
         t('Click "Private Apps" on the top-right of the page.'),
@@ -55,33 +58,33 @@ class ShopifyApiAdminForm extends ConfigFormBase {
         t('Copy the API Key, Password, and Shared Secret values into the connection form.'),
         t('Enter your Shopify store URL as the "Domain". It should be in the format of [STORE_NAME].myshopify.com.'),
         t('Click "Save configuration".'),
-      ),
-    );
-    $form['connection']['domain'] = array(
+      ],
+    ];
+    $form['connection']['domain'] = [
       '#type' => 'textfield',
       '#title' => t('Domain'),
       '#required' => TRUE,
       '#default_value' => $config->get('api.domain'),
       '#description' => t('Do not include http:// or https://.'),
-    );
-    $form['connection']['key'] = array(
+    ];
+    $form['connection']['key'] = [
       '#type' => 'textfield',
       '#title' => t('API key'),
       '#required' => TRUE,
       '#default_value' => $config->get('api.key'),
-    );
-    $form['connection']['password'] = array(
+    ];
+    $form['connection']['password'] = [
       '#type' => 'textfield',
       '#title' => t('Password'),
       '#required' => TRUE,
       '#default_value' => $config->get('api.password'),
-    );
-    $form['connection']['secret'] = array(
+    ];
+    $form['connection']['secret'] = [
       '#type' => 'textfield',
       '#title' => t('Shared Secret'),
       '#required' => TRUE,
       '#default_value' => $config->get('api.secret'),
-    );
+    ];
 
     return parent::buildForm($form, $form_state);
   }

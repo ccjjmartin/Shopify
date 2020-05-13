@@ -1,7 +1,10 @@
-
+<!-- @codingStandardsIgnoreFile -->
 Shopify eCommerce
+
 +----------------------------------------------------+
+
 |    Maintained by Bonify, LLC  (http://bonify.io)   |
+
 +----------------------------------------------------+
 
 "The easiest way to do ecommerce on Drupal."

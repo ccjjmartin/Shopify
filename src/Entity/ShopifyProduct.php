@@ -95,10 +95,10 @@ class ShopifyProduct extends ContentEntityBase implements ShopifyProductInterfac
     if (isset($values['image']) && !empty($values['image'])) {
       $file = self::setupProductImage($values['image']->src);
       if ($file instanceof FileInterface) {
-        $values['image'] = array(
+        $values['image'] = [
           'target_id' => $file->id(),
           'alt' => $values['image']->alt,
-        );
+        ];
       }
     }
     else {
@@ -123,10 +123,10 @@ class ShopifyProduct extends ContentEntityBase implements ShopifyProductInterfac
           // This image is not attached to a variant, it should be applied to
           // to the extra images field.
           $image_file_interface = self::setupProductImage($variant_image->src);
-          $values['extra_images'][] = array(
+          $values['extra_images'][] = [
             'target_id' => $image_file_interface->id(),
             'alt' => $variant_image->alt,
-          );
+          ];
         }
       }
     }

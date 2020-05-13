@@ -77,7 +77,7 @@ class ShopifyWebhooksAdminForm extends ConfigFormBase {
     ];
 
     $form['tips']['ngrok'] = [
-      '#markup' => t($message),
+      '#markup' => t('@message', ['@message' => $message]),
     ];
 
     $form['registered'] = [
@@ -183,7 +183,9 @@ class ShopifyWebhooksAdminForm extends ConfigFormBase {
     foreach ($possible_hooks as $group_name => $group_options) {
       $form['register'][$group_name] = [
         '#type' => 'details',
-        '#title' => t(str_replace('_', ' ', ucwords($group_name))),
+        '#title' => t('@group_name', [
+          '@group_name' => str_replace('_', ' ', ucwords($group_name)),
+        ]),
         '#open' => ($group_name == 'products' || $group_name == 'collections') ? TRUE : FALSE,
       ];
 
@@ -214,13 +216,6 @@ class ShopifyWebhooksAdminForm extends ConfigFormBase {
     ];
 
     return parent::buildForm($form, $form_state);
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function validateForm(array &$form, FormStateInterface $form_state) {
-    parent::validateForm($form, $form_state);
   }
 
   /**
