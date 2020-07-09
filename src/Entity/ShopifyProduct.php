@@ -172,7 +172,10 @@ class ShopifyProduct extends ContentEntityBase implements ShopifyProductInterfac
           'values' => $option_object->values,
         ];
       }
-      $values['options'] = $stored_options;
+      // The map field only defines an array with a single map key by default.
+      // @see \Drupal\Core\TypedData\Plugin\DataType\Map
+      unset($values['options']);
+      $values['options'][0] = $stored_options;
     }
     return $values;
   }
