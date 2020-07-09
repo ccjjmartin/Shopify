@@ -6,6 +6,7 @@
   "license": "GPL-2.0+",
   "minimum-stability": "dev",
   "require": {
-    "donutdan4114/shopify": "v2020.01.*"
+    "donutdan4114/shopify": "v2020.01.*",
+    "drupal/core": "^8 || ^9"
   }
 }

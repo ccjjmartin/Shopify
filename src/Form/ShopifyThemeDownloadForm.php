@@ -306,7 +306,7 @@ class ShopifyThemeDownloadForm extends FormBase {
    *   Returns the destination file path.
    */
   public static function downloadRemoteCopy($download_url = '') {
-    $file_path = system_retrieve_file($download_url ?: self::REMOTE_DOWNLOAD_URL, FileSystemInterface::getTempDirectory() . '/shopify_default_theme_' . \Drupal::time()->getRequestTime() . '.zip', $managed = FALSE, FILE_EXISTS_REPLACE);
+    $file_path = system_retrieve_file($download_url ?: self::REMOTE_DOWNLOAD_URL, FileSystemInterface::getTempDirectory() . '/shopify_default_theme_' . \Drupal::time()->getRequestTime() . '.zip', $managed = FALSE, FileSystemInterface::EXISTS_REPLACE);
     if (sha1_file($file_path) !== self::REMOTE_DOWNLOAD_SHASUM) {
       $messenger = \Drupal::messenger();
       $messenger->addError(t('Checksum failed. Could not verify the downloaded file. You may need to upgrade this module.'));

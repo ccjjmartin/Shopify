@@ -2,7 +2,7 @@
 
 namespace Drupal\shopify\Command;
 
-use Drupal\Console\Command\ContainerAwareCommand;
+use Drupal\Console\Core\Command\ContainerAwareCommand;
 use GuzzleHttp\Psr7\Response;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;

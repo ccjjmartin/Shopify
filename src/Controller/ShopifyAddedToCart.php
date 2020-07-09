@@ -2,6 +2,7 @@
 
 namespace Drupal\shopify\Controller;
 
+use Drupal\Core\Link;
 use Drupal\Core\Controller\ControllerBase;
 use Drupal\Core\Url;
 use Drupal\shopify\Entity\ShopifyProduct;
@@ -38,7 +39,7 @@ class ShopifyAddedToCart extends ControllerBase {
       '@parent' => $product->label(),
       '@title' => $title,
       '@price' => shopify_currency_format($variant->price->value),
-      '@cart_link' => \Drupal::l(t('your cart'), Url::fromUri('https://' . shopify_shop_info('domain') . '/cart', ['attributes' => ['target' => '_blank']])),
+      '@cart_link' => Link::fromTextAndUrl(t('your cart'), Url::fromUri('https://' . shopify_shop_info('domain') . '/cart', ['attributes' => ['target' => '_blank']])),
       '@quantity' => $quantity,
     ]));
     return new Response('okay', Response::HTTP_OK);

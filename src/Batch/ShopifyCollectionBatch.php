@@ -118,7 +118,7 @@ class ShopifyCollectionBatch {
   public static function cleanUpCollections($operation_details, &$context) {
     $count = shopify_sync_deleted_collections();
     if ($count) {
-      drupal_set_message(t('Deleted @collections.', [
+      \Drupal::messenger()->addStatus(t('Deleted @collections.', [
         '@collections' => \Drupal::translation()
           ->formatPlural($count, '@count collection', '@count collections'),
       ]));
@@ -151,7 +151,7 @@ class ShopifyCollectionBatch {
     // Update the collections sync time.
     \Drupal::state()
       ->set('shopify.sync.collections_last_sync_time', \Drupal::time()->getRequestTime());
-    drupal_set_message(t('Synced @count.', [
+    \Drupal::messenger()->addStatus(t('Synced @count.', [
       '@count' => \Drupal::translation()
         ->formatPlural(count($results), '@count collection', '@count collections'),
     ]));
