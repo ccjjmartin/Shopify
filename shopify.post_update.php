@@ -87,3 +87,32 @@ function shopify_post_update_resync_product_options(&$sandbox) {
   }
 
 }
+
+/**
+ * Migrate sync settings to the main settings file, set the default text format.
+ */
+function shopify_post_update_mirgate_sync_settings(&$sandbox) {
+  $shopify_sync_settings = \Drupal::configFactory()->getEditable('shopify.sync');
+  $settings = \Drupal::configFactory()->getEditable('shopify.settings');
+
+  // If there are previously stored sync settings, migrate them.
+  if (!$shopify_sync_settings->isNew()) {
+    $settings
+      ->set('sync.cron_sync_products', $shopify_sync_settings->get('cron_sync_products'))
+      ->set('sync.cron_sync_collections', $shopify_sync_settings->get('cron_sync_collections'))
+      ->set('sync.cron_sync_time', $shopify_sync_settings->get('cron_sync_time'));
+
+    // Delete the previous settings.
+    $shopify_sync_settings->delete();
+
+  }
+
+  // Set the newly-configurable HTML import format.
+  $settings->set('sync.html_import_format', filter_default_format());
+
+  // Save updated settings.
+  $settings->save();
+
+  // Clear caches to ensure settings updates will be exported.
+  drupal_flush_all_caches();
+}

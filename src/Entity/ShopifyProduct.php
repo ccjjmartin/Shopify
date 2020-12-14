@@ -78,9 +78,13 @@ class ShopifyProduct extends ContentEntityBase implements ShopifyProductInterfac
     }
 
     if (isset($values['body_html'])) {
+      // Get the configured import format, fall back to the user's default
+      // format.
+      $config_format = \Drupal::config('shopify.settings')->get('sync.html_import_format');
+      $format = !empty($config_format) ? $config_format : filter_default_format();
       $values['body_html'] = [
         'value' => $values['body_html'],
-        'format' => filter_default_format(),
+        'format' => $format,
       ];
     }
 

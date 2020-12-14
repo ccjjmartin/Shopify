@@ -151,15 +151,15 @@ function shopify_entity_extra_field_info() {
  * Implements hook_cron().
  */
 function shopify_cron() {
-  $config = \Drupal::config('shopify.sync');
-  $shopify_cron_sync_time = $config->get('cron_sync_time') ?: 0;
+  $config = \Drupal::config('shopify.settings');
+  $shopify_cron_sync_time = $config->get('sync.cron_sync_time') ?: 0;
   $product_last = \Drupal::state()->get('shopify.sync.products_last_sync_time') ?: 0;
   $collection_last = \Drupal::state()->get('shopify.sync.collections_last_sync_time') ?: 0;
 
   // Sync the products and collections if the difference between now and the
   // last time they have been synched is greater than the cron sync time.
-  $sync_products = $config->get('cron_sync_products') && \Drupal::time()->getRequestTime() - $product_last > $shopify_cron_sync_time;
-  $sync_collections = $config->get('cron_sync_collections') && \Drupal::time()->getRequestTime() - $collection_last > $shopify_cron_sync_time;
+  $sync_products = $config->get('sync.cron_sync_products') && \Drupal::time()->getRequestTime() - $product_last > $shopify_cron_sync_time;
+  $sync_collections = $config->get('sync.cron_sync_collections') && \Drupal::time()->getRequestTime() - $collection_last > $shopify_cron_sync_time;
 
   // Sync products.
   if ($sync_products) {

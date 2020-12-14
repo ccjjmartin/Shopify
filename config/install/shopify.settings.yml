@@ -3,3 +3,8 @@ api:
   key: ''
   password: ''
   secret: ''
+sync:
+  html_import_format: ''
+  cron_sync_products: false
+  cron_sync_collections: false
+  cron_sync_time: 0

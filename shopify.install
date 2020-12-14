@@ -53,6 +53,11 @@ function shopify_requirements($phase) {
 function shopify_install() {
   // Upon install, setup shop info.
   shopify_shop_info(NULL, $refresh = TRUE);
+
+  // Set initial settings that can be guessed.
+  \Drupal::configFactory()->getEditable('shopify.settings')
+    ->set('sync.html_import_format', filter_default_format())
+    ->save();
 }
 
 /**

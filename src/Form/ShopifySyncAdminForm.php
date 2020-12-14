@@ -19,7 +19,7 @@ class ShopifySyncAdminForm extends FormBase {
    */
   protected function getEditableConfigNames() {
     return [
-      'shopify.sync',
+      'shopify.settings',
     ];
   }
 
@@ -34,7 +34,7 @@ class ShopifySyncAdminForm extends FormBase {
    * {@inheritdoc}
    */
   public function buildForm(array $form, FormStateInterface $form_state) {
-    $config = $this->config('shopify.sync');
+    $config = $this->config('shopify.settings');
 
     $products_last_sync_time = \Drupal::state()
       ->get('shopify.sync.products_last_sync_time');
@@ -116,18 +116,31 @@ class ShopifySyncAdminForm extends FormBase {
     $form['cron']['sync_products'] = [
       '#type' => 'checkbox',
       '#title' => t('Sync products on cron run.'),
-      '#default_value' => $config->get('cron_sync_products'),
+      '#default_value' => $config->get('sync.cron_sync_products'),
     ];
     $form['cron']['sync_collections'] = [
       '#type' => 'checkbox',
       '#title' => t('Sync collections on cron run.'),
-      '#default_value' => $config->get('cron_sync_collections'),
+      '#default_value' => $config->get('sync.cron_sync_collections'),
+    ];
+    $config_format = $config->get('sync.html_import_format');
+    $default_format = !empty($config_format) ? $config_format : filter_default_format();
+    $text_format_options = [];
+    foreach (filter_formats() as $format_id => $format) {
+      $text_format_options[$format_id] = $format->label();
+    }
+    $form['cron']['html_import_format'] = [
+      '#type' => 'select',
+      '#options' => $text_format_options,
+      '#default_value' => $default_format,
+      '#title' => t('HTML import format'),
+      '#description' => t('Select the text format used to import Shopify HTML.'),
     ];
     $form['cron']['sync_time'] = [
-      '#type' => 'textfield',
+      '#type' => 'number',
       '#title' => t('How often to sync'),
       '#description' => t('Enter the number of seconds to wait to sync between cron runs.<br />To sync once per day, enter "86400". To sync once per hour, enter "3600".<br />Leave empty or "0" to sync on every cron run.'),
-      '#default_value' => $config->get('cron_sync_time') ?: 0,
+      '#default_value' => $config->get('sync.cron_sync_time') ?: 0,
     ];
     $form['cron']['save_cron'] = [
       '#type' => 'submit',
@@ -164,17 +177,21 @@ class ShopifySyncAdminForm extends FormBase {
    * {@inheritdoc}
    */
   private function saveCronSettings(array &$form, FormStateInterface $form_state) {
-    $config = \Drupal::configFactory()->getEditable('shopify.sync');
+    $config = \Drupal::configFactory()->getEditable('shopify.settings');
     $config
-      ->set('cron_sync_products', $form_state->getValue([
+      ->set('sync.cron_sync_products', $form_state->getValue([
         'cron',
         'sync_products',
       ]))
-      ->set('cron_sync_collections', $form_state->getValue([
+      ->set('sync.cron_sync_collections', $form_state->getValue([
         'cron',
         'sync_collections',
       ]))
-      ->set('cron_sync_time', $form_state->getValue([
+      ->set('sync.html_import_format', $form_state->getValue([
+        'cron',
+        'html_import_format',
+      ]))
+      ->set('sync.cron_sync_time', $form_state->getValue([
         'cron',
         'sync_time',
       ]))

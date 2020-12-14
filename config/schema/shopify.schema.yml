@@ -18,3 +18,20 @@ shopify.settings:
         secret:
           type: string
           label: 'Shared secret'
+    sync:
+      type: mapping
+      label: 'Data synchronization settings'
+      mapping:
+        html_import_format:
+          type: string
+          label: 'HTML import format'
+        cron_sync_products:
+          type: boolean
+          label: 'Whether or not to import products during cron runs'
+        cron_sync_collections:
+          type: boolean
+          label: 'Whether or not to import collections during cron runs'
+        cron_sync_time:
+          type: integer
+          label: 'Duration (in seconds) between collection/products synchronization'
+
