@@ -44,6 +44,32 @@ shopify.settings:
               font_size:
                 type: integer
                 label: 'Button font size'
+    cart:
+      type: mapping
+      label: 'Cart configuration'
+      mapping:
+        interface:
+          type: mapping
+          label: 'Shopify Cart Labeling Options'
+          mapping:
+            heading_label:
+              type: string
+              label: 'Cart heading'
+            subtotal_label:
+              type: string
+              label: 'Subtotal label'
+            order_note_label:
+              type: string
+              label: 'Order note label'
+            additional_info_text:
+              type: string
+              label: 'Additional information'
+            checkout_button_label:
+              type: string
+              label: 'Checkout button label'
+            empty_message:
+              type: string
+              label: 'Empty cart message'
     sync:
       type: mapping
       label: 'Data synchronization settings'

@@ -11,6 +11,14 @@ button:
     background_color: '#78b657'
     text_color: '#ffffff'
     font_size: 15
+cart:
+  interface:
+    heading_label: 'Cart'
+    subtotal_label: 'Subtotal'
+    order_note_label: "Is there any additional information you'd like to provide?"
+    additional_info_text: 'Shipping and discount codes are added at checkout.'
+    checkout_button_label: 'Checkout'
+    empty_message: 'Your cart is empty.'
 sync:
   html_import_format: ''
   cron_sync_products: false
