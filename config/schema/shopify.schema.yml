@@ -18,6 +18,9 @@ shopify.settings:
         secret:
           type: string
           label: 'Shared secret'
+        storefront_access_token:
+          type: string
+          label: 'Storefront Access Token'
     sync:
       type: mapping
       label: 'Data synchronization settings'

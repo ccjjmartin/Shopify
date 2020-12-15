@@ -3,6 +3,7 @@ api:
   key: ''
   password: ''
   secret: ''
+  storefront_access_token: ''
 sync:
   html_import_format: ''
   cron_sync_products: false

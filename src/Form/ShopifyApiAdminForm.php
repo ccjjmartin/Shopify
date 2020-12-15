@@ -85,6 +85,12 @@ class ShopifyApiAdminForm extends ConfigFormBase {
       '#required' => TRUE,
       '#default_value' => $config->get('api.secret'),
     ];
+    $form['connection']['storefront_access_token'] = [
+      '#type' => 'textfield',
+      '#title' => t('Storefront Access Token'),
+      '#required' => TRUE,
+      '#default_value' => $config->get('api.storefront_access_token'),
+    ];
 
     return parent::buildForm($form, $form_state);
   }
@@ -112,6 +118,7 @@ class ShopifyApiAdminForm extends ConfigFormBase {
       ->set('api.key', $form_state->getValue('key'))
       ->set('api.password', $form_state->getValue('password'))
       ->set('api.secret', $form_state->getValue('secret'))
+      ->set('api.storefront_access_token', $form_state->getValue('storefront_access_token'))
       ->save();
     parent::submitForm($form, $form_state);
   }
