@@ -256,7 +256,6 @@ display:
             multiple: 0
             access: false
           break_phrase: false
-          not: 0
           entity_type: shopify_product
           entity_field: collections
           plugin_id: shopify_collections_argument
@@ -413,7 +412,6 @@ display:
             multiple: 0
             access: false
           break_phrase: false
-          not: 0
           entity_type: shopify_product
           entity_field: tags
           plugin_id: shopify_tags_argument

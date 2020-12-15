@@ -12,15 +12,6 @@ use Drupal\Tests\BrowserTestBase;
 class SmokeTest extends BrowserTestBase {
 
   /**
-   * Ignore missing schema.
-   *
-   * @var bool
-   *
-   * @see https://www.drupal.org/node/2391795
-   */
-  protected $strictConfigSchema = FALSE;
-
-  /**
    * {@inheritdoc}
    */
   protected $defaultTheme = 'stark';
@@ -73,7 +64,7 @@ class SmokeTest extends BrowserTestBase {
   /**
    * Make sure the API settings form is accessible.
    */
-  public function testSpiSettingsFormLoads() {
+  public function testApiSettingsFormLoads() {
     $this->drupalLogin($this->drupalCreateUser([], NULL, TRUE));
 
     $this->drupalGet('/admin/config/system/shopify_api');
