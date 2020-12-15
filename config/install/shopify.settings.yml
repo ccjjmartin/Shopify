@@ -4,6 +4,13 @@ api:
   password: ''
   secret: ''
   storefront_access_token: ''
+button:
+  styles:
+    corner_radius: 3
+    width: 40
+    background_color: '#78b657'
+    text_color: '#ffffff'
+    font_size: 15
 sync:
   html_import_format: ''
   cron_sync_products: false

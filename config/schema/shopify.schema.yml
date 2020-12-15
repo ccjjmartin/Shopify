@@ -21,6 +21,29 @@ shopify.settings:
         storefront_access_token:
           type: string
           label: 'Storefront Access Token'
+    button:
+      type: mapping
+      label: 'Buy Button configuration'
+      mapping:
+        styles:
+            type: mapping
+            label: 'Buy Button styles'
+            mapping:
+              corner_radius:
+                type: integer
+                label: 'Button corner radius'
+              width:
+                type: integer
+                label: 'Button width'
+              background_color:
+                type: string
+                label: 'Button background color'
+              text_color:
+                type: string
+                label: 'Button text color'
+              font_size:
+                type: integer
+                label: 'Button font size'
     sync:
       type: mapping
       label: 'Data synchronization settings'

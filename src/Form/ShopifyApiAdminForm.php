@@ -92,6 +92,43 @@ class ShopifyApiAdminForm extends ConfigFormBase {
       '#default_value' => $config->get('api.storefront_access_token'),
     ];
 
+    // Buy Button.
+    $form['buy_button'] = [
+      '#type' => 'details',
+      '#title' => t('Buy Button'),
+      '#open' => TRUE,
+    ];
+    $form['buy_button']['corner_radius'] = [
+      '#type' => 'number',
+      '#title' => t('Corner Radius'),
+      '#required' => TRUE,
+      '#default_value' => $config->get('button.styles.corner_radius'),
+    ];
+    $form['buy_button']['width'] = [
+      '#type' => 'number',
+      '#title' => t('Width'),
+      '#required' => TRUE,
+      '#default_value' => $config->get('button.styles.width'),
+    ];
+    $form['buy_button']['background_color'] = [
+      '#type' => 'color',
+      '#title' => t('Background Color'),
+      '#required' => TRUE,
+      '#default_value' => $config->get('button.styles.background_color'),
+    ];
+    $form['buy_button']['text_color'] = [
+      '#type' => 'color',
+      '#title' => t('Text Color'),
+      '#required' => TRUE,
+      '#default_value' => $config->get('button.styles.text_color'),
+    ];
+    $form['buy_button']['font_size'] = [
+      '#type' => 'number',
+      '#title' => t('Font Size'),
+      '#required' => TRUE,
+      '#default_value' => $config->get('button.styles.font_size'),
+    ];
+
     return parent::buildForm($form, $form_state);
   }
 
@@ -119,6 +156,11 @@ class ShopifyApiAdminForm extends ConfigFormBase {
       ->set('api.password', $form_state->getValue('password'))
       ->set('api.secret', $form_state->getValue('secret'))
       ->set('api.storefront_access_token', $form_state->getValue('storefront_access_token'))
+      ->set('button.styles.corner_radius', $form_state->getValue('corner_radius'))
+      ->set('button.styles.width', $form_state->getValue('width'))
+      ->set('button.styles.background_color', $form_state->getValue('background_color'))
+      ->set('button.styles.text_color', $form_state->getValue('text_color'))
+      ->set('button.styles.font_size', $form_state->getValue('font_size'))
       ->save();
     parent::submitForm($form, $form_state);
   }
