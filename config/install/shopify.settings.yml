@@ -22,6 +22,9 @@ cart:
     additional_info_text: 'Shipping and discount codes are added at checkout.'
     checkout_button_label: 'Checkout'
     empty_message: 'Your cart is empty.'
+  styles:
+    background_color: '#ffffff'
+    text_color: '#767676'
 sync:
   html_import_format: ''
   cron_sync_products: false

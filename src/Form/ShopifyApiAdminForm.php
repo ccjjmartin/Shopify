@@ -168,42 +168,68 @@ class ShopifyApiAdminForm extends ConfigFormBase {
       '#title' => t('Shopping Cart'),
       '#open' => TRUE,
     ];
-    $form['shopping_cart']['heading_label'] = [
+
+    // Shopping cart interface text.
+    $form['shopping_cart']['interface'] = [
+      '#type' => 'details',
+      '#title' => t('Interface'),
+      '#open' => TRUE,
+    ];
+    $form['shopping_cart']['interface']['heading_label'] = [
       '#type' => 'textfield',
       '#title' => t('Cart heading'),
       '#required' => TRUE,
       '#default_value' => $config->get('cart.interface.heading_label'),
     ];
-    $form['shopping_cart']['subtotal_label'] = [
+    $form['shopping_cart']['interface']['subtotal_label'] = [
       '#type' => 'textfield',
       '#title' => t('Subtotal label'),
       '#required' => TRUE,
       '#default_value' => $config->get('cart.interface.subtotal_label'),
 
     ];
-    $form['shopping_cart']['order_note_label'] = [
+    $form['shopping_cart']['interface']['order_note_label'] = [
       '#type' => 'textfield',
       '#title' => t('Order note label'),
       '#required' => TRUE,
       '#default_value' => $config->get('cart.interface.order_note_label'),
     ];
-    $form['shopping_cart']['additional_info_text'] = [
+    $form['shopping_cart']['interface']['additional_info_text'] = [
       '#type' => 'textfield',
       '#title' => t('Additional information'),
       '#required' => TRUE,
       '#default_value' => $config->get('cart.interface.additional_info_text'),
     ];
-    $form['shopping_cart']['checkout_button_label'] = [
+    $form['shopping_cart']['interface']['checkout_button_label'] = [
       '#type' => 'textfield',
       '#title' => t('Checkout button label'),
       '#required' => TRUE,
       '#default_value' => $config->get('cart.interface.checkout_button_label'),
     ];
-    $form['shopping_cart']['empty_message'] = [
+    $form['shopping_cart']['interface']['empty_message'] = [
       '#type' => 'textfield',
       '#title' => t('Empty cart message'),
       '#required' => TRUE,
       '#default_value' => $config->get('cart.interface.empty_message'),
+    ];
+
+    // Shopping cart styles.
+    $form['shopping_cart']['styles'] = [
+      '#type' => 'details',
+      '#title' => t('Styles'),
+      '#open' => TRUE,
+    ];
+    $form['shopping_cart']['styles']['cart_background_color'] = [
+      '#type' => 'color',
+      '#title' => t('Background Color'),
+      '#required' => TRUE,
+      '#default_value' => $config->get('cart.styles.background_color'),
+    ];
+    $form['shopping_cart']['styles']['cart_text_color'] = [
+      '#type' => 'color',
+      '#title' => t('Text Color'),
+      '#required' => TRUE,
+      '#default_value' => $config->get('cart.styles.text_color'),
     ];
 
     return parent::buildForm($form, $form_state);
@@ -246,6 +272,8 @@ class ShopifyApiAdminForm extends ConfigFormBase {
       ->set('cart.interface.additional_info_text', $form_state->getValue('additional_info_text'))
       ->set('cart.interface.checkout_button_label', $form_state->getValue('checkout_button_label'))
       ->set('cart.interface.empty_message', $form_state->getValue('empty_message'))
+      ->set('cart.styles.background_color', $form_state->getValue('cart_background_color'))
+      ->set('cart.styles.text_color', $form_state->getValue('cart_text_color'))
       ->save();
     parent::submitForm($form, $form_state);
   }

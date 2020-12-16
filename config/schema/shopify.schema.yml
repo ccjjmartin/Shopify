@@ -80,6 +80,16 @@ shopify.settings:
             empty_message:
               type: string
               label: 'Empty cart message'
+        styles:
+          type: mapping
+          label: 'Shopify Cart Styling Options'
+          mapping:
+            background_color:
+              type: string
+              label: 'Cart Background Color'
+            text_color:
+              type: string
+              label: 'Cart Text Color'
     sync:
       type: mapping
       label: 'Data synchronization settings'
