@@ -98,35 +98,68 @@ class ShopifyApiAdminForm extends ConfigFormBase {
       '#title' => t('Buy Button'),
       '#open' => TRUE,
     ];
-    $form['buy_button']['corner_radius'] = [
+
+    // Buy button styling.
+    $form['buy_button']['styles'] = [
+      '#type' => 'details',
+      '#title' => t('Styling'),
+      '#collapsible' => TRUE,
+      '#open' => TRUE,
+    ];
+    $form['buy_button']['styles']['corner_radius'] = [
       '#type' => 'number',
       '#title' => t('Corner Radius'),
       '#required' => TRUE,
       '#default_value' => $config->get('button.styles.corner_radius'),
     ];
-    $form['buy_button']['width'] = [
+    $form['buy_button']['styles']['width'] = [
       '#type' => 'number',
       '#title' => t('Width'),
       '#required' => TRUE,
       '#default_value' => $config->get('button.styles.width'),
     ];
-    $form['buy_button']['background_color'] = [
+    $form['buy_button']['styles']['background_color'] = [
       '#type' => 'color',
       '#title' => t('Background Color'),
       '#required' => TRUE,
       '#default_value' => $config->get('button.styles.background_color'),
     ];
-    $form['buy_button']['text_color'] = [
+    $form['buy_button']['styles']['text_color'] = [
       '#type' => 'color',
       '#title' => t('Text Color'),
       '#required' => TRUE,
       '#default_value' => $config->get('button.styles.text_color'),
     ];
-    $form['buy_button']['font_size'] = [
+    $form['buy_button']['styles']['font_size'] = [
       '#type' => 'number',
       '#title' => t('Font Size'),
       '#required' => TRUE,
       '#default_value' => $config->get('button.styles.font_size'),
+    ];
+
+    // Buy button layout.
+    $form['buy_button']['layout'] = [
+      '#type' => 'details',
+      '#title' => t('Layout'),
+      '#collapsible' => TRUE,
+      '#open' => TRUE,
+    ];
+    $form['buy_button']['layout']['alignment'] = [
+      '#type' => 'select',
+      '#options' => [
+        'left' => t('Left'),
+        'center' => t('Center'),
+        'right' => t('Right'),
+      ],
+      '#title' => t('Alignment'),
+      '#required' => TRUE,
+      '#default_value' => $config->get('button.layout.alignment'),
+    ];
+    $form['buy_button']['layout']['button_text'] = [
+      '#type' => 'textfield',
+      '#title' => t('Button text'),
+      '#required' => TRUE,
+      '#default_value' => $config->get('button.layout.button_text'),
     ];
 
     // Shopping cart.
@@ -205,6 +238,8 @@ class ShopifyApiAdminForm extends ConfigFormBase {
       ->set('button.styles.background_color', $form_state->getValue('background_color'))
       ->set('button.styles.text_color', $form_state->getValue('text_color'))
       ->set('button.styles.font_size', $form_state->getValue('font_size'))
+      ->set('button.layout.alignment', $form_state->getValue('alignment'))
+      ->set('button.layout.button_text', $form_state->getValue('button_text'))
       ->set('cart.interface.heading_label', $form_state->getValue('heading_label'))
       ->set('cart.interface.subtotal_label', $form_state->getValue('subtotal_label'))
       ->set('cart.interface.order_note_label', $form_state->getValue('order_note_label'))

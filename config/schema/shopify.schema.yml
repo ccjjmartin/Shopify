@@ -44,6 +44,16 @@ shopify.settings:
               font_size:
                 type: integer
                 label: 'Button font size'
+        layout:
+          type: mapping
+          label: 'Buy Button layout'
+          mapping:
+            alignment:
+              type: string
+              label: 'Button alignment'
+            button_text:
+              type: string
+              label: 'Button text'
     cart:
       type: mapping
       label: 'Cart configuration'

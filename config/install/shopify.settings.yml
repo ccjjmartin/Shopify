@@ -11,6 +11,9 @@ button:
     background_color: '#78b657'
     text_color: '#ffffff'
     font_size: 15
+  layout:
+    alignment: 'center'
+    button_text: 'Add to cart'
 cart:
   interface:
     heading_label: 'Cart'
