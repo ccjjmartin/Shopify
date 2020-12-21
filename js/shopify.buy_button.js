@@ -34,13 +34,13 @@
                   'background-color': buttonStyle.background_color
                 },
                 'border-radius': `${buttonStyle.corner_radius}px`,
-                'padding-left': `${buttonStyle.font_size}px`,
-                'padding-right': `${buttonStyle.font_size}px`
+                'padding-left': `${buttonStyle.width}px`,
+                'padding-right': `${buttonStyle.width}px`
               },
               quantityInput: {
                 'font-size': `${buttonStyle.font_size}px`,
-                'padding-top': `${buttonStyle.width}px`,
-                'padding-bottom': `${buttonStyle.width}px`
+                'padding-top': `${buttonStyle.font_size}px`,
+                'padding-bottom': `${buttonStyle.font_size}px`
               },
               buttonWrapper: {
                 'text-align': buttonLayout.alignment

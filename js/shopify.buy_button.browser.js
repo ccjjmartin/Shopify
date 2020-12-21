@@ -38,13 +38,13 @@
                   'background-color': buttonStyle.background_color
                 },
                 'border-radius': "".concat(buttonStyle.corner_radius, "px"),
-                'padding-left': "".concat(buttonStyle.font_size, "px"),
-                'padding-right': "".concat(buttonStyle.font_size, "px")
+                'padding-left': "".concat(buttonStyle.width, "px"),
+                'padding-right': "".concat(buttonStyle.width, "px")
               },
               quantityInput: {
                 'font-size': "".concat(buttonStyle.font_size, "px"),
-                'padding-top': "".concat(buttonStyle.width, "px"),
-                'padding-bottom': "".concat(buttonStyle.width, "px")
+                'padding-top': "".concat(buttonStyle.font_size, "px"),
+                'padding-bottom': "".concat(buttonStyle.font_size, "px")
               },
               buttonWrapper: {
                 'text-align': buttonLayout.alignment
