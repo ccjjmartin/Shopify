@@ -2,15 +2,14 @@
 
 namespace Drupal\shopify\Form;
 
+use Drupal\Component\Utility\Html;
+use Drupal\Core\Cache\Cache;
 use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\shopify\Entity\ShopifyProduct;
-use Drupal\shopify\Entity\ShopifyProductVariant;
 
 /**
- * Class ShopifyAddToCartForm.
- *
- * @package Drupal\shopify\Form
+ * Provides the buy button and cart elements.
  */
 class ShopifyAddToCartForm extends FormBase {
 
@@ -25,76 +24,50 @@ class ShopifyAddToCartForm extends FormBase {
    * {@inheritdoc}
    */
   public function buildForm(array $form, FormStateInterface $form_state, ShopifyProduct $product = NULL) {
-    // Disable caching of this form.
-    $form['#cache']['max-age'] = 0;
 
-    $form_state->set('product', $product);
+    // Retrieve shopify settings.
+    $config = $this->config('shopify.settings');
+    $shopify_settings = $config->get();
 
-    $variant_id = \Drupal::request()->get('variant_id', FALSE);
-    if ($variant_id === FALSE) {
-      // No variant set yet, setup the default first variant.
-      $entity_id = $product->variants->get(0)->getValue()['target_id'];
-      $variant = ShopifyProductVariant::load($entity_id);
-      $variant_id = $variant->variant_id->value;
-    }
-    else {
-      $variant = ShopifyProductVariant::loadByVariantId($variant_id);
-    }
+    // Remove sensitive information from settings.
+    unset(
+      $shopify_settings['api']['key'],
+      $shopify_settings['api']['password'],
+      $shopify_settings['api']['secret']
+    );
 
-    $form['#action'] = '//' . shopify_shop_info('domain') . '/cart/add';
-    $form['#attached']['library'][] = 'shopify/shopify.js';
-
-    // Data attribute used by shopify.js.
-    $form['#attributes']['data-variant-id'] = $variant_id;
-
-    // Variant ID to add to the Shopify cart.
-    $form['id'] = [
-      '#type' => 'hidden',
-      '#value' => $variant_id,
+    $buy_button_config = [
+      'config' => $shopify_settings,
     ];
 
-    // Send user back to the site.
-    $form['return_to'] = [
-      '#type' => 'hidden',
-      '#value' => 'back',
-    ];
+    // Rebuild form when settings change.
+    $form['#cache']['tags'] = $config->getCacheTags();
 
-    // Send the quantity value.
-    $form['quantity'] = [
-      '#type' => 'number',
-      '#title' => t('Quantity'),
-      '#default_value' => 1,
-      '#attributes' => ['min' => 0, 'max' => 999],
-    ];
+    if ($product) {
 
-    if (empty($variant_id)) {
-      // No variant matches these options.
-      $form['submit'] = [
-        '#type' => 'button',
-        '#disabled' => TRUE,
-        '#value' => t('Unavailable'),
-        '#name' => 'add_to_cart',
+      // Generate element with product id.
+      $product_id = $product->get('product_id')->get(0)->value;
+      $product_html_id = Html::getUniqueId("shopify-product-$product_id");
+      $form['button'] = [
+        '#type' => 'html_tag',
+        '#tag' => 'div',
+        '#attributes' => [
+          'id' => $product_html_id,
+        ],
       ];
+
+      // Add product-specific settings.
+      $buy_button_config['product'] = [
+        'id' => $product_id,
+        'html_id' => $product_html_id,
+      ];
+
+      // Rebuild form when product changes.
+      $form['#cache']['tags'] = Cache::mergeTags($form['#cache']['tags'], $product->getCacheTags());
     }
-    else {
-      if ($variant->inventory_policy->value == 'continue' || $variant->inventory_quantity->value > 0 || empty($variant->inventory_management->value)) {
-        // User can add this variant to their cart.
-        $form['submit'] = [
-          '#type' => 'submit',
-          '#value' => t('Add to cart'),
-          '#name' => 'add_to_cart',
-        ];
-      }
-      else {
-        // This variant is out of stock.
-        $form['submit'] = [
-          '#type' => 'submit',
-          '#disabled' => TRUE,
-          '#value' => t('Out of stock'),
-          '#name' => 'add_to_cart',
-        ];
-      }
-    }
+
+    $form['#attached']['library'][] = 'shopify/shopify.buy_button';
+    $form['#attached']['drupalSettings']['shopify']['buyButton'] = $buy_button_config;
 
     return $form;
   }

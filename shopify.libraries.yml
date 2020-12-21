@@ -23,3 +23,17 @@ shopify.js:
   dependencies:
     - core/jquery
     - core/drupal
+
+shopify.buy_button.api:
+  version: 1.x
+  js:
+    //sdks.shopifycdn.com/buy-button/latest/buy-button-storefront.min.js: { type: external, minified: true }
+
+shopify.buy_button:
+  version: 1.x
+  js:
+    js/shopify.buy_button.js: { }
+  dependencies:
+    - core/drupal
+    - core/drupalSettings
+    - shopify/shopify.buy_button.api

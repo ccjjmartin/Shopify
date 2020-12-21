@@ -62,9 +62,6 @@ class ShopifyProductViewBuilder extends EntityViewBuilder {
 
     $form = $display->getComponent('add_to_cart_form');
     if ($form) {
-      // Need to display the add to cart form.
-      $build['add_to_cart_form']['variant_options'] = \Drupal::formBuilder()
-        ->getForm('Drupal\shopify\Form\ShopifyVariantOptionsForm', $entity);
 
       $build['add_to_cart_form']['add_to_cart'] = \Drupal::formBuilder()
         ->getForm('Drupal\shopify\Form\ShopifyAddToCartForm', $entity);
