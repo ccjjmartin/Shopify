@@ -3,8 +3,7 @@
 namespace Drupal\shopify\Plugin\Block;
 
 use Drupal\Core\Block\BlockBase;
-use Drupal\Core\Cache\Cache;
-use Drupal\Core\Url;
+use Drupal\shopify\Form\ShopifyAddToCartForm;
 
 /**
  * Provides the shopping cart block.
@@ -19,26 +18,16 @@ class ShopifyCartBlock extends BlockBase {
   /**
    * {@inheritdoc}
    */
-  public function getCacheMaxAge() {
-    // We can permanently cache this block because the content totals are
-    // updated via AJAX through Shopify.
-    return Cache::PERMANENT;
+  public function getCacheTags() {
+    // Rebuild when module settings change.
+    return ['config:shopify.setting'];
   }
 
   /**
    * {@inheritdoc}
    */
   public function build() {
-    $build[] = [
-      '#theme' => 'shopify_cart',
-      '#domain' => shopify_shop_info('domain'),
-      '#url' => Url::fromUri('https://' . shopify_shop_info('domain') . '/cart'),
-      '#attached' => [
-        'library' => ['shopify/shopify.js'],
-        'drupalSettings' => ['shopify' => shopify_drupal_js_data()],
-      ],
-    ];
-    return $build;
+    return \Drupal::formBuilder()->getForm(ShopifyAddToCartForm::class, NULL);
   }
 
 }

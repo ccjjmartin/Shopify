@@ -96,18 +96,6 @@ function shopify_taxonomy_collection_term_uri(Term $term) {
 }
 
 /**
- * Data that should be passed into drupalSettings.
- */
-function shopify_drupal_js_data() {
-  $info = shopify_shop_info();
-  return [
-    'shop' => [
-      'domain' => $info->domain,
-    ],
-  ];
-}
-
-/**
  * Pulls the dynamic Shopify store URL from the View.
  */
 function shopify_store_url($display = 'main', $arg = NULL) {

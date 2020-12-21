@@ -14,13 +14,6 @@ shopify.download_theme:
     _permission: 'access content'
     _custom_access: '\Drupal\shopify\Controller\ShopifyThemeDownload::access'
 
-shopify.added-to-cart:
-  path: '/shopify/added-to-cart'
-  defaults:
-    _controller: '\Drupal\shopify\Controller\ShopifyAddedToCart::displayMessage'
-  requirements:
-    _permission: 'access content'
-
 shopify.redirect:
   path: '/shopify/redirect'
   defaults:

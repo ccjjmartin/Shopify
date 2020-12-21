@@ -16,14 +16,6 @@ shopify.product.css:
     theme:
       css/shopify.product.css: {}
 
-shopify.js:
-  version: 1.x
-  js:
-    shopify.js: {}
-  dependencies:
-    - core/jquery
-    - core/drupal
-
 shopify.buy_button.api:
   version: 1.x
   js:
@@ -32,7 +24,7 @@ shopify.buy_button.api:
 shopify.buy_button:
   version: 1.x
   js:
-    js/shopify.buy_button.js: { }
+    js/shopify.buy_button.browser.js: { }
   dependencies:
     - core/drupal
     - core/drupalSettings

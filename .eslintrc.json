@@ -1,0 +1,7 @@
+{
+  "extends": "../../../core/.eslintrc.json",
+  "root": true,
+  "globals": {
+    "ShopifyBuy": true
+  }
+}

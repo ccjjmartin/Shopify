@@ -7,6 +7,7 @@ use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\EntityViewBuilder;
 use Drupal\file\Entity\File;
 use Drupal\shopify\Entity\ShopifyProductVariant;
+use Drupal\shopify\Form\ShopifyAddToCartForm;
 
 /**
  * Class ShopifyProductViewBuilder.
@@ -64,7 +65,7 @@ class ShopifyProductViewBuilder extends EntityViewBuilder {
     if ($form) {
 
       $build['add_to_cart_form']['add_to_cart'] = \Drupal::formBuilder()
-        ->getForm('Drupal\shopify\Form\ShopifyAddToCartForm', $entity);
+        ->getForm(ShopifyAddToCartForm::class, $entity);
 
       $build['add_to_cart_form']['#weight'] = $form['weight'];
     }
