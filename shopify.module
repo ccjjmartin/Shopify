@@ -56,6 +56,33 @@ function shopify_theme($existing, $type, $theme, $path) {
 }
 
 /**
+ * Implements hook_library_info_build().
+ */
+function shopify_library_info_build() {
+  $libraries = [];
+  $api_version = \Drupal::config('shopify.settings')->get('api.buy_button_version', 'latest');
+  $api_version_trimmed = ltrim($api_version, 'v');
+  $libraries['shopify.buy_button.api'] = [
+    'version' => $api_version,
+    'js' => [
+      "//sdks.shopifycdn.com/buy-button/$api_version_trimmed/buybutton.min.js" => [
+        'type' => 'external',
+        'minified' => TRUE,
+      ],
+    ],
+    'css' => [
+      'base' => [
+        "//sdks.shopifycdn.com/buy-button/$api_version_trimmed/buybutton.css" => [
+          'type' => 'external',
+          'minified' => FALSE,
+        ],
+      ],
+    ],
+  ];
+  return $libraries;
+}
+
+/**
  * Implements hook_views_post_render().
  */
 function shopify_views_post_render(ViewExecutable $view, &$output, CachePluginBase $cache) {

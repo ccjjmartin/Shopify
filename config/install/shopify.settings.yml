@@ -4,6 +4,7 @@ api:
   password: ''
   secret: ''
   storefront_access_token: ''
+  buy_button_version: 'latest'
 button:
   interface:
     button_text: 'Add to cart'

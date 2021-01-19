@@ -16,13 +16,14 @@ shopify.product.css:
     theme:
       css/shopify.product.css: {}
 
-shopify.buy_button.api:
-  version: 1.x
-  css:
-    base:
-      //sdks.shopifycdn.com/buy-button/latest/buybutton.css: { type: external }
-  js:
-    //sdks.shopifycdn.com/buy-button/latest/buy-button-storefront.min.js: { type: external, minified: true }
+# This library is defined dynamically to allow version configuration.
+# @see shopify_library_info_build().
+# shopify.buy_button.api:
+#   css:
+#     base:
+#       //sdks.shopifycdn.com/buy-button/latest/buybutton.css: { }
+#   js:
+#     //sdks.shopifycdn.com/buy-button/latest/buybutton.min.js: { }
 
 shopify.buy_button:
   version: 1.x

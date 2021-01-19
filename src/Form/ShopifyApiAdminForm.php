@@ -2,14 +2,50 @@
 
 namespace Drupal\shopify\Form;
 
+use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Form\ConfigFormBase;
 use Drupal\Core\Form\FormStateInterface;
+use GuzzleHttp\Client;
+use GuzzleHttp\Exception\RequestException;
 use Shopify\PrivateApp;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Form for Shopify API connection settings.
  */
 class ShopifyApiAdminForm extends ConfigFormBase {
+
+  /**
+   * HTTP request client.
+   *
+   * @var \GuzzleHttp\Client
+   */
+  protected $httpClient;
+
+  /**
+   * Base URL for retrieving API version tags.
+   *
+   * @var string
+   */
+  const BUY_BUTTON_API_VERSION_REQUEST_BASE = 'https://api.github.com/repos/Shopify/buy-button-js/tags';
+
+  /**
+   * {@inheritdoc}
+   */
+  public function __construct(ConfigFactoryInterface $config_factory, Client $http_client) {
+    parent::__construct($config_factory);
+    $this->httpClient = $http_client;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function create(ContainerInterface $container) {
+    return new static(
+      $container->get('config.factory'),
+      $container->get('http_client')
+    );
+  }
 
   /**
    * {@inheritdoc}
@@ -97,6 +133,59 @@ class ShopifyApiAdminForm extends ConfigFormBase {
       '#type' => 'details',
       '#title' => t('Buy Button'),
       '#open' => TRUE,
+    ];
+
+    $request_page = 1;
+    $buy_button_version_options = ['latest' => 'Latest'];
+
+    while (TRUE) {
+      try {
+        // Query for available tags.
+        // @see https://docs.github.com/en/rest/reference/repos#list-repository-tags
+        $response = $this->httpClient->get(
+          self::BUY_BUTTON_API_VERSION_REQUEST_BASE,
+          [
+            'headers' => [
+              'Accept' => 'application/vnd.github.v3+json',
+            ],
+            'query' => [
+              'per_page' => 50,
+              'page' => $request_page,
+            ],
+          ],
+        );
+      }
+      catch (RequestException $e) {
+        $this->messenger()->addError('Failed to retrieve buy button version availability data.');
+        break;
+      }
+
+      if ($response->getStatusCode() !== 200) {
+        $this->messenger()->addError('Failed to retrieve complete buy button version availability data.');
+        break;
+      }
+
+      $versions = json_decode($response->getBody(), TRUE);
+      // Body will be empty when paging results in no additional versions.
+      $request_page++;
+      if (empty($versions)) {
+        break;
+      }
+
+      foreach ($versions as $version) {
+        $version_tag = $version['name'];
+        $buy_button_version_options[$version_tag] = $version_tag;
+      }
+
+    }
+
+    // Buy button library version.
+    $form['buy_button']['library_version'] = [
+      '#type' => 'select',
+      '#options' => $buy_button_version_options,
+      '#title' => t('Library version'),
+      '#default_value' => $config->get('api.buy_button_version'),
+      '#required' => TRUE,
     ];
 
     // Buy button interface elements.
@@ -210,6 +299,7 @@ class ShopifyApiAdminForm extends ConfigFormBase {
       ->set('api.password', $form_state->getValue('password'))
       ->set('api.secret', $form_state->getValue('secret'))
       ->set('api.storefront_access_token', $form_state->getValue('storefront_access_token'))
+      ->set('api.buy_button_version', $form_state->getValue('library_version'))
       ->set('button.interface.button_text', $form_state->getValue('button_text'))
       ->set('button.interface.show_price', $form_state->getValue('show_price'))
       ->set('button.interface.show_title', $form_state->getValue('show_title'))

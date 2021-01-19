@@ -21,6 +21,9 @@ shopify.settings:
         storefront_access_token:
           type: string
           label: 'Storefront Access Token'
+        buy_button_version:
+          type: string
+          label: 'Buy button library version'
     button:
       type: mapping
       label: 'Buy Button configuration'
