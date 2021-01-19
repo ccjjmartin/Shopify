@@ -32,6 +32,15 @@ shopify.settings:
             button_text:
               type: string
               label: 'Button text'
+            show_price:
+              type: boolean
+              label: 'Show product variant price'
+            show_title:
+              type: boolean
+              label: 'Show product variant title'
+            show_image:
+              type: boolean
+              label: 'Show product variant image'
     cart:
       type: mapping
       label: 'Cart configuration'
@@ -46,6 +55,9 @@ shopify.settings:
             subtotal_label:
               type: string
               label: 'Subtotal label'
+            show_order_note:
+              type: boolean
+              label: 'Provide order note'
             order_note_label:
               type: string
               label: 'Order note label'

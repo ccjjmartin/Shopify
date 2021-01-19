@@ -12,7 +12,7 @@
       }
 
       const settings = drupalSettings.shopify.buyButton;
-      const buttonLayout = settings.config.button.layout;
+      const buttonInterface = settings.config.button.interface;
       const cartInterface = settings.config.cart.interface;
       const { templates } = settings;
 
@@ -26,12 +26,12 @@
             iframe: false,
             templates: templates.product,
             contents: {
-              img: false,
-              title: false,
-              price: false
+              img: buttonInterface.show_image,
+              title: buttonInterface.show_title,
+              price: buttonInterface.show_price
             },
             text: {
-              button: buttonLayout.button_text
+              button: buttonInterface.button_text
             }
           },
           cart: {
@@ -42,11 +42,11 @@
               total: cartInterface.subtotal_label,
               empty: cartInterface.empty_message,
               notice: cartInterface.additional_info_text,
-              button: cartInterface.checkout_button_label,
-              noteDescription: cartInterface.order_note_label
+              button: cartInterface.checkout_button_label
             },
             contents: {
-              note: true
+              // Overridden below, if configured.
+              note: false
             }
           },
           toggle: {
@@ -70,6 +70,12 @@
         const config = {
           options
         };
+
+        if (cartInterface.show_order_note) {
+          config.options.cart.contents.note = true;
+          config.options.cart.text.noteDescription =
+            cartInterface.order_note_label;
+        }
 
         if (templates.money.format) {
           config.moneyFormat = templates.money.format;

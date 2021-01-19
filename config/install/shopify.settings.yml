@@ -7,10 +7,14 @@ api:
 button:
   interface:
     button_text: 'Add to cart'
+    show_price: true
+    show_title: false
+    show_image: false
 cart:
   interface:
     heading_label: 'Cart'
     subtotal_label: 'Subtotal'
+    show_order_note: false
     order_note_label: "Is there any additional information you'd like to provide?"
     additional_info_text: 'Shipping and discount codes are added at checkout.'
     checkout_button_label: 'Checkout'
