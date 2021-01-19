@@ -5,12 +5,16 @@
 
 ((Drupal, drupalSettings, ShopifyBuy) => {
   Drupal.behaviors.shopify = {
-    attach() {
+    attach: (context) => {
+      // Do nothing if this is not the initial document load.
+      if (context !== document) {
+        return;
+      }
+
       const settings = drupalSettings.shopify.buyButton;
-      const buttonStyle = settings.config.button.styles;
       const buttonLayout = settings.config.button.layout;
       const cartInterface = settings.config.cart.interface;
-      const cartStyle = settings.config.cart.styles;
+      const { templates } = settings;
 
       const client = ShopifyBuy.buildClient({
         domain: settings.config.api.domain,
@@ -19,33 +23,8 @@
       ShopifyBuy.UI.onReady(client).then((ui) => {
         const options = {
           product: {
-            styles: {
-              button: {
-                'font-size': `${buttonStyle.font_size}px`,
-                'padding-top': `${buttonStyle.font_size}px`,
-                'padding-bottom': `${buttonStyle.font_size}px`,
-                color: buttonStyle.text_color,
-                ':hover': {
-                  color: buttonStyle.text_color,
-                  'background-color': buttonStyle.background_color
-                },
-                'background-color': buttonStyle.background_color,
-                ':focus': {
-                  'background-color': buttonStyle.background_color
-                },
-                'border-radius': `${buttonStyle.corner_radius}px`,
-                'padding-left': `${buttonStyle.width}px`,
-                'padding-right': `${buttonStyle.width}px`
-              },
-              quantityInput: {
-                'font-size': `${buttonStyle.font_size}px`,
-                'padding-top': `${buttonStyle.font_size}px`,
-                'padding-bottom': `${buttonStyle.font_size}px`
-              },
-              buttonWrapper: {
-                'text-align': buttonLayout.alignment
-              }
-            },
+            iframe: false,
+            templates: templates.product,
             contents: {
               img: false,
               title: false,
@@ -56,71 +35,8 @@
             }
           },
           cart: {
-            styles: {
-              button: {
-                'font-size': `${buttonStyle.font_size}px`,
-                'padding-top': `${buttonStyle.font_size}px`,
-                'padding-bottom': `${buttonStyle.font_size}px`,
-                color: buttonStyle.text_color,
-                ':hover': {
-                  color: buttonStyle.text_color,
-                  'background-color': buttonStyle.background_color
-                },
-                'background-color': buttonStyle.background_color,
-                ':focus': {
-                  'background-color': buttonStyle.background_color
-                },
-                'border-radius': `${buttonStyle.corner_radius}px`
-              },
-              title: {
-                color: cartStyle.text_color
-              },
-              header: {
-                color: cartStyle.text_color
-              },
-              lineItems: {
-                color: cartStyle.text_color
-              },
-              subtotalText: {
-                color: cartStyle.text_color
-              },
-              subtotal: {
-                color: cartStyle.text_color
-              },
-              notice: {
-                color: cartStyle.text_color
-              },
-              currency: {
-                color: cartStyle.text_color
-              },
-              close: {
-                color: cartStyle.text_color,
-                ':hover': {
-                  color: cartStyle.text_color
-                }
-              },
-              empty: {
-                color: cartStyle.text_color
-              },
-              noteDescription: {
-                color: cartStyle.text_color
-              },
-              discountText: {
-                color: cartStyle.text_color
-              },
-              discountIcon: {
-                fill: cartStyle.text_color
-              },
-              discountAmount: {
-                color: cartStyle.text_color
-              },
-              cart: {
-                'background-color': cartStyle.background_color
-              },
-              footer: {
-                'background-color': cartStyle.background_color
-              }
-            },
+            iframe: false,
+            templates: templates.cart,
             text: {
               title: cartInterface.heading_label,
               total: cartInterface.subtotal_label,
@@ -134,71 +50,30 @@
             }
           },
           toggle: {
-            styles: {
-              toggle: {
-                'background-color': buttonStyle.background_color,
-                ':hover': {
-                  'background-color': buttonStyle.background_color
-                },
-                ':focus': {
-                  'background-color': buttonStyle.background_color
-                }
-              },
-              count: {
-                'font-size': `${buttonStyle.font_size}px`,
-                color: buttonStyle.text_color,
-                ':hover': {
-                  color: buttonStyle.text_color
-                }
-              },
-              iconPath: {
-                fill: buttonStyle.text_color
-              }
-            }
+            iframe: false,
+            templates: templates.toggle
           },
           lineItem: {
-            styles: {
-              variantTitle: {
-                color: cartStyle.text_color
-              },
-              title: {
-                color: cartStyle.text_color
-              },
-              price: {
-                color: cartStyle.text_color
-              },
-              fullPrice: {
-                color: cartStyle.text_color
-              },
-              discount: {
-                color: cartStyle.text_color
-              },
-              discountIcon: {
-                fill: cartStyle.text_color
-              },
-              quantity: {
-                color: cartStyle.text_color
-              },
-              quantityIncrement: {
-                color: cartStyle.text_color,
-                'border-color': cartStyle.text_color
-              },
-              quantityDecrement: {
-                color: cartStyle.text_color,
-                'border-color': cartStyle.text_color
-              },
-              quantityInput: {
-                color: cartStyle.text_color,
-                'border-color': cartStyle.text_color
-              }
-            }
-          }
+            iframe: false,
+            templates: templates.lineItem
+          },
+          option: {
+            iframe: false,
+            templates: templates.option
+          },
+          // Additional unsupported options.
+          modal: {},
+          productSet: {},
+          modalProduct: {}
         };
 
         const config = {
-          moneyFormat: '%24%7B%7Bamount%7D%7D',
           options
         };
+
+        if (templates.money.format) {
+          config.moneyFormat = templates.money.format;
+        }
 
         if (settings.product) {
           config.id = settings.product.id;

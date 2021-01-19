@@ -25,32 +25,10 @@ shopify.settings:
       type: mapping
       label: 'Buy Button configuration'
       mapping:
-        styles:
-            type: mapping
-            label: 'Buy Button styles'
-            mapping:
-              corner_radius:
-                type: integer
-                label: 'Button corner radius'
-              width:
-                type: integer
-                label: 'Button width'
-              background_color:
-                type: string
-                label: 'Button background color'
-              text_color:
-                type: string
-                label: 'Button text color'
-              font_size:
-                type: integer
-                label: 'Button font size'
-        layout:
+        interface:
           type: mapping
-          label: 'Buy Button layout'
+          label: 'Buy Button interface'
           mapping:
-            alignment:
-              type: string
-              label: 'Button alignment'
             button_text:
               type: string
               label: 'Button text'
@@ -80,16 +58,6 @@ shopify.settings:
             empty_message:
               type: string
               label: 'Empty cart message'
-        styles:
-          type: mapping
-          label: 'Shopify Cart Styling Options'
-          mapping:
-            background_color:
-              type: string
-              label: 'Cart Background Color'
-            text_color:
-              type: string
-              label: 'Cart Text Color'
     sync:
       type: mapping
       label: 'Data synchronization settings'

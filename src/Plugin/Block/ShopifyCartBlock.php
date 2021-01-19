@@ -3,7 +3,6 @@
 namespace Drupal\shopify\Plugin\Block;
 
 use Drupal\Core\Block\BlockBase;
-use Drupal\shopify\Form\ShopifyAddToCartForm;
 
 /**
  * Provides the shopping cart block.
@@ -27,7 +26,9 @@ class ShopifyCartBlock extends BlockBase {
    * {@inheritdoc}
    */
   public function build() {
-    return \Drupal::formBuilder()->getForm(ShopifyAddToCartForm::class, NULL);
+    /** @var \Drupal\shopify\Controller\ShopifyBuyButtonController $buy_button_controller */
+    $buy_button_controller = \Drupal::service('shopify.buy_button_controller');
+    return $buy_button_controller->buildForProduct(NULL);
   }
 
 }

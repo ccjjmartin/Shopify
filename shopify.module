@@ -13,6 +13,7 @@ use Drupal\Core\Form\FormStateInterface;
 use Drupal\views\ViewExecutable;
 use Drupal\views\Plugin\views\cache\CachePluginBase;
 use Drupal\Core\Render\Element;
+use Drupal\shopify\Utility\ShopifyBuyButtonUtility;
 use Drupal\views\Entity\View;
 use Shopify\PrivateApp;
 
@@ -20,7 +21,8 @@ use Shopify\PrivateApp;
  * Implements hook_theme().
  */
 function shopify_theme($existing, $type, $theme, $path) {
-  return [
+
+  $theme = [
     'shopify_product' => [
       'render element' => 'elements',
     ],
@@ -32,6 +34,25 @@ function shopify_theme($existing, $type, $theme, $path) {
       'variables' => ['domain' => ''],
     ],
   ];
+
+  $component_template_types = [
+    'cart' => ShopifyBuyButtonUtility::CART_COMPONENTS,
+    'line-item' => ShopifyBuyButtonUtility::LINE_ITEM_COMPONENTS,
+    'option' => ShopifyBuyButtonUtility::OPTION_COMPONENTS,
+    'product' => ShopifyBuyButtonUtility::PRODUCT_COMPONENTS,
+    'toggle' => ShopifyBuyButtonUtility::TOGGLE_COMPONENTS,
+    'money' => ShopifyBuyButtonUtility::MONEY_COMPONENTS,
+  ];
+
+  foreach ($component_template_types as $component => $templates) {
+    foreach ($templates as $theme_suffix) {
+      $theme["shopify_buy_button__{$component}__{$theme_suffix}"] = [
+        'variables' => [],
+      ];
+    }
+  }
+
+  return $theme;
 }
 
 /**

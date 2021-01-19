@@ -18,6 +18,9 @@ shopify.product.css:
 
 shopify.buy_button.api:
   version: 1.x
+  css:
+    base:
+      //sdks.shopifycdn.com/buy-button/latest/buybutton.css: { type: external }
   js:
     //sdks.shopifycdn.com/buy-button/latest/buy-button-storefront.min.js: { type: external, minified: true }
 
