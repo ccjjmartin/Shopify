@@ -68,7 +68,8 @@ class ShopifyApiAdminForm extends ConfigFormBase {
    */
   public function buildForm(array $form, FormStateInterface $form_state) {
 
-    $config = $this->config('shopify.settings');
+    // Use config factory so configuration overrides will be applied.
+    $config = $this->configFactory()->get('shopify.settings');
 
     // Connection.
     $form['connection'] = [
@@ -103,30 +104,44 @@ class ShopifyApiAdminForm extends ConfigFormBase {
       '#default_value' => $config->get('api.domain'),
       '#description' => t('Do not include http:// or https://.'),
     ];
+
+    $api_replace_help = t('If left blank, your currently stored value will be used.');
+    $api_empty_help = t('You have not provided a value for this information.');
+    $has_api_key = !empty($config->get('api.key'));
     $form['connection']['key'] = [
-      '#type' => 'textfield',
+      '#type' => 'password',
       '#title' => t('API key'),
-      '#required' => TRUE,
-      '#default_value' => $config->get('api.key'),
+      '#required' => !$has_api_key,
+      '#description' => t('Enter your API key.&nbsp;'),
     ];
+    $form['connection']['key']['#description'] .= $has_api_key ? $api_replace_help : $api_empty_help;
+
+    $has_api_password = !empty($config->get('api.password'));
     $form['connection']['password'] = [
-      '#type' => 'textfield',
+      '#type' => 'password',
       '#title' => t('Password'),
-      '#required' => TRUE,
-      '#default_value' => $config->get('api.password'),
+      '#required' => !$has_api_password,
+      '#description' => t('Enter your API password.&nbsp;'),
     ];
+    $form['connection']['password']['#description'] .= $has_api_password ? $api_replace_help : $api_empty_help;
+
+    $has_api_secret = !empty($config->get('api.secret'));
     $form['connection']['secret'] = [
-      '#type' => 'textfield',
+      '#type' => 'password',
       '#title' => t('Shared Secret'),
-      '#required' => TRUE,
-      '#default_value' => $config->get('api.secret'),
+      '#required' => !$has_api_secret,
+      '#description' => t('Enter your API secret.&nbsp;'),
     ];
+    $form['connection']['secret']['#description'] .= $has_api_secret ? $api_replace_help : $api_empty_help;
+
+    $has_storefront_token = !empty($config->get('api.storefront_access_token'));
     $form['connection']['storefront_access_token'] = [
-      '#type' => 'textfield',
+      '#type' => 'password',
       '#title' => t('Storefront Access Token'),
-      '#required' => TRUE,
-      '#default_value' => $config->get('api.storefront_access_token'),
+      '#required' => !$has_storefront_token,
+      '#description' => t('Enter your storefront access token.&nbsp;'),
     ];
+    $form['connection']['storefront_access_token']['#description'] .= $has_storefront_token ? $api_replace_help : $api_empty_help;
 
     // Buy Button.
     $form['buy_button'] = [
@@ -279,8 +294,17 @@ class ShopifyApiAdminForm extends ConfigFormBase {
    * {@inheritdoc}
    */
   public function validateForm(array &$form, FormStateInterface $form_state) {
+    $config = $this->configFactory()->get('shopify.settings');
+    $domain = $form_state->getValue('domain');
+
+    // Test connection using new values if they were provided, otherwise test
+    // using previously provided values. This also allows API connection values
+    // to be overridden in settings.php.
+    $key = !empty($form_state->getValue('key')) ? $form_state->getValue('key') : $config->get('api.key');
+    $password = !empty($form_state->getValue('password')) ? $form_state->getValue('password') : $config->get('api.password');
+    $secret = !empty($form_state->getValue('secret')) ? $form_state->getValue('secret') : $config->get('api.secret');
     try {
-      $client = new PrivateApp($form_state->getValue('domain'), $form_state->getValue('key'), $form_state->getValue('password'), $form_state->getValue('secret'));
+      $client = new PrivateApp($domain, $key, $password, $secret);
       $shop_info = $client->getShopInfo();
       $this->messenger()->addMessage(t('Successfully connected to %store.', ['%store' => $shop_info->name]));
     }
@@ -293,12 +317,9 @@ class ShopifyApiAdminForm extends ConfigFormBase {
    * {@inheritdoc}
    */
   public function submitForm(array &$form, FormStateInterface $form_state) {
-    $this->config('shopify.settings')
+    $config = $this->config('shopify.settings');
+    $config
       ->set('api.domain', $form_state->getValue('domain'))
-      ->set('api.key', $form_state->getValue('key'))
-      ->set('api.password', $form_state->getValue('password'))
-      ->set('api.secret', $form_state->getValue('secret'))
-      ->set('api.storefront_access_token', $form_state->getValue('storefront_access_token'))
       ->set('api.buy_button_version', $form_state->getValue('library_version'))
       ->set('button.interface.button_text', $form_state->getValue('button_text'))
       ->set('button.interface.show_price', $form_state->getValue('show_price'))
@@ -310,8 +331,23 @@ class ShopifyApiAdminForm extends ConfigFormBase {
       ->set('cart.interface.order_note_label', $form_state->getValue('order_note_label'))
       ->set('cart.interface.additional_info_text', $form_state->getValue('additional_info_text'))
       ->set('cart.interface.checkout_button_label', $form_state->getValue('checkout_button_label'))
-      ->set('cart.interface.empty_message', $form_state->getValue('empty_message'))
-      ->save();
+      ->set('cart.interface.empty_message', $form_state->getValue('empty_message'));
+
+    // Don't set API connection values if none are provided.
+    if (!empty($form_state->getValue('key'))) {
+      $config->set('api.key', $form_state->getValue('key'));
+    }
+    if (!empty($form_state->getValue('password'))) {
+      $config->set('api.password', $form_state->getValue('password'));
+    }
+    if (!empty($form_state->getValue('secret'))) {
+      $config->set('api.secret', $form_state->getValue('secret'));
+    }
+    if (!empty($form_state->getValue('storefront_access_token'))) {
+      $config->set('api.storefront_access_token', $form_state->getValue('storefront_access_token'));
+    }
+
+    $config->save();
     parent::submitForm($form, $form_state);
   }
 
