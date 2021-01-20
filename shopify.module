@@ -60,7 +60,7 @@ function shopify_theme($existing, $type, $theme, $path) {
  */
 function shopify_library_info_build() {
   $libraries = [];
-  $api_version = \Drupal::config('shopify.settings')->get('api.buy_button_version', 'latest');
+  $api_version = \Drupal::config('shopify.settings')->get('api.buy_button_version');
   $api_version_trimmed = ltrim($api_version, 'v');
   $libraries['shopify.buy_button.api'] = [
     'version' => $api_version,
