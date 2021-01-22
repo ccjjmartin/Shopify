@@ -12,6 +12,8 @@ button:
     show_title: false
     show_image: false
 cart:
+  behavior:
+    checkout: 'popup'
   interface:
     heading_label: 'Cart'
     subtotal_label: 'Subtotal'

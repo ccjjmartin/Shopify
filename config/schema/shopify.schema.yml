@@ -48,6 +48,13 @@ shopify.settings:
       type: mapping
       label: 'Cart configuration'
       mapping:
+        behavior:
+          type: mapping
+          label: 'Shopify Cart Behaviors'
+          mapping:
+            checkout:
+              type: string
+              label: 'On checkout behavior'
         interface:
           type: mapping
           label: 'Shopify Cart Labeling Options'

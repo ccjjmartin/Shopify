@@ -14,6 +14,7 @@
       const settings = drupalSettings.shopify.buyButton;
       const buttonInterface = settings.config.button.interface;
       const cartInterface = settings.config.cart.interface;
+      const cartBehaviors = settings.config.cart.behavior;
       const { templates } = settings;
 
       const client = ShopifyBuy.buildClient({
@@ -47,7 +48,8 @@
           contents: {
             // Overridden below, if configured.
             note: false
-          }
+          },
+          popup: cartBehaviors.checkout === 'popup'
         },
         toggle: {
           iframe: false,

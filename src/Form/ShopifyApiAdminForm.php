@@ -203,6 +203,25 @@ class ShopifyApiAdminForm extends ConfigFormBase {
       '#required' => TRUE,
     ];
 
+    // Buy button integration behaviors.
+    $form['buy_button']['behavior'] = [
+      '#type' => 'details',
+      '#title' => t('Behaviors'),
+      '#collapsible' => TRUE,
+      '#open' => TRUE,
+    ];
+
+    $form['buy_button']['behavior']['checkout'] = [
+      '#type' => 'select',
+      '#title' => t('Checkout behavior'),
+      '#options' => [
+        'popup' => t('Popup'),
+        'redirect' => t('Redirect'),
+      ],
+      '#required' => TRUE,
+      '#default_value' => $config->get('cart.behavior.checkout'),
+    ];
+
     // Buy button interface elements.
     $form['buy_button']['button'] = [
       '#type' => 'details',
@@ -321,6 +340,7 @@ class ShopifyApiAdminForm extends ConfigFormBase {
     $config
       ->set('api.domain', $form_state->getValue('domain'))
       ->set('api.buy_button_version', $form_state->getValue('library_version'))
+      ->set('cart.behavior.checkout', $form_state->getValue('checkout'))
       ->set('button.interface.button_text', $form_state->getValue('button_text'))
       ->set('button.interface.show_price', $form_state->getValue('show_price'))
       ->set('button.interface.show_title', $form_state->getValue('show_title'))
