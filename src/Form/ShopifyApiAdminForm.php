@@ -2,6 +2,7 @@
 
 namespace Drupal\shopify\Form;
 
+use Drupal\Core\Cache\Cache;
 use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Form\ConfigFormBase;
 use Drupal\Core\Form\FormStateInterface;
@@ -337,6 +338,13 @@ class ShopifyApiAdminForm extends ConfigFormBase {
    */
   public function submitForm(array &$form, FormStateInterface $form_state) {
     $config = $this->config('shopify.settings');
+
+    // If the library version changes, shopify_library_info_build() needs to
+    // re-run.
+    if ($form_state->getValue('library_version') !== $config->get('api.buy_button_version')) {
+      Cache::invalidateTags(['library_info']);
+    }
+
     $config
       ->set('api.domain', $form_state->getValue('domain'))
       ->set('api.buy_button_version', $form_state->getValue('library_version'))
