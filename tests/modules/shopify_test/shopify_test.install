@@ -1,0 +1,21 @@
+<?php
+
+/**
+ * @file
+ * Install functions.
+ */
+
+/**
+ * Implements hook_install().
+ */
+function shopify_test_install() {
+
+  $config = \Drupal::configFactory()->getEditable('shopify.settings');
+  $config
+    ->set('api.domain', 'dropsify.myshopify.com')
+    ->set('api.buy_button_version', 'v2.1.7')
+    // The storefront access token isn't considered a secret since it appears
+    // in frontend code, therefore it's safe to store here in plaintext.
+    ->set('api.storefront_access_token', 'f11724ae218df603be49ba54ac5ce14f')
+    ->save();
+}

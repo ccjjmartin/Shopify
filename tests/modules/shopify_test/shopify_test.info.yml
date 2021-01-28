@@ -1,0 +1,9 @@
+name: 'Shopify test module'
+description: 'Configuration and functionality to support automated tests.'
+package: Shopify
+type: module
+core_version_requirement: ^8 || ^9
+dependencies:
+  - shopify:shopify
+
+hidden: true
