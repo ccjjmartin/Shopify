@@ -30,6 +30,7 @@ class ShopifyProductViewBuilder extends EntityViewBuilder {
     if ($display->getComponent('dynamic_product_image')) {
       // Setup the image from the active variant.
       if ($active_variant instanceof ShopifyProductVariant) {
+        $file = NULL;
         if ($active_variant->image->target_id) {
           $file = File::load($active_variant->image->target_id);
         }
