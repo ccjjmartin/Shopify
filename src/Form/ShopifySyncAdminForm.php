@@ -74,7 +74,7 @@ class ShopifySyncAdminForm extends FormBase {
         '100' => t('100 at a time'),
         '250' => t('250 (Max API limit)'),
       ],
-      '#default_value' => 250,
+      '#default_value' => 10,
     ];
     $form['products']['delete_products_first'] = [
       '#type' => 'checkbox',
@@ -86,13 +86,13 @@ class ShopifySyncAdminForm extends FormBase {
     ];
     $form['products']['sync'] = [
       '#type' => 'submit',
-      '#value' => t('Sync Products'),
+      '#value' => t('Start Products Sync'),
       '#name' => 'sync_products',
     ];
 
     $form['collections'] = [
       '#type' => 'details',
-      '#title' => t('Sync Collections'),
+      '#title' => t('Start Collections Sync'),
       '#description' => t('Last sync time: @time', [
         '@time' => $collections_last_sync_time_formatted,
       ]),

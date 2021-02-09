@@ -13,7 +13,7 @@ build:
     testing:
       run_tests.standard:
         types: 'Simpletest,PHPUnit-Unit,PHPUnit-Kernel,PHPUnit-Functional'
-        testgroups: '--all'
+        testgroups: 'shopify'
         color: true
         die-on-fail: false
         keep-results: true

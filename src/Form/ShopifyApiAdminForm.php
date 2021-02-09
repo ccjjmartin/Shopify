@@ -376,6 +376,7 @@ class ShopifyApiAdminForm extends ConfigFormBase {
     }
 
     $config->save();
+    shopify_shop_info(NULL, TRUE);
     parent::submitForm($form, $form_state);
   }
 

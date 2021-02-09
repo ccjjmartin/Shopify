@@ -16,6 +16,19 @@ function shopify_test_install() {
     ->set('api.buy_button_version', 'v2.1.7')
     // The storefront access token isn't considered a secret since it appears
     // in frontend code, therefore it's safe to store here in plaintext.
-    ->set('api.storefront_access_token', 'f11724ae218df603be49ba54ac5ce14f')
-    ->save();
+    ->set('api.storefront_access_token', 'f11724ae218df603be49ba54ac5ce14f');
+
+  if (getenv('DRUPAL_SHOPIFY_API_KEY')) {
+    $config->set('api.key', getenv('DRUPAL_SHOPIFY_API_KEY'));
+  }
+
+  if (getenv('DRUPAL_SHOPIFY_API_PASSWORD')) {
+    $config->set('api.password', getenv('DRUPAL_SHOPIFY_API_PASSWORD'));
+  }
+
+  if (getenv('DRUPAL_SHOPIFY_API_SECRET')) {
+    $config->set('api.secret', getenv('DRUPAL_SHOPIFY_API_SECRET'));
+  }
+
+  $config->save();
 }
