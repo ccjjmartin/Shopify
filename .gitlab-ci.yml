@@ -20,7 +20,7 @@
 include:
   # If hosted on gitlab.com.
   - project: 'mog33/gitlab-ci-drupal'
-    ref: 2.x-dev
+    ref: 3.x-dev
     file: '/.gitlab-ci/.gitlab-ci-template.yml'
   # If hosted on an other Gitlab instance.
   # - remote: 'https://gitlab.com/mog33/gitlab-ci-drupal/-/raw/2.x-dev/.gitlab-ci/.gitlab-ci-template.yml'
@@ -46,7 +46,7 @@ variables:
 
   # Global config remote files ref.
   # MUST be the same as include: ref: from above.
-  CI_REF: 2.x-dev
+  CI_REF: 3.x-dev
 
   # Set a version, default is Drupal 8.9, can be 9.0.
   CI_DRUPAL_VERSION: "8.9"
@@ -72,6 +72,9 @@ variables:
   # is empty all tests (including Drupal core).
   # https://mog33.gitlab.io/gitlab-ci-drupal/advanced-usage/#phpunit-tests
   PHPUNIT_TESTS: "custom"
+
+  # Specify a group of tests to run rather than all tests in the suite.
+  PHPUNIT_GROUP: shopify_api
 
   ##############################################################################
   # Override default variables for a module.
