@@ -92,7 +92,7 @@ class ShopifySyncAdminForm extends FormBase {
 
     $form['collections'] = [
       '#type' => 'details',
-      '#title' => t('Start Collections Sync'),
+      '#title' => t('Sync Collections'),
       '#description' => t('Last sync time: @time', [
         '@time' => $collections_last_sync_time_formatted,
       ]),
@@ -103,7 +103,7 @@ class ShopifySyncAdminForm extends FormBase {
     ];
     $form['collections']['sync'] = [
       '#type' => 'submit',
-      '#value' => t('Sync Collections'),
+      '#value' => t('Start Collections Sync'),
       '#name' => 'sync_collections',
     ];
 
