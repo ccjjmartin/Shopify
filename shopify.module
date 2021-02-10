@@ -258,8 +258,8 @@ function shopify_toolbar() {
     'tray' => [
       '#heading' => t('Shopify admin pages'),
       'shopify_links' => [
-        '#theme' => 'item_list',
-        '#items' => $links,
+        '#theme' => 'links__toolbar_shopify',
+        '#links' => $links,
         '#attributes' => [
           'class' => ['toolbar-menu'],
         ],
@@ -281,64 +281,53 @@ function shopify_toolbar() {
  */
 function shopify_renderable_links() {
   // @todo: Need better permission checking.
-  $links[] = [
-    '#type' => 'link',
-    '#title' => t('Visit Store'),
-    '#url' => Url::fromUri('internal:/' . shopify_store_url()),
+  $links['store'] = [
+    'title' => t('Visit Store'),
+    'url' => Url::fromUri('internal:/' . shopify_store_url()),
   ];
-  $links[] = [
-    '#type' => 'link',
-    '#title' => t('Overview'),
-    '#url' => Url::fromRoute('shopify.admin'),
+  $links['overview'] = [
+    'title' => t('Overview'),
+    'url' => Url::fromRoute('shopify.admin'),
   ];
-  $links[] = [
-    '#type' => 'link',
-    '#title' => t('Sync'),
-    '#url' => Url::fromRoute('shopify.sync'),
+  $links['sync'] = [
+    'title' => t('Sync'),
+    'url' => Url::fromRoute('shopify.sync'),
   ];
-  $links[] = [
-    '#type' => 'link',
-    '#title' => t('Webhooks'),
-    '#url' => Url::fromRoute('shopify.webhooks'),
+  $links['webhooks'] = [
+    'title' => t('Webhooks'),
+    'url' => Url::fromRoute('shopify.webhooks'),
   ];
-  $links[] = [
-    '#type' => 'link',
-    '#title' => t('View Products'),
-    '#url' => Url::fromRoute('entity.shopify_product.collection'),
+  $links['products'] = [
+    'title' => t('View Products'),
+    'url' => Url::fromRoute('entity.shopify_product.collection'),
   ];
-  $links[] = [
-    '#type' => 'link',
-    '#title' => t('View Collections'),
-    '#url' => Url::fromUri('internal:/admin/structure/taxonomy/manage/shopify_collections/overview'),
+  $links['collections'] = [
+    'title' => t('View Collections'),
+    'url' => Url::fromUri('internal:/admin/structure/taxonomy/manage/shopify_collections/overview'),
     // @todo: Make more dynamic.
   ];
-  $links[] = [
-    '#type' => 'link',
-    '#title' => t('View Tags'),
-    '#url' => Url::fromUri('internal:/admin/structure/taxonomy/manage/shopify_tags/overview'),
+  $links['tags'] = [
+    'title' => t('View Tags'),
+    'url' => Url::fromUri('internal:/admin/structure/taxonomy/manage/shopify_tags/overview'),
     // @todo: Make more dynamic.
   ];
-  $links[] = [
-    '#type' => 'link',
-    '#title' => t('Product Display'),
-    '#url' => Url::fromUri('internal:/admin/structure/shopify_product/display'),
+  $links['product_display'] = [
+    'title' => t('Product Display'),
+    'url' => Url::fromUri('internal:/admin/structure/shopify_product/display'),
   ];
-  $links[] = [
-    '#type' => 'link',
-    '#title' => t('Variant Display'),
-    '#url' => Url::fromUri('internal:/admin/structure/shopify_product_variant/display'),
+  $links['variant_display'] = [
+    'title' => t('Variant Display'),
+    'url' => Url::fromUri('internal:/admin/structure/shopify_product_variant/display'),
   ];
-  $links[] = [
-    '#type' => 'link',
-    '#title' => t('API Settings'),
-    '#url' => Url::fromRoute('shopify.api.admin'),
+  $links['api_settings'] = [
+    'title' => t('API Settings'),
+    'url' => Url::fromRoute('shopify.api.admin'),
   ];
   $shop_domain = shopify_shop_info('domain');
   if (!empty($shop_domain)) {
-    $links[] = [
-      '#type' => 'link',
-      '#title' => t('Shopify Admin &rarr;'),
-      '#url' => Url::fromUri('https://' . shopify_shop_info('domain') . '/admin', ['attributes' => ['target' => '_blank']]),
+    $links['shopify_admin'] = [
+      'title' => t('Shopify Admin &rarr;'),
+      'url' => Url::fromUri('https://' . shopify_shop_info('domain') . '/admin', ['attributes' => ['target' => '_blank']]),
     ];
   }
   return $links;
