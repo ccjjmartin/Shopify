@@ -36,7 +36,7 @@ class SyncTest extends BrowserTestBase {
       'force_update' => TRUE,
     ], 'Start Products Sync');
 
-    $this->assertText('Synced 1 product');
+    $this->assertText('Synced 2 products');
 
     $product = \Drupal::entityTypeManager()->getStorage('shopify_product')->load(1);
     $this->assertEquals(
