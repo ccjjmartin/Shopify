@@ -10,3 +10,12 @@ services:
   shopify.buy_button_controller:
     class: Drupal\shopify\Controller\ShopifyBuyButtonController
     arguments: ['@renderer']
+  shopify.shopify_client_factory:
+    class: Drupal\shopify\ShopifyFactory
+    arguments: ['@config.factory']
+  shopify.shopify_client:
+    class: Shopify\Clients\Rest
+    factory: shopify.shopify_client_factory:create
+  shopify.shopify:
+    class: Drupal\shopify\Shopify
+    arguments: ['@shopify.shopify_client']
