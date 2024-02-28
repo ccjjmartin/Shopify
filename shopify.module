@@ -484,6 +484,7 @@ function shopify_sync_deleted_products(array $opts = []) {
   // Go ahead and delete all rogue products.
   $query = \Drupal::entityQuery('shopify_product');
   $query->condition('product_id', $product_ids, 'NOT IN');
+  $query->accessCheck(TRUE);
   $result = $query->execute();
   if ($result) {
     $manager = \Drupal::entityTypeManager()
@@ -495,6 +496,7 @@ function shopify_sync_deleted_products(array $opts = []) {
   // Go ahead and delete all rogue variants.
   $query = \Drupal::entityQuery('shopify_product_variant');
   $query->condition('variant_id', $variant_ids, 'NOT IN');
+  $query->accessCheck(TRUE);
   $result = $query->execute();
   if ($result) {
     $manager = \Drupal::entityTypeManager()
@@ -555,6 +557,7 @@ function shopify_sync_deleted_collections(array $opts = []) {
   $query = \Drupal::entityQuery('taxonomy_term');
   $query->condition('vid', 'shopify_collections');
   $query->condition('field_shopify_collection_id', $collection_ids, 'NOT IN');
+  $query->accessCheck(TRUE);
   $result = $query->execute();
 
   // Delete these collections.
@@ -587,6 +590,7 @@ function shopify_product_delete_all() {
  */
 function shopify_product_load_all_ids() {
   $query = \Drupal::entityQuery('shopify_product');
+  $query->accessCheck(TRUE);
   $ids = $query->execute();
   if ($ids) {
     return $ids;
@@ -658,6 +662,7 @@ function shopify_api_get_collections(array $opts = [], $type = 'both') {
 function shopify_collection_load($collection_id) {
   $query = \Drupal::entityQuery('taxonomy_term');
   $query->condition('field_shopify_collection_id', $collection_id);
+  $query->accessCheck(TRUE);
   $ids = $query->execute();
   if ($ids) {
     $terms = Term::loadMultiple($ids);
@@ -709,7 +714,7 @@ function shopify_collection_create(\stdClass $collection, $sync_products = FALSE
  *   Remote image URL for the collection image.
  */
 function shopify_collection_save_image(Term $term, $image_url) {
-  $directory = file_build_uri('shopify_images');
+  $directory = \Drupal::config('system.file')->get('default_scheme') . '://shopify_images';
   if (!\Drupal::service('file_system')->prepareDirectory($directory, FileSystemInterface::CREATE_DIRECTORY)) {
     // If our directory doesn't exist and can't be created, use the default.
     $directory = NULL;
@@ -807,6 +812,7 @@ function shopify_delete_all_collections() {
 function shopify_collection_load_all_ids() {
   $query = \Drupal::entityQuery('taxonomy_term');
   $query->condition('vid', ShopifyProduct::SHOPIFY_COLLECTIONS_VID);
+  $query->accessCheck(TRUE);
   $ids = $query->execute();
   if ($ids) {
     return $ids;

@@ -3,7 +3,7 @@ description: 'Display your Shopify store within your Drupal site.'
 package: Shopify
 
 type: module
-core_version_requirement: ^9
+core_version_requirement: ^9 || ^10
 
 dependencies:
   - drupal:file

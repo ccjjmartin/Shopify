@@ -24,7 +24,7 @@ trait ShopifyEntityTrait {
    * Sets up product image.
    */
   public static function setupProductImage($image_url) {
-    $directory = file_build_uri('shopify_images');
+    $directory = \Drupal::config('system.file')->get('default_scheme') . '://shopify_images';
     if (!\Drupal::service('file_system')->prepareDirectory($directory, FileSystemInterface::CREATE_DIRECTORY)) {
       // If our directory doesn't exist and can't be created, use the default.
       $directory = NULL;

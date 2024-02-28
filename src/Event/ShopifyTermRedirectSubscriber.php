@@ -6,7 +6,7 @@ use Drupal\shopify\Entity\ShopifyProduct;
 use Drupal\taxonomy\Entity\Term;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;
-use Symfony\Component\HttpKernel\Event\GetResponseEvent;
+use Symfony\Component\HttpKernel\Event\RequestEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
 
 /**
@@ -21,7 +21,7 @@ class ShopifyTermRedirectSubscriber implements EventSubscriberInterface {
    *
    * @todo: Not sure this is the best way of doing things.
    */
-  public function checkForRedirection(GetResponseEvent $event) {
+  public function checkForRedirection(RequestEvent $event) {
     if (!($term = $event->getRequest()->get('taxonomy_term'))) {
       return;
     }
